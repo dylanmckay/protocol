@@ -1,4 +1,4 @@
-use {Type, Error};
+use Error;
 
 use std::io::prelude::*;
 use std::fmt;
@@ -19,6 +19,7 @@ pub trait Packet : Clone + fmt::Debug
 
 macro_rules! define_packet
 {
+    // Define a normal packet.
     ( $ty:ident { $( $field_name:ident : $field_ty:ty),+ }) => {
         #[derive(Clone, Debug)]
         pub struct $ty
@@ -26,21 +27,44 @@ macro_rules! define_packet
             $( pub $field_name : $field_ty ),+
         }
 
-        impl Packet for $ty
+        impl ::Packet for $ty
         {
-            fn read(read: &mut Read) -> Result<Self, Error> {
+            fn read(read: &mut ::std::io::Read) -> Result<Self, ::Error> {
+                #[allow(unused_imports)]
+                use ::Type;
+
                 Ok($ty {
-                    $( $field_name : <$field_ty as Type>::read(read)?, )+
+                    $( $field_name : <$field_ty as ::Type>::read(read)?, )+
                 })
             }
 
-            fn write(&self, write: &mut Write) -> Result<(), Error> {
+            fn write(&self, write: &mut ::std::io::Write) -> Result<(), ::Error> {
+                #[allow(unused_imports)]
+                use ::Type;
+
                 $( self.$field_name.write(write)?; )+
 
                 Ok(())
             }
         }
-    }
+    };
+
+    // Define an empty packet.
+    ( $ty:ident ) => {
+        #[derive(Clone, Debug)]
+        pub struct $ty;
+
+        impl ::Packet for $ty
+        {
+            fn read(_read: &mut ::std::io::Read) -> Result<Self, ::Error> {
+                Ok($ty)
+            }
+
+            fn write(&self, _write: &mut ::std::io::Write) -> Result<(), ::Error> {
+                Ok(())
+            }
+        }
+    };
 }
 
 /// Defines a packet kind enum.
@@ -73,20 +97,22 @@ macro_rules! define_packet_kind
             }
         }
 
-        impl Packet for $ty
+        impl ::Packet for $ty
         {
-            fn read(read: &mut Read) -> Result<Self, Error> {
-                let packet_id = <$id_ty as Type>::read(read)?;
+            fn read(read: &mut ::std::io::Read) -> Result<Self, ::Error> {
+                let packet_id = <$id_ty as ::Type>::read(read)?;
 
                 let packet = match packet_id {
-                    $( $packet_id => $ty::$packet_ty(<$packet_ty as Packet>::read(read)?), )+
-                    _ => return Err(Error::UnknownPacketId),
+                    $( $packet_id => $ty::$packet_ty(<$packet_ty as ::Packet>::read(read)?), )+
+                    _ => return Err(::Error::UnknownPacketId),
                 };
 
                 Ok(packet)
             }
 
-            fn write(&self, write: &mut Write) -> Result<(), Error> {
+            fn write(&self, write: &mut ::std::io::Write) -> Result<(), ::Error> {
+                use ::Type;
+
                 self.packet_id().write(write)?;
 
                 match *self {
@@ -99,11 +125,50 @@ macro_rules! define_packet_kind
     }
 }
 
-define_packet!(Hello {
-    id: u8,
-    val: String
-});
+#[cfg(test)]
+mod test {
+    define_packet!(Handshake);
+    define_packet!(Kick);
 
-define_packet_kind!(PacketFoo: u32 {
-    0x00 => Hello
-});
+    define_packet!(Hello {
+        id: i64,
+        data: Vec<u8>
+    });
+
+    define_packet!(Goodbye {
+        id: i64,
+        reason: String
+    });
+
+    define_packet!(Properties {
+        properties: ::std::collections::HashMap<String, bool>
+    });
+
+    define_packet_kind!(Packet: u32 {
+        0x00 => Handshake,
+        0x01 => Kick,
+        0x02 => Hello,
+        0x03 => Goodbye,
+        0x04 => Properties
+    });
+
+    describe! packets {
+        before_each {
+            let hello = Hello { id: 5678, data: vec![1, 2, 3] };
+            let goodbye = Goodbye { id: 8765, reason: "um".to_string() };
+        }
+
+        describe! packet_ids {
+            describe! numerical {
+                it "gets the corrrect ids" {
+                    assert_eq!(Packet::Handshake(Handshake).packet_id(), 0x00);
+                    assert_eq!(Packet::Kick(Kick).packet_id(), 0x01);
+
+                    assert_eq!(Packet::Hello(hello).packet_id(), 0x02);
+                    assert_eq!(Packet::Goodbye(goodbye).packet_id(), 0x03);
+                }
+            }
+        }
+    }
+}
+

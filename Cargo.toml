@@ -10,3 +10,6 @@ repository = "https://github.com/dylanmckay/protocol"
 [dependencies]
 byteorder = "0.5.3"
 
+[dev-dependencies]
+stainless = "0.1.7"
+
