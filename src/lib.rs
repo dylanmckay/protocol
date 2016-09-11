@@ -16,4 +16,5 @@ pub mod error;
 pub mod wire;
 
 extern crate byteorder;
+extern crate flate2;
 

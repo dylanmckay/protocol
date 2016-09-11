@@ -10,8 +10,9 @@ repository = "https://github.com/dylanmckay/protocol"
 keywords = ["protocol", "tcp", "udp", "connection"]
 
 [dependencies]
-byteorder = "0.5.3"
+byteorder = "0.5"
+flate2 = { version = "0.2", features = ["zlib"], default-features = false }
 
 [dev-dependencies]
-stainless = "0.1.7"
+stainless = "0.1"
 

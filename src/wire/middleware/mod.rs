@@ -1,5 +1,8 @@
+pub use self::compression::Compression;
+
 #[macro_use]
 pub mod pipeline;
+pub mod compression;
 
 use Error;
 

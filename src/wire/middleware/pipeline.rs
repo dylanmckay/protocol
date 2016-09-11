@@ -1,3 +1,6 @@
+use wire::middleware;
+use std;
+
 #[macro_export]
 macro_rules! define_middleware_pipeline {
     ($ty:ident { $( $mw_name:ident : $mw_ty:ty ),+ } ) => {
@@ -34,6 +37,20 @@ macro_rules! define_middleware_pipeline {
 
                 middleware
             }
+        }
+    }
+}
+
+// The default middleware pipeline.
+define_middleware_pipeline!(Default {
+    compression: middleware::Compression
+});
+
+impl std::default::Default for Default
+{
+    fn default() -> Self {
+        Default {
+            compression: middleware::Compression::Disabled,
         }
     }
 }
