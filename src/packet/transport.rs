@@ -1,3 +1,5 @@
+pub use self::simple::Simple;
+
 use Error;
 use packet::{PacketKind};
 
@@ -11,8 +13,8 @@ pub trait Transport<K: PacketKind>
     fn receive_packet(&mut self) -> Result<Option<K>, Error>;
 
     fn send_packet(&mut self,
-                   packet: &K,
-                   write: &mut Write) -> Result<(), Error>;
+                   write: &mut Write,
+                   packet: &K) -> Result<(), Error>;
 }
 
 pub mod simple
@@ -123,8 +125,8 @@ pub mod simple
         }
 
         fn send_packet(&mut self,
-                       packet: &K,
-                       write: &mut Write) -> Result<(), Error> {
+                       write: &mut Write,
+                       packet: &K) -> Result<(), Error> {
             let packet_data = {
                 let mut buffer = Cursor::new(Vec::new());
                 packet.write(&mut buffer)?;
