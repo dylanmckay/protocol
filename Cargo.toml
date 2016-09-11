@@ -5,7 +5,9 @@ authors = ["Dylan McKay <dylanmckay34@gmail.com>"]
 
 description = "Easy protocol definitions"
 license = "MIT"
+readme = "README.md"
 repository = "https://github.com/dylanmckay/protocol"
+keywords = ["protocol", "tcp", "udp", "connection"]
 
 [dependencies]
 byteorder = "0.5.3"
