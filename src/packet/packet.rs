@@ -3,7 +3,14 @@ use {Type, Error};
 use std::io::prelude::*;
 use std::fmt;
 
-/// A generic packet.
+/// A packet enum.
+pub trait PacketKind : Clone + fmt::Debug
+{
+    fn read(read: &mut Read) -> Result<Self, Error>;
+    fn write(&self, write: &mut Write) -> Result<(), Error>;
+}
+
+/// A specific packet type.
 pub trait Packet : Clone + fmt::Debug
 {
     fn read(read: &mut Read) -> Result<Self, Error>;

@@ -2,7 +2,7 @@
 
 pub use self::types::*;
 pub use self::error::Error;
-pub use self::packet::Packet;
+pub use self::packet::{PacketKind, Packet};
 
 #[macro_use]
 pub mod types;
