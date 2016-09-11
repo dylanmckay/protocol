@@ -6,7 +6,6 @@
 pub use self::types::*;
 pub use self::error::Error;
 pub use self::packet::{PacketKind, Packet};
-pub use self::wire::{Connection, Transport};
 
 #[macro_use]
 pub mod types;
