@@ -1,6 +1,7 @@
 use Error;
 
 use std::io::prelude::*;
+use std::io::Cursor;
 use std::fmt;
 
 /// A packet enum.
@@ -8,6 +9,12 @@ pub trait PacketKind : Clone + fmt::Debug
 {
     fn read(read: &mut Read) -> Result<Self, Error>;
     fn write(&self, write: &mut Write) -> Result<(), Error>;
+
+    fn bytes(&self) -> Result<Vec<u8>, Error> {
+        let mut buffer = Cursor::new(Vec::new());
+        self.write(&mut buffer)?;
+        Ok(buffer.into_inner())
+    }
 }
 
 /// A specific packet type.

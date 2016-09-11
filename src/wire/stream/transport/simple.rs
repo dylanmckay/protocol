@@ -1,7 +1,6 @@
 use super::Transport;
 
 use {Error, Type};
-use packet::{PacketKind};
 
 use std::collections::VecDeque;
 use std::io::prelude::*;
@@ -10,7 +9,6 @@ use std::mem;
 
 /// The type that we use to describe packet sizes.
 pub type PacketSize = u32;
-
 
 /// The current state.
 #[derive(Clone)]
@@ -25,13 +23,13 @@ enum State
 }
 
 /// A simple transport.
-pub struct Simple<K: PacketKind>
+pub struct Simple
 {
     state: State,
-    packets: VecDeque<K>,
+    packets: VecDeque<Vec<u8>>,
 }
 
-impl<K: PacketKind> Simple<K>
+impl Simple
 {
     pub fn new() -> Self {
         Simple {
@@ -41,7 +39,7 @@ impl<K: PacketKind> Simple<K>
     }
 }
 
-impl<K: PacketKind> Transport<K> for Simple<K>
+impl Transport for Simple
 {
     fn process_data(&mut self,
                     read: &mut Read) -> Result<(), Error> {
@@ -87,9 +85,7 @@ impl<K: PacketKind> Transport<K> for Simple<K>
                     assert!(received_data.len() <= (size as usize));
 
                     if (size as usize) == received_data.len() {
-                        let mut packet_data = Cursor::new(received_data);
-                        let packet = K::read(&mut packet_data)?;
-                        self.packets.push_back(packet);
+                        self.packets.push_back(received_data);
 
                         // Start reading the next packet.
                         self.state = State::AwaitingSize(Vec::new());
@@ -105,24 +101,18 @@ impl<K: PacketKind> Transport<K> for Simple<K>
         Ok(())
     }
 
-    fn send_packet(&mut self,
-                   write: &mut Write,
-                   packet: &K) -> Result<(), Error> {
-        let packet_data = {
-            let mut buffer = Cursor::new(Vec::new());
-            packet.write(&mut buffer)?;
-            buffer.into_inner()
-        };
-
+    fn send_raw_packet(&mut self,
+                       write: &mut Write,
+                       packet: &Vec<u8>) -> Result<(), Error> {
         // Prefix the packet size.
-        (packet_data.len() as PacketSize).write(write)?;
+        (packet.len() as PacketSize).write(write)?;
         // Write the packet data.
-        write.write(&packet_data)?;
+        write.write(&packet)?;
 
         Ok(())
     }
 
-    fn receive_packet(&mut self) -> Result<Option<K>, Error> {
+    fn receive_raw_packet(&mut self) -> Result<Option<Vec<u8>>, Error> {
         Ok(self.packets.pop_front())
     }
 }

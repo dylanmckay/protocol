@@ -1,3 +1,4 @@
+pub use self::pipeline::Pipeline;
 pub use self::compression::Compression;
 
 #[macro_use]

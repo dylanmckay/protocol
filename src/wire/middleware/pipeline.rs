@@ -1,5 +1,18 @@
+use Error;
 use wire::middleware;
 use std;
+
+/// A middleware pipeline.
+pub trait Pipeline
+{
+    fn encode_data(&mut self, mut data: Vec<u8>) -> Result<Vec<u8>, Error>;
+    fn decode_data(&mut self, mut data: Vec<u8>) -> Result<Vec<u8>, Error>;
+}
+
+/// Creates an instance of the default middleware.
+pub fn default() -> Default {
+    Default::default()
+}
 
 #[macro_export]
 macro_rules! define_middleware_pipeline {
@@ -11,7 +24,19 @@ macro_rules! define_middleware_pipeline {
 
         impl $ty
         {
-            pub fn encode_data(&mut self, mut data: Vec<u8>)
+            /// Gets the middleware pipeline.
+            pub fn middleware_mut(&mut self) -> ::std::collections::VecDeque<&mut $crate::wire::Middleware> {
+                let mut middleware = ::std::collections::VecDeque::new();
+
+                $( middleware.push_front(&mut self.$mw_name as &mut $crate::wire::Middleware); )+
+
+                middleware
+            }
+        }
+
+        impl $crate::wire::middleware::Pipeline for $ty
+        {
+            fn encode_data(&mut self, mut data: Vec<u8>)
                 -> Result<Vec<u8>, $crate::Error> {
                 use $crate::wire::Middleware;
 
@@ -20,22 +45,13 @@ macro_rules! define_middleware_pipeline {
                 Ok(data)
             }
 
-            pub fn decode_data(&mut self, mut data: Vec<u8>)
+            fn decode_data(&mut self, mut data: Vec<u8>)
                 -> Result<Vec<u8>, $crate::Error> {
                 for middleware in self.middleware_mut() {
                     data = middleware.decode_data(data)?;
                 }
 
                 Ok(data)
-            }
-
-            /// Gets the middleware pipeline.
-            pub fn middleware_mut(&mut self) -> ::std::collections::VecDeque<&mut $crate::wire::Middleware> {
-                let mut middleware = ::std::collections::VecDeque::new();
-
-                $( middleware.push_front(&mut self.$mw_name as &mut $crate::wire::Middleware); )+
-
-                middleware
             }
         }
     }
@@ -61,7 +77,7 @@ mod test
     use Error;
     use wire;
 
-    define_middleware_pipeline!(Pipeline {
+    define_middleware_pipeline!(NullPipeline {
         encryption: NullMiddleware,
         compression: NullMiddleware
     });
@@ -76,7 +92,7 @@ mod test
 
     describe! pipeline {
         before_each {
-            let mut null_pipeline = Pipeline {
+            let mut null_pipeline = NullPipeline {
                 encryption: NullMiddleware,
                 compression: NullMiddleware,
             };
@@ -85,6 +101,8 @@ mod test
         }
 
         it "successfully passes data through the pipeline" {
+            use wire::middleware::Pipeline;
+
             assert_eq!(null_pipeline.encode_data(data.clone()).unwrap(), data.clone());
             assert_eq!(null_pipeline.decode_data(data.clone()).unwrap(), data.clone());
         }

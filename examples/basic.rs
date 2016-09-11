@@ -31,7 +31,7 @@ fn main() {
     use std::net::TcpStream;
 
     let stream = TcpStream::connect("127.0.0.1:34254").unwrap();
-    let mut connection = protocol::wire::stream::Connection::new(stream);
+    let mut connection = protocol::wire::stream::Connection::new(stream, protocol::wire::middleware::pipeline::default());
 
     connection.send_packet(&Packet::Handshake(Handshake)).unwrap();
     connection.send_packet(&Packet::Hello(Hello { id: 0, data: vec![ 55 ]})).unwrap();

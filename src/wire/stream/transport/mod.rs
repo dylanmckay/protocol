@@ -3,18 +3,17 @@ pub use self::simple::Simple;
 pub mod simple;
 
 use Error;
-use packet::{PacketKind};
 use std::io::prelude::*;
 
-pub trait Transport<K: PacketKind>
+pub trait Transport
 {
     fn process_data(&mut self,
                     read: &mut Read) -> Result<(), Error>;
 
-    fn receive_packet(&mut self) -> Result<Option<K>, Error>;
+    fn receive_raw_packet(&mut self) -> Result<Option<Vec<u8>>, Error>;
 
-    fn send_packet(&mut self,
-                   write: &mut Write,
-                   packet: &K) -> Result<(), Error>;
+    fn send_raw_packet(&mut self,
+                       write: &mut Write,
+                       packet: &Vec<u8>) -> Result<(), Error>;
 }
 
