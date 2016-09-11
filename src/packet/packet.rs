@@ -17,6 +17,7 @@ pub trait Packet : Clone + fmt::Debug
     fn write(&self, write: &mut Write) -> Result<(), Error>;
 }
 
+#[macro_export]
 macro_rules! define_packet
 {
     // Define a normal packet.
@@ -27,20 +28,20 @@ macro_rules! define_packet
             $( pub $field_name : $field_ty ),+
         }
 
-        impl ::Packet for $ty
+        impl $crate::Packet for $ty
         {
-            fn read(read: &mut ::std::io::Read) -> Result<Self, ::Error> {
+            fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 #[allow(unused_imports)]
-                use ::Type;
+                use $crate::Type;
 
                 Ok($ty {
-                    $( $field_name : <$field_ty as ::Type>::read(read)?, )+
+                    $( $field_name : <$field_ty as $crate::Type>::read(read)?, )+
                 })
             }
 
-            fn write(&self, write: &mut ::std::io::Write) -> Result<(), ::Error> {
+            fn write(&self, write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
                 #[allow(unused_imports)]
-                use ::Type;
+                use $crate::Type;
 
                 $( self.$field_name.write(write)?; )+
 
@@ -54,13 +55,13 @@ macro_rules! define_packet
         #[derive(Clone, Debug)]
         pub struct $ty;
 
-        impl ::Packet for $ty
+        impl $crate::Packet for $ty
         {
-            fn read(_read: &mut ::std::io::Read) -> Result<Self, ::Error> {
+            fn read(_read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 Ok($ty)
             }
 
-            fn write(&self, _write: &mut ::std::io::Write) -> Result<(), ::Error> {
+            fn write(&self, _write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
                 Ok(())
             }
         }
@@ -69,15 +70,8 @@ macro_rules! define_packet
 
 /// Defines a packet kind enum.
 ///
-/// ```
-/// define_packet_kind!(Packet: u32 {
-///     0x00 => Handshake,
-///     0x01 => Join,
-///     0x02 => Kick
-/// });
-/// ```
-///
 /// You can use any type that implements `Type` as the packet ID.
+#[macro_export]
 macro_rules! define_packet_kind
 {
     ( $ty:ident : $id_ty:ty { $( $packet_id:expr => $packet_ty:ident ),+ } ) => {
@@ -97,26 +91,26 @@ macro_rules! define_packet_kind
             }
         }
 
-        impl ::Packet for $ty
+        impl $crate::PacketKind for $ty
         {
-            fn read(read: &mut ::std::io::Read) -> Result<Self, ::Error> {
-                let packet_id = <$id_ty as ::Type>::read(read)?;
+            fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
+                let packet_id = <$id_ty as $crate::Type>::read(read)?;
 
                 let packet = match packet_id {
-                    $( $packet_id => $ty::$packet_ty(<$packet_ty as ::Packet>::read(read)?), )+
-                    _ => return Err(::Error::UnknownPacketId),
+                    $( $packet_id => $ty::$packet_ty(<$packet_ty as $crate::Packet>::read(read)?), )+
+                    _ => return Err($crate::Error::UnknownPacketId),
                 };
 
                 Ok(packet)
             }
 
-            fn write(&self, write: &mut ::std::io::Write) -> Result<(), ::Error> {
-                use ::Type;
+            fn write(&self, write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
+                use $crate::Type;
 
                 self.packet_id().write(write)?;
 
                 match *self {
-                    $( $ty::$packet_ty(ref p) => p.write(write)? ),+
+                    $( $ty::$packet_ty(ref p) => <$packet_ty as $crate::Packet>::write(p, write)? ),+
                 }
 
                 Ok(())
