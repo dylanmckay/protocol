@@ -3,6 +3,7 @@ use std;
 #[derive(Debug)]
 pub enum Error
 {
+    UnknownPacketId,
     Io(std::io::Error),
     FromUtf8(std::string::FromUtf8Error),
 }
