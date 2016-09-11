@@ -1,5 +1,7 @@
+pub use self::transport::Transport;
+pub mod transport;
+
 use {PacketKind, Error};
-use packet::{Transport, transport};
 
 use std::io::prelude::*;
 

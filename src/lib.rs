@@ -5,13 +5,15 @@
 
 pub use self::types::*;
 pub use self::error::Error;
-pub use self::packet::{PacketKind, Packet, Connection};
+pub use self::packet::{PacketKind, Packet};
+pub use self::wire::{Connection, Transport};
 
 #[macro_use]
 pub mod types;
 #[macro_use]
 pub mod packet;
 pub mod error;
+pub mod wire;
 
 extern crate byteorder;
 
