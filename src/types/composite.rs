@@ -42,7 +42,7 @@ macro_rules! define_composite_type {
         #[derive(Clone,Debug, PartialEq)]
         pub struct $ty
         {
-            $( $field_name : $field_ty ),+
+            $( pub $field_name : $field_ty ),+
         }
 
         implement_composite_type!($ty {
