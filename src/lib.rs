@@ -4,6 +4,11 @@
 
 #![cfg_attr(test, plugin(stainless))]
 
+//! Simple packet-based protocol definitions in Rust.
+//!
+//! * The `packet` module deals with defining packets.
+//! * The `wire` module deals with transmission of packets.
+
 pub use self::types::*;
 pub use self::error::Error;
 pub use self::packet::{PacketKind, Packet};

@@ -7,7 +7,7 @@ use std::io::Cursor;
 
 /// A stream-based connection.
 // TODO: Allow custom transports.
-pub struct Connection<P: PacketKind, M: middleware::Pipeline, S: Read + Write>
+pub struct Connection<P: PacketKind, S: Read + Write, M: middleware::Pipeline = middleware::pipeline::Default>
 {
     pub stream: S,
     pub transport: transport::Simple,
@@ -16,8 +16,8 @@ pub struct Connection<P: PacketKind, M: middleware::Pipeline, S: Read + Write>
     pub _a: ::std::marker::PhantomData<P>,
 }
 
-impl<P,M,S> Connection<P,M,S>
-    where P: PacketKind, M: middleware::Pipeline, S: Read + Write
+impl<P,S,M> Connection<P,S,M>
+    where P: PacketKind, S: Read + Write, M: middleware::Pipeline
 {
     /// Creates a new connection.
     pub fn new(stream: S, middleware: M) -> Self {
