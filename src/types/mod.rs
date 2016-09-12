@@ -11,7 +11,8 @@ pub mod tuple;
 pub mod option;
 /// Defintions for the `std::collections` module.
 pub mod collections;
-pub mod rc;
+/// Definitions for smart pointers in the `std` module.
+pub mod smart_ptr;
 #[cfg(feature = "uuid")]
 pub mod uuid;
 
