@@ -1,6 +1,7 @@
 use {Type, Error};
 
 use std::rc::Rc;
+use std::sync::Arc;
 use std::ops::Deref;
 use std::io::prelude::*;
 
@@ -21,4 +22,5 @@ macro_rules! impl_smart_ptr_type {
 }
 
 impl_smart_ptr_type!(Rc);
+impl_smart_ptr_type!(Arc);
 
