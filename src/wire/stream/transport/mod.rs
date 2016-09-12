@@ -14,6 +14,6 @@ pub trait Transport
 
     fn send_raw_packet(&mut self,
                        write: &mut Write,
-                       packet: &Vec<u8>) -> Result<(), Error>;
+                       packet: &[u8]) -> Result<(), Error>;
 }
 

@@ -46,8 +46,7 @@ impl Transport for Simple
         loop {
             match self.state.clone() {
                 State::AwaitingSize(mut size_bytes) => {
-                    let remaining_bytes = size_bytes.len() - mem::size_of::<PacketSize>();
-                    assert!(remaining_bytes > 0);
+                    let remaining_bytes = mem::size_of::<PacketSize>() - size_bytes.len();
 
                     let mut received_bytes = vec![0; remaining_bytes];
                     let bytes_read = read.read(&mut received_bytes)?;
@@ -103,7 +102,7 @@ impl Transport for Simple
 
     fn send_raw_packet(&mut self,
                        write: &mut Write,
-                       packet: &Vec<u8>) -> Result<(), Error> {
+                       packet: &[u8]) -> Result<(), Error> {
         // Prefix the packet size.
         (packet.len() as PacketSize).write(write)?;
         // Write the packet data.
@@ -114,6 +113,47 @@ impl Transport for Simple
 
     fn receive_raw_packet(&mut self) -> Result<Option<Vec<u8>>, Error> {
         Ok(self.packets.pop_front())
+    }
+}
+
+#[cfg(test)]
+mod test
+{
+    pub use super::Simple;
+    pub use std::io::Cursor;
+    pub use wire::stream::Transport;
+
+    describe! simple_transport {
+        before_each {
+            let data: Vec<u8> = vec![5, 4, 3, 2, 1];
+            let expected_data = &[
+                    0x00, 0x00, 0x00, 0x05, // 32-bit size prefix
+                    0x05, 0x04, 0x03, 0x02, 0x01, // The data
+            ];
+
+            let mut transport = Simple::new();
+        }
+
+        describe! writing {
+            it "serializes the data with a 32-bit length prefix and then the raw data" {
+                let mut buffer = Cursor::new(Vec::new());
+
+                transport.send_raw_packet(&mut buffer, &data).unwrap();
+                let written_data = buffer.into_inner();
+
+                assert_eq!(&written_data, &expected_data);
+            }
+        }
+
+        describe! reading {
+            it "successfully handles data with a 32-bit length prefix" {
+                let mut buffer = Cursor::new(&expected_data);
+
+                transport.process_data(&mut buffer).unwrap();
+                let read_data = transport.receive_raw_packet().ok().unwrap().unwrap();
+                assert_eq!(&read_data, &data);
+            }
+        }
     }
 }
 
