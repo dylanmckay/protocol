@@ -10,9 +10,13 @@ repository = "https://github.com/dylanmckay/protocol"
 documentation = "https://docs.rs/protocol"
 keywords = ["protocol", "tcp", "udp", "connection", "encoding"]
 
+[features]
+default = ["uuid"]
+
 [dependencies]
 byteorder = "0.5"
 flate2 = { version = "0.2", features = ["zlib"], default-features = false }
+uuid = { version = "0.3", optional = true }
 
 [dev-dependencies]
 stainless = "0.1"

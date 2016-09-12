@@ -9,6 +9,8 @@ pub mod array;
 pub mod map;
 pub mod string;
 pub mod tuple;
+#[cfg(feature = "uuid")]
+pub mod uuid;
 
 use std::io::prelude::*;
 use std::fmt;

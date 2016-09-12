@@ -9,7 +9,7 @@
 //! * The `packet` module deals with defining packets.
 //! * The `wire` module deals with transmission of packets.
 
-pub use self::types::*;
+pub use self::types::{Type, Integer, Array, String, ByteOrder};
 pub use self::error::Error;
 pub use self::packet::{PacketKind, Packet};
 
@@ -23,4 +23,7 @@ pub mod wire;
 
 extern crate byteorder;
 extern crate flate2;
+
+#[cfg(feature = "uuid")]
+extern crate uuid;
 
