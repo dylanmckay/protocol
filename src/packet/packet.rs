@@ -10,6 +10,11 @@ pub trait PacketKind : Clone + fmt::Debug
     fn read(read: &mut Read) -> Result<Self, Error>;
     fn write(&self, write: &mut Write) -> Result<(), Error>;
 
+    fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+        let mut buffer = Cursor::new(bytes);
+        Self::read(&mut buffer)
+    }
+
     fn bytes(&self) -> Result<Vec<u8>, Error> {
         let mut buffer = Cursor::new(Vec::new());
         self.write(&mut buffer)?;
@@ -25,7 +30,10 @@ pub trait Packet : Clone + fmt::Debug
 }
 
 #[cfg(test)]
+#[allow(unused_variables)]
 mod test {
+    pub use PacketKind;
+
     define_packet!(Handshake);
     define_packet!(Kick);
 
@@ -53,8 +61,15 @@ mod test {
 
     describe! packets {
         before_each {
-            let hello = Hello { id: 5678, data: vec![1, 2, 3] };
+            let hello = Hello { id: 55, data: vec![1, 2, 3] };
             let goodbye = Goodbye { id: 8765, reason: "um".to_string() };
+
+            let hello_expected_bytes = &[
+                0x00, 0x00, 0x00, 0x02, // Packet ID
+                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 55, // 'id' field
+                0x00, 0x00, 0x00, 0x03, // 'data' length
+                0x01, 0x02, 0x03, // 'data' array
+            ];
         }
 
         describe! packet_ids {
@@ -65,6 +80,22 @@ mod test {
 
                     assert_eq!(Packet::Hello(hello).packet_id(), 0x02);
                     assert_eq!(Packet::Goodbye(goodbye).packet_id(), 0x03);
+                }
+            }
+
+            describe! writing {
+                it "writes the correct values" {
+                    let packet = Packet::Hello(hello);
+
+                    assert_eq!(&packet.bytes().unwrap(), hello_expected_bytes);
+                }
+            }
+
+            describe! reading {
+                it "reads the correct values" {
+                    let packet = Packet::from_bytes(hello_expected_bytes).unwrap();
+
+                    assert_eq!(packet.bytes().unwrap(), hello_expected_bytes);
                 }
             }
         }
