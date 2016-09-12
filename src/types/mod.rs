@@ -11,6 +11,7 @@ pub mod string;
 pub mod tuple;
 pub mod option;
 pub mod vec_deque;
+pub mod linked_list;
 #[cfg(feature = "uuid")]
 pub mod uuid;
 
