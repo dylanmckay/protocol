@@ -42,9 +42,9 @@ impl From<std::char::CharTryFromError> for Error
 }
 
 #[cfg(feature = "uuid")]
-impl From<uuid::ParseError> for Error
+impl From<::uuid::ParseError> for Error
 {
-    fn from(e: uuid::ParseError) -> Self {
+    fn from(e: ::uuid::ParseError) -> Self {
         Error::UuidParseError(e)
     }
 }
