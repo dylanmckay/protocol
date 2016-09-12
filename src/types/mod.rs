@@ -6,13 +6,11 @@ pub mod numerics;
 #[macro_use]
 pub mod composite;
 pub mod array;
-pub mod map;
 pub mod string;
 pub mod tuple;
 pub mod option;
-pub mod vec_deque;
-pub mod linked_list;
-pub mod hash_set;
+/// Defintions for the `std::collections` module.
+pub mod collections;
 pub mod rc;
 #[cfg(feature = "uuid")]
 pub mod uuid;
