@@ -8,7 +8,7 @@ license = "MIT"
 readme = "README.md"
 repository = "https://github.com/dylanmckay/protocol"
 documentation = "https://docs.rs/protocol"
-keywords = ["protocol", "tcp", "udp", "connection"]
+keywords = ["protocol", "tcp", "udp", "connection", "encoding"]
 
 [dependencies]
 byteorder = "0.5"
