@@ -73,7 +73,7 @@ macro_rules! define_packet_kind
             }
         }
 
-        impl $crate::PacketKind for $ty
+        impl $crate::Packet for $ty
         {
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 let packet_id = <$id_ty as $crate::Type>::read(read)?;

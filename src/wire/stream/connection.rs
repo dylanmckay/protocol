@@ -1,4 +1,4 @@
-use {PacketKind, Error};
+use {Packet, Error};
 use wire::stream::{Transport, transport};
 use wire::middleware;
 
@@ -7,7 +7,7 @@ use std::io::Cursor;
 
 /// A stream-based connection.
 // TODO: Allow custom transports.
-pub struct Connection<P: PacketKind, S: Read + Write, M: middleware::Pipeline = middleware::pipeline::Default>
+pub struct Connection<P: Packet, S: Read + Write, M: middleware::Pipeline = middleware::pipeline::Default>
 {
     pub stream: S,
     pub transport: transport::Simple,
@@ -17,7 +17,7 @@ pub struct Connection<P: PacketKind, S: Read + Write, M: middleware::Pipeline = 
 }
 
 impl<P,S,M> Connection<P,S,M>
-    where P: PacketKind, S: Read + Write, M: middleware::Pipeline
+    where P: Packet, S: Read + Write, M: middleware::Pipeline
 {
     /// Creates a new connection.
     pub fn new(stream: S, middleware: M) -> Self {
@@ -61,7 +61,7 @@ impl<P,S,M> Connection<P,S,M>
 #[cfg(test)]
 mod test
 {
-    pub use PacketKind;
+    pub use Packet;
     pub use super::Connection;
     pub use wire::middleware;
 
@@ -71,13 +71,13 @@ mod test
         data: Vec<u8>
     });
 
-    define_packet_kind!(Packet : u8 {
+    define_packet_kind!(PacketKind : u8 {
         0x00 => Ping
     });
 
     describe! connection {
         it "can write and read back data" {
-            let ping = Packet::Ping(Ping { data: vec![5, 4, 3, 2, 1]});
+            let ping = PacketKind::Ping(Ping { data: vec![5, 4, 3, 2, 1]});
 
             let buffer = Cursor::new(Vec::new());
             let mut connection = Connection::new(buffer, middleware::pipeline::default());

@@ -1,4 +1,4 @@
-pub use self::packet::{PacketKind, Packet};
+pub use self::packet::Packet;
 
 #[macro_use]
 pub mod macros;

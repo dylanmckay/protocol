@@ -11,7 +11,7 @@
 
 pub use self::types::{Type, Integer, Array, String, ByteOrder};
 pub use self::error::Error;
-pub use self::packet::{PacketKind, Packet};
+pub use self::packet::Packet;
 
 #[macro_use]
 pub mod types;

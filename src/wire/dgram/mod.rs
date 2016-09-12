@@ -1,4 +1,4 @@
-use {PacketKind, Error};
+use {Packet, Error};
 use wire::middleware;
 
 use std::io::prelude::*;
@@ -6,7 +6,7 @@ use std::io::Cursor;
 use std;
 
 /// A datagram-based packet pipeline.
-pub struct Pipeline<P: PacketKind, M: middleware::Pipeline>
+pub struct Pipeline<P: Packet, M: middleware::Pipeline>
 {
     pub middleware: M,
 
@@ -14,7 +14,7 @@ pub struct Pipeline<P: PacketKind, M: middleware::Pipeline>
 }
 
 impl<P,M> Pipeline<P,M>
-    where P: PacketKind, M: middleware::Pipeline
+    where P: Packet, M: middleware::Pipeline
 {
     pub fn new(middleware: M) -> Self {
         Pipeline {

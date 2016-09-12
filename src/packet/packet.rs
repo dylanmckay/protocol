@@ -4,8 +4,8 @@ use std::io::prelude::*;
 use std::io::Cursor;
 use std::fmt;
 
-/// A packet enum.
-pub trait PacketKind : Clone + fmt::Debug
+/// A specific packet type.
+pub trait Packet : Clone + fmt::Debug
 {
     fn read(read: &mut Read) -> Result<Self, Error>;
     fn write(&self, write: &mut Write) -> Result<(), Error>;
@@ -22,17 +22,10 @@ pub trait PacketKind : Clone + fmt::Debug
     }
 }
 
-/// A specific packet type.
-pub trait Packet : Clone + fmt::Debug
-{
-    fn read(read: &mut Read) -> Result<Self, Error>;
-    fn write(&self, write: &mut Write) -> Result<(), Error>;
-}
-
 #[cfg(test)]
 #[allow(unused_variables)]
 mod test {
-    pub use PacketKind;
+    pub use Packet;
 
     define_packet!(Handshake);
     define_packet!(Kick);
@@ -51,7 +44,7 @@ mod test {
         properties: ::std::collections::HashMap<String, bool>
     });
 
-    define_packet_kind!(Packet: u32 {
+    define_packet_kind!(PacketKind: u32 {
         0x00 => Handshake,
         0x01 => Kick,
         0x02 => Hello,
@@ -75,17 +68,17 @@ mod test {
         describe! packet_ids {
             describe! numerical {
                 it "gets the corrrect ids" {
-                    assert_eq!(Packet::Handshake(Handshake).packet_id(), 0x00);
-                    assert_eq!(Packet::Kick(Kick).packet_id(), 0x01);
+                    assert_eq!(PacketKind::Handshake(Handshake).packet_id(), 0x00);
+                    assert_eq!(PacketKind::Kick(Kick).packet_id(), 0x01);
 
-                    assert_eq!(Packet::Hello(hello).packet_id(), 0x02);
-                    assert_eq!(Packet::Goodbye(goodbye).packet_id(), 0x03);
+                    assert_eq!(PacketKind::Hello(hello).packet_id(), 0x02);
+                    assert_eq!(PacketKind::Goodbye(goodbye).packet_id(), 0x03);
                 }
             }
 
             describe! writing {
                 it "writes the correct values" {
-                    let packet = Packet::Hello(hello);
+                    let packet = PacketKind::Hello(hello);
 
                     assert_eq!(&packet.bytes().unwrap(), hello_expected_bytes);
                 }
@@ -93,7 +86,7 @@ mod test {
 
             describe! reading {
                 it "reads the correct values" {
-                    let packet = Packet::from_bytes(hello_expected_bytes).unwrap();
+                    let packet = PacketKind::from_bytes(hello_expected_bytes).unwrap();
 
                     assert_eq!(packet.bytes().unwrap(), hello_expected_bytes);
                 }
