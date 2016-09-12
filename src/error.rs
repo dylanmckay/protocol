@@ -8,6 +8,7 @@ pub enum Error
     Io(std::io::Error),
     FromUtf8(std::string::FromUtf8Error),
     TryFromIntError(std::num::TryFromIntError),
+    CharTryFromError(std::char::CharTryFromError),
 
     #[cfg(feature = "uuid")]
     UuidParseError(uuid::ParseError),
@@ -31,6 +32,13 @@ impl From<std::num::TryFromIntError> for Error
 {
     fn from(e: std::num::TryFromIntError) -> Error {
         Error::TryFromIntError(e)
+    }
+}
+
+impl From<std::char::CharTryFromError> for Error
+{
+    fn from(e: std::char::CharTryFromError) -> Error {
+        Error::CharTryFromError(e)
     }
 }
 

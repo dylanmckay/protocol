@@ -7,6 +7,7 @@ pub mod numerics;
 pub mod composite;
 pub mod array;
 pub mod string;
+pub mod char;
 pub mod tuple;
 pub mod option;
 /// Defintions for the `std::collections` module.
