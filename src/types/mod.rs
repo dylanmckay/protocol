@@ -9,6 +9,7 @@ pub mod array;
 pub mod map;
 pub mod string;
 pub mod tuple;
+pub mod option;
 #[cfg(feature = "uuid")]
 pub mod uuid;
 
