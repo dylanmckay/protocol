@@ -38,6 +38,8 @@ macro_rules! impl_list_type {
 pub mod linked_list { impl_list_type!(LinkedList => T: ); }
 pub mod vec_deque   { impl_list_type!(VecDeque   => T: ); }
 
+pub mod btree_set   { impl_list_type!(BTreeSet   => T: Ord); }
+
 pub mod hash_set {
     use std::hash::Hash;
     impl_list_type!(HashSet => T: Hash, Eq);
