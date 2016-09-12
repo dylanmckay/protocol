@@ -13,7 +13,7 @@ pub mod tuple;
 pub mod uuid;
 
 use std::io::prelude::*;
-use std::fmt;
+use std::{fmt, io};
 
 /// The default byte ordering.
 pub type ByteOrder = ::byteorder::BigEndian;
@@ -26,5 +26,12 @@ pub trait Type : Clone + fmt::Debug
 
     /// Writes a type to a stream.
     fn write(&self, write: &mut Write) -> Result<(), ::Error>;
+
+    fn raw_bytes(&self) -> Result<Vec<u8>, ::Error> {
+        let mut buffer = io::Cursor::new(Vec::new());
+        self.write(&mut buffer)?;
+
+        Ok(buffer.into_inner())
+    }
 }
 
