@@ -12,6 +12,7 @@ pub mod tuple;
 pub mod option;
 pub mod vec_deque;
 pub mod linked_list;
+pub mod hash_set;
 #[cfg(feature = "uuid")]
 pub mod uuid;
 
