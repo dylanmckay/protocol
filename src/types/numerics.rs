@@ -1,8 +1,24 @@
 use {Type, Error, ByteOrder};
 
 use std::io::prelude::*;
+use std::convert::{TryFrom, TryInto};
+use std::num::TryFromIntError;
 
 use byteorder::{ReadBytesExt, WriteBytesExt};
+
+pub trait Integer : Type + TryFrom<u8, Err=TryFromIntError> + TryFrom<i8, Err=TryFromIntError> +
+                    TryFrom<u16, Err=TryFromIntError> + TryFrom<i16, Err=TryFromIntError> +
+                    TryFrom<u32, Err=TryFromIntError> + TryFrom<i32, Err=TryFromIntError> +
+                    TryFrom<u64, Err=TryFromIntError> + TryFrom<i64, Err=TryFromIntError> +
+                    TryFrom<usize, Err=TryFromIntError> + TryFrom<isize, Err=TryFromIntError> +
+                    TryInto<u8, Err=TryFromIntError> + TryInto<i8, Err=TryFromIntError> +
+                    TryInto<u16, Err=TryFromIntError> + TryInto<i16, Err=TryFromIntError> +
+                    TryInto<u32, Err=TryFromIntError> + TryInto<i32, Err=TryFromIntError> +
+                    TryInto<u64, Err=TryFromIntError> + TryInto<i64, Err=TryFromIntError> +
+                    TryInto<usize, Err=TryFromIntError> + TryInto<isize, Err=TryFromIntError>
+{
+
+}
 
 impl Type for bool
 {
@@ -75,4 +91,13 @@ impl Type for f64
     fn read(read: &mut Read) -> Result<Self, Error> { Ok(read.read_f64::<ByteOrder>()?) }
     fn write(&self, write: &mut Write) -> Result<(), Error> { write.write_f64::<ByteOrder>(*self)?; Ok(()) }
 }
+
+impl Integer for u8 { }
+impl Integer for i8 { }
+impl Integer for u16 { }
+impl Integer for i16 { }
+impl Integer for u32 { }
+impl Integer for i32 { }
+impl Integer for u64 { }
+impl Integer for i64 { }
 

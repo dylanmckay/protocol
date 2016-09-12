@@ -1,3 +1,7 @@
+pub use self::numerics::Integer;
+pub use self::array::Array;
+pub use self::string::String;
+
 pub mod numerics;
 #[macro_use]
 pub mod composite;
