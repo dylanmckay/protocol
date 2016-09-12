@@ -1,5 +1,4 @@
 use std;
-use uuid;
 
 #[derive(Debug)]
 pub enum Error
@@ -11,7 +10,7 @@ pub enum Error
     CharTryFromError(std::char::CharTryFromError),
 
     #[cfg(feature = "uuid")]
-    UuidParseError(uuid::ParseError),
+    UuidParseError(::uuid::ParseError),
 }
 
 impl From<std::io::Error> for Error
