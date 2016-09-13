@@ -38,12 +38,10 @@ impl Simple
             packets: VecDeque::new(),
         }
     }
-}
 
-impl Transport for Simple
-{
-    fn process_data(&mut self,
-                    read: &mut Read) -> Result<(), Error> {
+    fn process_bytes(&mut self, bytes: &[u8]) -> Result<(), Error> {
+        let mut read = Cursor::new(bytes);
+
         loop {
             match self.state.clone() {
                 State::AwaitingSize(mut size_bytes) => {
@@ -95,6 +93,32 @@ impl Transport for Simple
                         break;
                     }
                 },
+            }
+        }
+
+        Ok(())
+    }
+}
+
+const BUFFER_SIZE: usize = 10000;
+
+impl Transport for Simple
+{
+    fn process_data(&mut self,
+                    read: &mut Read) -> Result<(), Error> {
+        // Load the data into a temporary buffer before we process it.
+        loop {
+            let mut buffer = [0u8; BUFFER_SIZE];
+            let bytes_read = read.read(&mut buffer).unwrap();
+            let buffer = &buffer[0..bytes_read];
+
+            if bytes_read == 0 {
+                break;
+            } else {
+                self.process_bytes(buffer)?;
+
+                // We didn't fill the whole buffer so stop now.
+                if bytes_read != BUFFER_SIZE { break; }
             }
         }
 
