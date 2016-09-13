@@ -17,7 +17,7 @@ pub fn default() -> Default {
 #[macro_export]
 macro_rules! define_middleware_pipeline {
     ($ty:ident { $( $mw_name:ident : $mw_ty:ty ),+ } ) => {
-        #[derive(Debug)]
+        #[derive(Clone, Debug)]
         pub struct $ty
         {
             $( pub $mw_name : $mw_ty),+
@@ -83,6 +83,7 @@ mod test
         compression: NullMiddleware
     });
 
+    #[derive(Clone, Debug)]
     pub struct NullMiddleware;
 
     impl wire::Middleware for NullMiddleware

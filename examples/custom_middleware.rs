@@ -9,6 +9,7 @@ use std::num::Wrapping;
 
 /// A rot-n middleware.
 /// Rotates each byte by a specific offset.
+#[derive(Clone, Debug)]
 pub struct RotateMiddleware
 {
     pub offset: u8,
