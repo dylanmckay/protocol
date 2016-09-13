@@ -25,8 +25,6 @@ fn main() {
     connection.send_packet(&Hello { id: 0, data: vec![ 55 ]}).unwrap();
 
     loop {
-        connection.process_incoming_data().unwrap();
-
         if let Some(response) = connection.receive_packet().unwrap() {
             println!("{:?}", response);
             break;

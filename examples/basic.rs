@@ -38,8 +38,6 @@ fn main() {
     connection.send_packet(&Packet::Goodbye(Goodbye { id: 0, reason: "leaving".to_string() })).unwrap();
 
     loop {
-        connection.process_incoming_data().unwrap();
-
         if let Some(response) = connection.receive_packet().unwrap() {
             println!("{:?}", response);
             break;
