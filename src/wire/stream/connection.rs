@@ -7,6 +7,7 @@ use std::io::Cursor;
 
 /// A stream-based connection.
 // TODO: Allow custom transports.
+#[derive(Debug)]
 pub struct Connection<P: Packet, S: Read + Write, M: middleware::Pipeline = middleware::pipeline::Default>
 {
     pub stream: S,

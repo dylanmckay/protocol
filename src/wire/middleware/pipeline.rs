@@ -3,7 +3,7 @@ use wire::middleware;
 use std;
 
 /// A middleware pipeline.
-pub trait Pipeline
+pub trait Pipeline : std::fmt::Debug
 {
     fn encode_data(&mut self, mut data: Vec<u8>) -> Result<Vec<u8>, Error>;
     fn decode_data(&mut self, mut data: Vec<u8>) -> Result<Vec<u8>, Error>;
@@ -17,6 +17,7 @@ pub fn default() -> Default {
 #[macro_export]
 macro_rules! define_middleware_pipeline {
     ($ty:ident { $( $mw_name:ident : $mw_ty:ty ),+ } ) => {
+        #[derive(Debug)]
         pub struct $ty
         {
             $( pub $mw_name : $mw_ty),+

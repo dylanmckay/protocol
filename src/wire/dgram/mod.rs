@@ -6,6 +6,7 @@ use std::io::Cursor;
 use std;
 
 /// A datagram-based packet pipeline.
+#[derive(Clone, Debug)]
 pub struct Pipeline<P: Packet, M: middleware::Pipeline>
 {
     pub middleware: M,

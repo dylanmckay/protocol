@@ -11,7 +11,7 @@ use std::mem;
 pub type PacketSize = u32;
 
 /// The current state.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 enum State
 {
     /// We are awaiting packet size bytes.
@@ -23,6 +23,7 @@ enum State
 }
 
 /// A simple transport.
+#[derive(Clone, Debug)]
 pub struct Simple
 {
     state: State,

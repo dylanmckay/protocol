@@ -6,9 +6,10 @@ pub mod pipeline;
 pub mod compression;
 
 use Error;
+use std;
 
 /// A hook that sits between reading and writing packets.
-pub trait Middleware
+pub trait Middleware : std::fmt::Debug
 {
     /// Processes some data.
     fn encode_data(&mut self, data: Vec<u8>) -> Result<Vec<u8>, Error>;
