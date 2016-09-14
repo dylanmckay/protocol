@@ -1,9 +1,9 @@
-use {types, Type, Error, Array};
+use {primitives, Parcel, Error, Array};
 use std::io::prelude::*;
 use std;
 
 // The default implementation treats the string as a normal char array.
-impl Type for std::string::String
+impl Parcel for std::string::String
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         let bytes = Vec::<u8>::read(read)?;
@@ -20,13 +20,13 @@ impl Type for std::string::String
 /// A string with a custom size prefix integer type.
 /// `S` - The size prefix type.
 #[derive(Clone, Debug)]
-pub struct String<S: types::Integer = u32>
+pub struct String<S: primitives::Integer = u32>
 {
     pub value: std::string::String,
     _a: std::marker::PhantomData<S>,
 }
 
-impl<S: types::Integer> String<S>
+impl<S: primitives::Integer> String<S>
 {
     pub fn new(s: std::string::String) -> Self {
         String {
@@ -36,7 +36,7 @@ impl<S: types::Integer> String<S>
     }
 }
 
-impl<S: types::Integer> Type for String<S>
+impl<S: primitives::Integer> Parcel for String<S>
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         let bytes = Array::<S, u8>::read(read)?;

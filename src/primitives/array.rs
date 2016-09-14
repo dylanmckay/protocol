@@ -1,11 +1,11 @@
-use {types, Type, Error};
+use {primitives, Parcel, Error};
 
 use std::io::prelude::*;
 use std;
 
 pub type SizeType = u32;
 
-impl<T: Type> Type for Vec<T>
+impl<T: Parcel> Parcel for Vec<T>
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         Ok(Array::<SizeType, T>::read(read)?.elements)
@@ -18,20 +18,20 @@ impl<T: Type> Type for Vec<T>
 
 /// An array type with a custom size prefix type.
 #[derive(Clone, Debug)]
-pub struct Array<S: types::Integer, T: Type>
+pub struct Array<S: primitives::Integer, T: Parcel>
 {
     pub elements: Vec<T>,
     _a: std::marker::PhantomData<S>,
 }
 
-impl<S: types::Integer, T: Type> Array<S,T>
+impl<S: primitives::Integer, T: Parcel> Array<S,T>
 {
     pub fn new(elements: Vec<T>) -> Self {
         Array { elements: elements, _a: std::marker::PhantomData }
     }
 }
 
-impl<S: types::Integer, T: Type> Type for Array<S, T>
+impl<S: primitives::Integer, T: Parcel> Parcel for Array<S, T>
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         let size = S::read(read)?;

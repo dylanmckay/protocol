@@ -1,8 +1,8 @@
-use {Type, Error};
+use {Parcel, Error};
 
 use std::io::prelude::*;
 
-impl Type for char
+impl Parcel for char
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         use std::convert::TryFrom;

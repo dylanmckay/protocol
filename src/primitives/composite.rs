@@ -1,4 +1,4 @@
-/// Implements `Type` for some struct.
+/// Implements `Parcel` for some struct.
 ///
 /// This is used to enable serialization of fields for arbitrary structs.
 ///
@@ -10,11 +10,11 @@
 #[macro_export]
 macro_rules! implement_composite_type {
     ($ty:ident { $( $field_name:ident ),+ }) => {
-        impl $crate::Type for $ty
+        impl $crate::Parcel for $ty
         {
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 Ok($ty {
-                    $( $field_name: $crate::Type::read(read)? ),+
+                    $( $field_name: $crate::Parcel::read(read)? ),+
                 })
             }
 
@@ -28,7 +28,7 @@ macro_rules! implement_composite_type {
 }
 
 
-/// Defines a type built out of other types.
+/// Defines a type built out of other primitives.
 ///
 /// ```none
 /// define_composite_type!(Foo {
@@ -55,7 +55,7 @@ macro_rules! define_composite_type {
 #[allow(unused_variables)]
 mod test
 {
-    pub use Type;
+    pub use Parcel;
     pub use std::io::Cursor;
 
     #[derive(Clone, Debug)]
@@ -78,7 +78,7 @@ mod test
         c: u8
     });
 
-    describe! composite_types {
+    describe! composite_primitives {
         before_each {
             let foo = Foo { baz: "baz".to_string(), bing: 32 };
             let bar = Bar { baz: "baz".to_string(), bing: 32 };

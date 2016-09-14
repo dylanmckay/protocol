@@ -9,12 +9,15 @@
 //! * The `packet` module deals with defining packets.
 //! * The `wire` module deals with transmission of packets.
 
-pub use self::types::{Type, Integer, Array, String, ByteOrder};
+pub use self::primitives::{Integer, Array, String};
+pub use self::parcel::Parcel;
 pub use self::error::Error;
 pub use self::packet::Packet;
 
 #[macro_use]
-pub mod types;
+pub mod parcel;
+#[macro_use]
+pub mod primitives;
 #[macro_use]
 pub mod packet;
 pub mod error;
@@ -26,4 +29,7 @@ extern crate flate2;
 
 #[cfg(feature = "uuid")]
 extern crate uuid;
+
+/// The default byte ordering.
+pub type ByteOrder = ::byteorder::BigEndian;
 

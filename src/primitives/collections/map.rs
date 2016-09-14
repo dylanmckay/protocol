@@ -1,4 +1,4 @@
-use {Type, Error};
+use {Parcel, Error};
 
 use std::collections::{HashMap, BTreeMap};
 use std::hash::Hash;
@@ -9,9 +9,9 @@ pub type SizeType = u32;
 
 macro_rules! impl_map_type {
     ( $ty:ident => K: $( $k_pred:ident ),+ ) => {
-        impl<K, V> Type for $ty<K, V>
-            where K: Type + $( $k_pred +)+,
-                  V: Type
+        impl<K, V> Parcel for $ty<K, V>
+            where K: Parcel + $( $k_pred +)+,
+                  V: Parcel
         {
             fn read(read: &mut Read) -> Result<Self, Error> {
                 let mut map = $ty::new();

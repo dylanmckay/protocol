@@ -1,7 +1,7 @@
 macro_rules! impl_list_type {
     ( $ty:ident => T: $( $ty_pred:ident ),* ) => {
-        impl<T> $crate::Type for ::std::collections::$ty<T>
-            where T: $crate::Type $( + $ty_pred )*
+        impl<T> $crate::Parcel for ::std::collections::$ty<T>
+            where T: $crate::Parcel $( + $ty_pred )*
         {
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 let elements: Vec<T> = Vec::read(read)?;
@@ -18,7 +18,7 @@ macro_rules! impl_list_type {
         #[cfg(test)]
         mod test
         {
-            pub use Type;
+            pub use Parcel;
             pub use std::collections::$ty;
 
             describe! serialization {

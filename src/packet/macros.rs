@@ -14,16 +14,16 @@ macro_rules! define_packet
         {
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 #[allow(unused_imports)]
-                use $crate::Type;
+                use $crate::Parcel;
 
                 Ok($ty {
-                    $( $field_name : <$field_ty as $crate::Type>::read(read)?, )+
+                    $( $field_name : <$field_ty as $crate::Parcel>::read(read)?, )+
                 })
             }
 
             fn write(&self, write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
                 #[allow(unused_imports)]
-                use $crate::Type;
+                use $crate::Parcel;
 
                 $( self.$field_name.write(write)?; )+
 
@@ -52,7 +52,7 @@ macro_rules! define_packet
 
 /// Defines a packet kind enum.
 ///
-/// You can use any type that implements `Type` as the packet ID.
+/// You can use any type that implements `Parcel` as the packet ID.
 #[macro_export]
 macro_rules! define_packet_kind
 {
@@ -76,7 +76,7 @@ macro_rules! define_packet_kind
         impl $crate::Packet for $ty
         {
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
-                let packet_id = <$id_ty as $crate::Type>::read(read)?;
+                let packet_id = <$id_ty as $crate::Parcel>::read(read)?;
 
                 let packet = match packet_id {
                     $( $packet_id => $ty::$packet_ty(<$packet_ty as $crate::Packet>::read(read)?), )+
@@ -87,7 +87,7 @@ macro_rules! define_packet_kind
             }
 
             fn write(&self, write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
-                use $crate::Type;
+                use $crate::Parcel;
 
                 self.packet_id().write(write)?;
 

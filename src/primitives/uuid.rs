@@ -1,9 +1,9 @@
-use {Type, Error};
+use {Parcel, Error};
 use std::io::prelude::*;
 
 use uuid::Uuid;
 
-impl Type for Uuid
+impl Parcel for Uuid
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         let bytes: Result<Vec<u8>, _> = read.bytes().take(16).collect();

@@ -1,9 +1,9 @@
-use {Type, Error};
+use {Parcel, Error};
 
 use std::io::prelude::*;
 
-impl<T0, T1> Type for (T0, T1)
-    where T0: Type, T1: Type
+impl<T0, T1> Parcel for (T0, T1)
+    where T0: Parcel, T1: Parcel
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         let v0 = T0::read(read)?;
@@ -19,8 +19,8 @@ impl<T0, T1> Type for (T0, T1)
     }
 }
 
-impl<T0, T1, T2> Type for (T0, T1, T2)
-    where T0: Type, T1: Type, T2: Type
+impl<T0, T1, T2> Parcel for (T0, T1, T2)
+    where T0: Parcel, T1: Parcel, T2: Parcel
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         let v0 = T0::read(read)?;
@@ -38,8 +38,8 @@ impl<T0, T1, T2> Type for (T0, T1, T2)
     }
 }
 
-impl<T0, T1, T2, T3> Type for (T0, T1, T2, T3)
-    where T0: Type, T1: Type, T2: Type, T3: Type
+impl<T0, T1, T2, T3> Parcel for (T0, T1, T2, T3)
+    where T0: Parcel, T1: Parcel, T2: Parcel, T3: Parcel
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         let v0 = T0::read(read)?;
@@ -59,8 +59,8 @@ impl<T0, T1, T2, T3> Type for (T0, T1, T2, T3)
     }
 }
 
-impl<T0, T1, T2, T3, T4> Type for (T0, T1, T2, T3, T4)
-    where T0: Type, T1: Type, T2: Type, T3: Type, T4: Type
+impl<T0, T1, T2, T3, T4> Parcel for (T0, T1, T2, T3, T4)
+    where T0: Parcel, T1: Parcel, T2: Parcel, T3: Parcel, T4: Parcel
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         let v0 = T0::read(read)?;

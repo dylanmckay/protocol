@@ -1,8 +1,8 @@
-use {Type, Error};
+use {Parcel, Error};
 
 use std::io::prelude::*;
 
-impl<T: Type> Type for Option<T>
+impl<T: Parcel> Parcel for Option<T>
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         let is_some = bool::read(read)?;

@@ -1,4 +1,4 @@
-use {Type, Error};
+use {Parcel, Error};
 
 use std::rc::Rc;
 use std::sync::Arc;
@@ -7,7 +7,7 @@ use std::io::prelude::*;
 
 macro_rules! impl_smart_ptr_type {
     ($ty:ident) => {
-        impl<T: Type> Type for $ty<T>
+        impl<T: Parcel> Parcel for $ty<T>
         {
             fn read(read: &mut Read) -> Result<Self, Error> {
                 let value = T::read(read)?;

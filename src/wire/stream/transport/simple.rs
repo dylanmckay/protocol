@@ -1,6 +1,6 @@
 use super::Transport;
 
-use {Error, Type};
+use {Error, Parcel};
 
 use std::collections::VecDeque;
 use std::io::prelude::*;
