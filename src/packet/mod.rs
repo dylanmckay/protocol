@@ -1,5 +1,6 @@
-pub use self::packet::Packet;
-
 #[macro_use]
 pub mod macros;
-pub mod packet;
+#[cfg(test)]
+#[allow(unused_variables)]
+pub mod test;
+

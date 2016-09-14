@@ -10,7 +10,7 @@ macro_rules! define_packet
             $( pub $field_name : $field_ty ),+
         }
 
-        impl $crate::Packet for $ty
+        impl $crate::Parcel for $ty
         {
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 #[allow(unused_imports)]
@@ -37,7 +37,7 @@ macro_rules! define_packet
         #[derive(Clone, Debug)]
         pub struct $ty;
 
-        impl $crate::Packet for $ty
+        impl $crate::Parcel for $ty
         {
             fn read(_read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 Ok($ty)
@@ -73,13 +73,13 @@ macro_rules! define_packet_kind
             }
         }
 
-        impl $crate::Packet for $ty
+        impl $crate::Parcel for $ty
         {
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 let packet_id = <$id_ty as $crate::Parcel>::read(read)?;
 
                 let packet = match packet_id {
-                    $( $packet_id => $ty::$packet_ty(<$packet_ty as $crate::Packet>::read(read)?), )+
+                    $( $packet_id => $ty::$packet_ty(<$packet_ty as $crate::Parcel>::read(read)?), )+
                     _ => return Err($crate::Error::UnknownPacketId),
                 };
 
@@ -87,12 +87,13 @@ macro_rules! define_packet_kind
             }
 
             fn write(&self, write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
+                #[allow(unused_imports)]
                 use $crate::Parcel;
 
                 self.packet_id().write(write)?;
 
                 match *self {
-                    $( $ty::$packet_ty(ref p) => <$packet_ty as $crate::Packet>::write(p, write)? ),+
+                    $( $ty::$packet_ty(ref p) => <$packet_ty as $crate::Parcel>::write(p, write)? ),+
                 }
 
                 Ok(())

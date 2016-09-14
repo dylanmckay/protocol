@@ -12,9 +12,7 @@
 pub use self::primitives::{Integer, Array, String};
 pub use self::parcel::Parcel;
 pub use self::error::Error;
-pub use self::packet::Packet;
 
-#[macro_use]
 pub mod parcel;
 #[macro_use]
 pub mod primitives;

@@ -1,4 +1,4 @@
-use {Packet, Error};
+use {Parcel, Error};
 use wire::middleware;
 
 use std::io::prelude::*;
@@ -7,7 +7,7 @@ use std;
 
 /// A datagram-based packet pipeline.
 #[derive(Clone, Debug)]
-pub struct Pipeline<P: Packet, M: middleware::Pipeline>
+pub struct Pipeline<P: Parcel, M: middleware::Pipeline>
 {
     pub middleware: M,
 
@@ -15,7 +15,7 @@ pub struct Pipeline<P: Packet, M: middleware::Pipeline>
 }
 
 impl<P,M> Pipeline<P,M>
-    where P: Packet, M: middleware::Pipeline
+    where P: Parcel, M: middleware::Pipeline
 {
     pub fn new(middleware: M) -> Self {
         Pipeline {
@@ -37,7 +37,7 @@ impl<P,M> Pipeline<P,M>
     /// Writes a packet into a buffer.
     pub fn send_to(&mut self, buffer: &mut Write, packet: &P)
         -> Result<(), Error> {
-        let bytes = self.middleware.encode_data(packet.bytes()?)?;
+        let bytes = self.middleware.encode_data(packet.raw_bytes()?)?;
         buffer.write(&bytes)?;
         Ok(())
     }

@@ -1,4 +1,4 @@
-use {Packet, Error};
+use {Parcel, Error};
 use wire::stream::{Transport, transport};
 use wire::middleware;
 
@@ -8,7 +8,7 @@ use std::io::Cursor;
 /// A stream-based connection.
 // TODO: Allow custom transports.
 #[derive(Debug)]
-pub struct Connection<P: Packet, S: Read + Write, M: middleware::Pipeline = middleware::pipeline::Default>
+pub struct Connection<P: Parcel, S: Read + Write, M: middleware::Pipeline = middleware::pipeline::Default>
 {
     pub stream: S,
     pub transport: transport::Simple,
@@ -18,7 +18,7 @@ pub struct Connection<P: Packet, S: Read + Write, M: middleware::Pipeline = midd
 }
 
 impl<P,S,M> Connection<P,S,M>
-    where P: Packet, S: Read + Write, M: middleware::Pipeline
+    where P: Parcel, S: Read + Write, M: middleware::Pipeline
 {
     /// Creates a new connection.
     pub fn new(stream: S, middleware: M) -> Self {
@@ -52,7 +52,7 @@ impl<P,S,M> Connection<P,S,M>
 
     /// Sends a packet.
     pub fn send_packet(&mut self, packet: &P) -> Result<(), Error> {
-        let raw_packet = self.middleware.encode_data(packet.bytes()?)?;
+        let raw_packet = self.middleware.encode_data(packet.raw_bytes()?)?;
         self.transport.send_raw_packet(&mut self.stream, &raw_packet)
     }
 
@@ -62,7 +62,7 @@ impl<P,S,M> Connection<P,S,M>
 #[cfg(test)]
 mod test
 {
-    pub use Packet;
+    pub use Parcel;
     pub use super::Connection;
     pub use wire::middleware;
 
@@ -89,7 +89,7 @@ mod test
             connection.stream.set_position(0);
             let response = connection.receive_packet().unwrap();
 
-            assert_eq!(response.unwrap().bytes().unwrap(), ping.bytes().unwrap());
+            assert_eq!(response.unwrap().raw_bytes().unwrap(), ping.raw_bytes().unwrap());
         }
     }
 }
