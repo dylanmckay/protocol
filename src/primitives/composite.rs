@@ -39,7 +39,7 @@ macro_rules! implement_composite_type {
 #[macro_export]
 macro_rules! define_composite_type {
     ($ty:ident { $( $field_name:ident : $field_ty:ty ),+ }) => {
-        #[derive(Clone,Debug, PartialEq)]
+        #[derive(Clone, Debug, PartialEq)]
         pub struct $ty
         {
             $( pub $field_name : $field_ty ),+
@@ -58,7 +58,7 @@ mod test
     pub use Parcel;
     pub use std::io::Cursor;
 
-    #[derive(Clone, Debug)]
+    #[derive(Clone, Debug, PartialEq)]
     pub struct Foo
     {
         baz: String,

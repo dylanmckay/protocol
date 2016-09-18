@@ -4,7 +4,7 @@ macro_rules! define_packet
 {
     // Define a normal packet.
     ( $ty:ident { $( $field_name:ident : $field_ty:ty),+ }) => {
-        #[derive(Clone, Debug)]
+        #[derive(Clone, Debug, PartialEq)]
         pub struct $ty
         {
             $( pub $field_name : $field_ty ),+
@@ -34,7 +34,7 @@ macro_rules! define_packet
 
     // Define an empty packet.
     ( $ty:ident ) => {
-        #[derive(Clone, Debug)]
+        #[derive(Clone, Debug, PartialEq)]
         pub struct $ty;
 
         impl $crate::Parcel for $ty
@@ -57,7 +57,7 @@ macro_rules! define_packet
 macro_rules! define_packet_kind
 {
     ( $ty:ident : $id_ty:ty { $( $packet_id:expr => $packet_ty:ident ),+ } ) => {
-        #[derive(Clone, Debug)]
+        #[derive(Clone, Debug, PartialEq)]
         pub enum $ty
         {
             $( $packet_ty($packet_ty) ),+

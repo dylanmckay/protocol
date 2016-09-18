@@ -17,7 +17,7 @@ impl<T: Parcel> Parcel for Vec<T>
 }
 
 /// An array type with a custom size prefix type.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Array<S: primitives::Integer, T: Parcel>
 {
     pub elements: Vec<T>,

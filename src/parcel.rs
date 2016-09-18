@@ -2,7 +2,7 @@ use std::io::prelude::*;
 use std::{fmt, io};
 
 /// A value which can be read and written.
-pub trait Parcel : Clone + fmt::Debug
+pub trait Parcel : Clone + fmt::Debug + PartialEq
 {
     /// Reads a value from a stream.
     fn read(read: &mut Read) -> Result<Self, ::Error>;
