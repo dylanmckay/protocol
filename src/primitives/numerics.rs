@@ -6,16 +6,16 @@ use std::num::TryFromIntError;
 
 use byteorder::{ReadBytesExt, WriteBytesExt};
 
-pub trait Integer : Parcel + TryFrom<u8, Err=TryFromIntError> + TryFrom<i8, Err=TryFromIntError> +
-                    TryFrom<u16, Err=TryFromIntError> + TryFrom<i16, Err=TryFromIntError> +
-                    TryFrom<u32, Err=TryFromIntError> + TryFrom<i32, Err=TryFromIntError> +
-                    TryFrom<u64, Err=TryFromIntError> + TryFrom<i64, Err=TryFromIntError> +
-                    TryFrom<usize, Err=TryFromIntError> + TryFrom<isize, Err=TryFromIntError> +
-                    TryInto<u8, Err=TryFromIntError> + TryInto<i8, Err=TryFromIntError> +
-                    TryInto<u16, Err=TryFromIntError> + TryInto<i16, Err=TryFromIntError> +
-                    TryInto<u32, Err=TryFromIntError> + TryInto<i32, Err=TryFromIntError> +
-                    TryInto<u64, Err=TryFromIntError> + TryInto<i64, Err=TryFromIntError> +
-                    TryInto<usize, Err=TryFromIntError> + TryInto<isize, Err=TryFromIntError>
+pub trait Integer : Parcel + TryFrom<u8, Error=TryFromIntError> + TryFrom<i8, Error=TryFromIntError> +
+                    TryFrom<u16, Error=TryFromIntError> + TryFrom<i16, Error=TryFromIntError> +
+                    TryFrom<u32, Error=TryFromIntError> + TryFrom<i32, Error=TryFromIntError> +
+                    TryFrom<u64, Error=TryFromIntError> + TryFrom<i64, Error=TryFromIntError> +
+                    TryFrom<usize, Error=TryFromIntError> + TryFrom<isize, Error=TryFromIntError> +
+                    TryInto<u8, Error=TryFromIntError> + TryInto<i8, Error=TryFromIntError> +
+                    TryInto<u16, Error=TryFromIntError> + TryInto<i16, Error=TryFromIntError> +
+                    TryInto<u32, Error=TryFromIntError> + TryInto<i32, Error=TryFromIntError> +
+                    TryInto<u64, Error=TryFromIntError> + TryInto<i64, Error=TryFromIntError> +
+                    TryInto<usize, Error=TryFromIntError> + TryInto<isize, Error=TryFromIntError>
 {
 
 }
