@@ -5,8 +5,8 @@ use std;
 /// A middleware pipeline.
 pub trait Pipeline : std::fmt::Debug
 {
-    fn encode_data(&mut self, mut data: Vec<u8>) -> Result<Vec<u8>, Error>;
-    fn decode_data(&mut self, mut data: Vec<u8>) -> Result<Vec<u8>, Error>;
+    fn encode_data(&mut self, data: Vec<u8>) -> Result<Vec<u8>, Error>;
+    fn decode_data(&mut self, data: Vec<u8>) -> Result<Vec<u8>, Error>;
 }
 
 /// Creates an instance of the default middleware.

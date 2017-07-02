@@ -1,7 +1,6 @@
-#![feature(question_mark)]
 #![feature(try_from)]
-#![feature(plugin)]
 
+#![cfg_attr(test, feature(plugin))]
 #![cfg_attr(test, plugin(stainless))]
 
 //! Simple packet-based protocol definitions in Rust.
