@@ -1,7 +1,7 @@
 [package]
 name = "protocol"
 version = "0.1.10"
-authors = ["Dylan McKay <dylanmckay34@gmail.com>"]
+authors = ["Dylan McKay <me@dylanmckay.io>"]
 
 description = "Easy protocol definitions"
 license = "MIT"
