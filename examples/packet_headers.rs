@@ -2,8 +2,6 @@
 //! This works because types and packets are the same thing.
 //! This means that we can simply have a packet with another packet field.
 
-#![feature(question_mark)]
-
 #[macro_use]
 extern crate protocol;
 

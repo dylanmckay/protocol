@@ -1,6 +1,5 @@
 // Custom middleware example.
 // All bytes that go through the protocol are rotated by an offset of 13.
-#![feature(question_mark)]
 
 #[macro_use]
 extern crate protocol;

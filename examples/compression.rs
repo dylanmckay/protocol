@@ -2,8 +2,6 @@
 //! The default middleware pipeline supports compression, but is disabled
 //! by default.
 
-#![feature(question_mark)]
-
 #[macro_use]
 extern crate protocol;
 
