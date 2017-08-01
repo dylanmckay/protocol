@@ -1,5 +1,5 @@
 pub use self::numerics::Integer;
-pub use self::array::Array;
+pub use self::array::DynArray;
 pub use self::string::String;
 
 pub mod numerics;

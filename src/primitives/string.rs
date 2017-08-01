@@ -1,4 +1,4 @@
-use {primitives, Parcel, Error, Array};
+use {primitives, Parcel, Error, DynArray};
 use std::io::prelude::*;
 use std;
 
@@ -39,13 +39,13 @@ impl<S: primitives::Integer> String<S>
 impl<S: primitives::Integer> Parcel for String<S>
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
-        let bytes = Array::<S, u8>::read(read)?;
+        let bytes = DynArray::<S, u8>::read(read)?;
 
         Ok(String::new(std::string::String::from_utf8(bytes.elements)?))
     }
 
     fn write(&self, write: &mut Write) -> Result<(), Error> {
-        let array: Array<S, u8> = Array::new(self.value.bytes().collect());
+        let array: DynArray<S, u8> = DynArray::new(self.value.bytes().collect());
         array.write(write)
     }
 }

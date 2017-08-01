@@ -3,35 +3,25 @@ use {primitives, Parcel, Error};
 use std::io::prelude::*;
 use std;
 
+/// The integer type that we will use to send length prefixes.
 pub type SizeType = u32;
 
-impl<T: Parcel> Parcel for Vec<T>
-{
-    fn read(read: &mut Read) -> Result<Self, Error> {
-        Ok(Array::<SizeType, T>::read(read)?.elements)
-    }
-
-    fn write(&self, write: &mut Write) -> Result<(), Error> {
-        Array::<SizeType, T>::new(self.clone()).write(write)
-    }
-}
-
-/// An array type with a custom size prefix type.
+/// An dynamic array type with a custom size prefix type.
 #[derive(Clone, Debug, PartialEq)]
-pub struct Array<S: primitives::Integer, T: Parcel>
+pub struct DynArray<S: primitives::Integer, T: Parcel>
 {
     pub elements: Vec<T>,
     _a: std::marker::PhantomData<S>,
 }
 
-impl<S: primitives::Integer, T: Parcel> Array<S,T>
+impl<S: primitives::Integer, T: Parcel> DynArray<S,T>
 {
     pub fn new(elements: Vec<T>) -> Self {
-        Array { elements: elements, _a: std::marker::PhantomData }
+        DynArray { elements: elements, _a: std::marker::PhantomData }
     }
 }
 
-impl<S: primitives::Integer, T: Parcel> Parcel for Array<S, T>
+impl<S: primitives::Integer, T: Parcel> Parcel for DynArray<S, T>
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
         let size = S::read(read)?;
@@ -56,4 +46,16 @@ impl<S: primitives::Integer, T: Parcel> Parcel for Array<S, T>
         Ok(())
     }
 }
+
+impl<T: Parcel> Parcel for Vec<T>
+{
+    fn read(read: &mut Read) -> Result<Self, Error> {
+        Ok(DynArray::<SizeType, T>::read(read)?.elements)
+    }
+
+    fn write(&self, write: &mut Write) -> Result<(), Error> {
+        DynArray::<SizeType, T>::new(self.clone()).write(write)
+    }
+}
+
 
