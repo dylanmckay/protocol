@@ -1,6 +1,6 @@
 [package]
 name = "protocol"
-version = "0.1.12"
+version = "0.2.0"
 authors = ["Dylan McKay <me@dylanmckay.io>"]
 
 description = "Easy protocol definitions"
