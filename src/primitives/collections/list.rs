@@ -4,14 +4,13 @@ macro_rules! impl_list_type {
             where T: $crate::Parcel $( + $ty_pred )*
         {
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
-                let elements: Vec<T> = Vec::read(read)?;
+                let elements = ::primitives::util::read_list(read)?;
                 Ok(elements.into_iter().collect())
             }
 
-            fn write(&self, write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
-                let elements: Vec<_> = self.iter().cloned().collect();
-                elements.write(write)?;
-                Ok(())
+            fn write(&self, write: &mut ::std::io::Write)
+                -> Result<(), $crate::Error> {
+                ::primitives::util::write_list(write, self.iter())
             }
         }
 

@@ -17,3 +17,5 @@ pub mod smart_ptr;
 #[cfg(feature = "uuid")]
 pub mod uuid;
 
+mod util;
+
