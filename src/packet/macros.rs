@@ -80,7 +80,7 @@ macro_rules! define_packet_kind
 
                 let packet = match packet_id {
                     $( $packet_id => $ty::$packet_ty(<$packet_ty as $crate::Parcel>::read(read)?), )+
-                    _ => return Err($crate::Error::UnknownPacketId),
+                    _ => return Err($crate::ErrorKind::UnknownPacketId.into()),
                 };
 
                 Ok(packet)

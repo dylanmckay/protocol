@@ -1,6 +1,6 @@
 #[macro_use]
-pub mod macros;
+mod macros;
 #[cfg(test)]
 #[allow(unused_variables)]
-pub mod test;
+mod test;
 
