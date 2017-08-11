@@ -25,45 +25,37 @@ define_packet_kind!(PacketKind: u32 {
     0x04 => Properties
 });
 
-describe! packets {
-    before_each {
-        let hello = Hello { id: 55, data: vec![1, 2, 3] };
-        let goodbye = Goodbye { id: 8765, reason: "um".to_string() };
+const HELLO_EXPECTED_BYTES: &'static [u8] = &[
+    0x00, 0x00, 0x00, 0x02, // Packet ID
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 55, // 'id' field
+    0x00, 0x00, 0x00, 0x03, // 'data' length
+    0x01, 0x02, 0x03, // 'data' array
+];
 
-        let hello_expected_bytes = &[
-            0x00, 0x00, 0x00, 0x02, // Packet ID
-            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 55, // 'id' field
-            0x00, 0x00, 0x00, 0x03, // 'data' length
-            0x01, 0x02, 0x03, // 'data' array
-        ];
-    }
+#[test]
+fn sets_packet_ids_correctly() {
+    let hello = Hello { id: 55, data: vec![1, 2, 3] };
+    let goodbye = Goodbye { id: 8765, reason: "um".to_string() };
 
-    describe! packet_ids {
-        describe! numerical {
-            it "gets the corrrect ids" {
-                assert_eq!(PacketKind::Handshake(Handshake).packet_id(), 0x00);
-                assert_eq!(PacketKind::Kick(Kick).packet_id(), 0x01);
+    assert_eq!(PacketKind::Handshake(Handshake).packet_id(), 0x00);
+    assert_eq!(PacketKind::Kick(Kick).packet_id(), 0x01);
 
-                assert_eq!(PacketKind::Hello(hello).packet_id(), 0x02);
-                assert_eq!(PacketKind::Goodbye(goodbye).packet_id(), 0x03);
-            }
-        }
+    assert_eq!(PacketKind::Hello(hello).packet_id(), 0x02);
+    assert_eq!(PacketKind::Goodbye(goodbye).packet_id(), 0x03);
+}
 
-        describe! writing {
-            it "writes the correct values" {
-                let packet = PacketKind::Hello(hello);
+#[test]
+fn reads_packet_ids_correctly() {
+    let packet = PacketKind::from_raw_bytes(HELLO_EXPECTED_BYTES).unwrap();
 
-                assert_eq!(&packet.raw_bytes().unwrap(), hello_expected_bytes);
-            }
-        }
+    assert_eq!(packet.raw_bytes().unwrap(), HELLO_EXPECTED_BYTES);
+}
 
-        describe! reading {
-            it "reads the correct values" {
-                let packet = PacketKind::from_raw_bytes(hello_expected_bytes).unwrap();
+#[test]
+fn writes_packet_ids_correctly() {
+    let hello = Hello { id: 55, data: vec![1, 2, 3] };
+    let packet = PacketKind::Hello(hello);
 
-                assert_eq!(packet.raw_bytes().unwrap(), hello_expected_bytes);
-            }
-        }
-    }
+    assert_eq!(packet.raw_bytes().unwrap(), HELLO_EXPECTED_BYTES);
 }
 

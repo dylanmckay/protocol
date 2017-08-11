@@ -20,15 +20,14 @@ macro_rules! impl_list_type {
             pub use Parcel;
             pub use std::collections::$ty;
 
-            describe! serialization {
-                it "can be written and then read without changing" {
-                    let original: $ty<u32> = [1, 2, 3, 4, 5].iter().cloned().collect();
+            #[test]
+            fn can_be_written_and_read_back_correctly() {
+                let original: $ty<u32> = [1, 2, 3, 4, 5].iter().cloned().collect();
 
-                    let raw_bytes = original.raw_bytes().unwrap();
-                    let read_deque = $ty::<u32>::from_raw_bytes(&raw_bytes).unwrap();
+                let raw_bytes = original.raw_bytes().unwrap();
+                let read_deque = $ty::<u32>::from_raw_bytes(&raw_bytes).unwrap();
 
-                    assert_eq!(original, read_deque);
-                }
+                assert_eq!(original, read_deque);
             }
         }
     }

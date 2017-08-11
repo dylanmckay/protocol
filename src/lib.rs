@@ -1,8 +1,5 @@
 #![feature(try_from)]
 
-#![cfg_attr(test, feature(plugin))]
-#![cfg_attr(test, plugin(stainless))]
-
 //! Simple packet-based protocol definitions in Rust.
 //!
 //! * The `packet` module deals with defining packets.

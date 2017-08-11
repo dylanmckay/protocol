@@ -78,33 +78,26 @@ mod test
         c: u8
     });
 
-    describe! composite_primitives {
-        before_each {
-            let foo = Foo { baz: "baz".to_string(), bing: 32 };
-            let bar = Bar { baz: "baz".to_string(), bing: 32 };
-            let bing = Bing { a: 3, b: 2, c: 1 };
-        }
+    #[test]
+    fn is_consistent_when_using_the_different_macros() {
+        let foo = Foo { baz: "baz".to_string(), bing: 32 };
+        let bar = Bar { baz: "baz".to_string(), bing: 32 };
+        assert_eq!(foo.raw_bytes().unwrap(), bar.raw_bytes().unwrap());
+    }
 
-        describe! macros {
-            it "is consistent when using the different macros" {
-                assert_eq!(foo.raw_bytes().unwrap(), bar.raw_bytes().unwrap());
-            }
-        }
+    #[test]
+    fn writing_matches_expected_output() {
+        let bing = Bing { a: 3, b: 2, c: 1 };
+        assert_eq!(&bing.raw_bytes().unwrap(), &[bing.a, bing.b, bing.c]);
+    }
 
-        describe! writing {
-            it "matches the expected output" {
-                assert_eq!(&bing.raw_bytes().unwrap(), &[bing.a, bing.b, bing.c]);
-            }
-        }
+    #[test]
+    fn reading_reads_expected_value() {
+        let bing = Bing { a: 3, b: 2, c: 1 };
+        let mut buffer = Cursor::new([bing.a, bing.b, bing.c]);
+        let read = Bing::read(&mut buffer).unwrap();
 
-        describe! reading {
-            it "reads the expected value" {
-                let mut buffer = Cursor::new([bing.a, bing.b, bing.c]);
-                let read = Bing::read(&mut buffer).unwrap();
-
-                assert_eq!(read, bing);
-            }
-        }
+        assert_eq!(read, bing);
     }
 }
 

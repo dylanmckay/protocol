@@ -148,37 +148,39 @@ mod test
     pub use std::io::Cursor;
     pub use wire::stream::Transport;
 
-    describe! simple_transport {
-        before_each {
-            let data: Vec<u8> = vec![5, 4, 3, 2, 1];
-            let expected_data = &[
-                    0x00, 0x00, 0x00, 0x05, // 32-bit size prefix
-                    0x05, 0x04, 0x03, 0x02, 0x01, // The data
-            ];
+    #[test]
+    fn serialises_the_data_with_32bit_length_prefix() {
+        let data: Vec<u8> = vec![5, 4, 3, 2, 1];
+        let expected_data = &[
+                0x00, 0x00, 0x00, 0x05, // 32-bit size prefix
+                0x05, 0x04, 0x03, 0x02, 0x01, // The data
+        ];
 
-            let mut transport = Simple::new();
-        }
+        let mut transport = Simple::new();
 
-        describe! writing {
-            it "serializes the data with a 32-bit length prefix and then the raw data" {
-                let mut buffer = Cursor::new(Vec::new());
+        let mut buffer = Cursor::new(Vec::new());
 
-                transport.send_raw_packet(&mut buffer, &data).unwrap();
-                let written_data = buffer.into_inner();
+        transport.send_raw_packet(&mut buffer, &data).unwrap();
+        let written_data = buffer.into_inner();
 
-                assert_eq!(&written_data, &expected_data);
-            }
-        }
+        assert_eq!(&written_data, &expected_data);
+    }
 
-        describe! reading {
-            it "successfully handles data with a 32-bit length prefix" {
-                let mut buffer = Cursor::new(&expected_data);
+    #[test]
+    fn successfully_deserialises_data_with_32bit_length_prefix() {
+        let data: Vec<u8> = vec![5, 4, 3, 2, 1];
+        let expected_data = &[
+                0x00, 0x00, 0x00, 0x05, // 32-bit size prefix
+                0x05, 0x04, 0x03, 0x02, 0x01, // The data
+        ];
 
-                transport.process_data(&mut buffer).unwrap();
-                let read_data = transport.receive_raw_packet().ok().unwrap().unwrap();
-                assert_eq!(&read_data, &data);
-            }
-        }
+        let mut transport = Simple::new();
+
+        let mut buffer = Cursor::new(&expected_data);
+
+        transport.process_data(&mut buffer).unwrap();
+        let read_data = transport.receive_raw_packet().ok().unwrap().unwrap();
+        assert_eq!(&read_data, &data);
     }
 }
 

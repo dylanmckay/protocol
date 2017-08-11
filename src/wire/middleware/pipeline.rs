@@ -76,6 +76,7 @@ impl std::default::Default for Default
 mod test
 {
     use Error;
+    use wire::middleware::Pipeline;
     use wire;
 
     define_middleware_pipeline!(NullPipeline {
@@ -92,22 +93,17 @@ mod test
         fn decode_data(&mut self, data: Vec<u8>) -> Result<Vec<u8>, Error> { Ok(data) }
     }
 
-    describe! pipeline {
-        before_each {
-            let mut null_pipeline = NullPipeline {
-                encryption: NullMiddleware,
-                compression: NullMiddleware,
-            };
+    #[test]
+    fn successfully_passes_data_through_the_pipeline() {
+        let mut null_pipeline = NullPipeline {
+            encryption: NullMiddleware,
+            compression: NullMiddleware,
+        };
 
-            let data = vec![7, 2, 5, 5, 1, 2, 3, 4, 2, 4, 8];
-        }
+        let data = vec![7, 2, 5, 5, 1, 2, 3, 4, 2, 4, 8];
 
-        it "successfully passes data through the pipeline" {
-            use wire::middleware::Pipeline;
-
-            assert_eq!(null_pipeline.encode_data(data.clone()).unwrap(), data.clone());
-            assert_eq!(null_pipeline.decode_data(data.clone()).unwrap(), data.clone());
-        }
+        assert_eq!(null_pipeline.encode_data(data.clone()).unwrap(), data.clone());
+        assert_eq!(null_pipeline.decode_data(data.clone()).unwrap(), data.clone());
     }
 }
 

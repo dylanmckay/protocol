@@ -76,21 +76,20 @@ mod test
         0x00 => Ping
     });
 
-    describe! connection {
-        it "can write and read back data" {
-            let ping = PacketKind::Ping(Ping { data: vec![5, 4, 3, 2, 1]});
+    #[test]
+    fn can_write_and_read_back_data() {
+        let ping = PacketKind::Ping(Ping { data: vec![5, 4, 3, 2, 1]});
 
-            let buffer = Cursor::new(Vec::new());
-            let mut connection = Connection::new(buffer, middleware::pipeline::default());
+        let buffer = Cursor::new(Vec::new());
+        let mut connection = Connection::new(buffer, middleware::pipeline::default());
 
-            connection.send_packet(&ping).unwrap();
+        connection.send_packet(&ping).unwrap();
 
-            // Read the packet back.
-            connection.stream.set_position(0);
-            let response = connection.receive_packet().unwrap();
+        // Read the packet back.
+        connection.stream.set_position(0);
+        let response = connection.receive_packet().unwrap();
 
-            assert_eq!(response.unwrap().raw_bytes().unwrap(), ping.raw_bytes().unwrap());
-        }
+        assert_eq!(response.unwrap().raw_bytes().unwrap(), ping.raw_bytes().unwrap());
     }
 }
 
