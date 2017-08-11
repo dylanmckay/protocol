@@ -2,20 +2,21 @@ pub use self::numerics::Integer;
 pub use self::array::DynArray;
 pub use self::string::String;
 
-pub mod numerics;
+mod numerics;
 #[macro_use]
-pub mod composite;
-pub mod array;
-pub mod string;
-pub mod char;
-pub mod tuple;
-pub mod option;
+mod composite;
+mod array;
+mod string;
+mod char;
+mod tuple;
+mod option;
 /// Defintions for the `std::collections` module.
-pub mod collections;
+mod collections;
 /// Definitions for smart pointers in the `std` module.
-pub mod smart_ptr;
-#[cfg(feature = "uuid")]
-pub mod uuid;
+mod smart_ptr;
 
 mod util;
+
+#[cfg(feature = "uuid")]
+mod uuid;
 

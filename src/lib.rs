@@ -9,12 +9,13 @@ pub use self::primitives::{Integer, DynArray, String};
 pub use self::parcel::Parcel;
 pub use self::error::Error;
 
-pub mod parcel;
 #[macro_use]
 pub mod primitives;
+
+mod parcel;
 #[macro_use]
-pub mod packet;
-pub mod error;
+mod packet;
+mod error;
 #[macro_use]
 pub mod wire;
 
