@@ -2,7 +2,7 @@ use std::io::prelude::*;
 use std::io;
 
 /// A value which can be read and written.
-pub trait Parcel : Sized + PartialEq
+pub trait Parcel : Sized
 {
     /// Reads a value from a stream.
     fn read(read: &mut Read) -> Result<Self, ::Error>;

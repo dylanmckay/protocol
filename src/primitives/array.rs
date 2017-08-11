@@ -92,6 +92,20 @@ impl_parcel_for_array!(29);
 impl_parcel_for_array!(30);
 impl_parcel_for_array!(31);
 impl_parcel_for_array!(32);
+impl_parcel_for_array!(40);
+impl_parcel_for_array!(42);
+impl_parcel_for_array!(48);
+impl_parcel_for_array!(64);
+impl_parcel_for_array!(80);
+impl_parcel_for_array!(120);
+impl_parcel_for_array!(128);
+impl_parcel_for_array!(256);
+impl_parcel_for_array!(500);
+impl_parcel_for_array!(512);
+impl_parcel_for_array!(1000);
+impl_parcel_for_array!(1024);
+impl_parcel_for_array!(4096);
+impl_parcel_for_array!(0xffff);
 
 impl<T: Parcel> Parcel for Vec<T>
 {
