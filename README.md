@@ -8,8 +8,6 @@
 
 Easy protocol definitions in Rust.
 
-Requires the nightly compiler.
-
 ## Example
 
 ```rust

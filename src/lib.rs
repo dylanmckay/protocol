@@ -1,5 +1,3 @@
-#![feature(try_from)]
-
 //! Simple packet-based protocol definitions in Rust.
 //!
 //! * The `packet` module deals with defining packets.
@@ -7,7 +5,7 @@
 
 pub use self::primitives::{Integer, DynArray, String};
 pub use self::parcel::Parcel;
-pub use self::errors::{Error, ErrorKind, ResultExt};
+pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromIntError};
 
 // Must go first because it defines common macros.
 #[macro_use]
@@ -28,6 +26,7 @@ extern crate error_chain;
 
 #[cfg(feature = "uuid")]
 extern crate uuid;
+extern crate num_traits;
 
 /// The default byte ordering.
 pub type ByteOrder = ::byteorder::BigEndian;

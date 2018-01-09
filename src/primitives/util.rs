@@ -1,4 +1,4 @@
-use {Parcel, Error};
+use {Parcel, Error, TryFromIntError};
 use primitives::Integer;
 
 use std::io::prelude::*;
@@ -26,7 +26,7 @@ pub fn read_list_ext<S,T>(read: &mut Read)
     where S: Integer,
           T: Parcel {
     let size = S::read(read)?;
-    let size: usize = size.try_into()?;
+    let size: usize = size.to_usize().ok_or(TryFromIntError{ })?;
     let mut elements = Vec::with_capacity(size);
 
     for _ in 0..size {
@@ -42,7 +42,7 @@ pub fn write_list_ext<'a,S,T,I>(write: &mut Write, elements: I)
           T: Parcel+'a,
           I: IntoIterator<Item=&'a T> {
     let elements: Vec<_> = elements.into_iter().collect();
-    let length = S::try_from(elements.len())?;
+    let length = S::from_usize(elements.len()).ok_or(TryFromIntError{ })?;
     length.write(write)?;
 
     for element in elements.into_iter() {
@@ -51,4 +51,3 @@ pub fn write_list_ext<'a,S,T,I>(write: &mut Write, elements: I)
 
     Ok(())
 }
-
