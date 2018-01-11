@@ -1,21 +1,11 @@
 use {Parcel, Error, ByteOrder};
 
 use std::io::prelude::*;
-use std::convert::{TryFrom, TryInto};
-use std::num::TryFromIntError;
 
+use num_traits::{FromPrimitive, ToPrimitive};
 use byteorder::{ReadBytesExt, WriteBytesExt};
 
-pub trait Integer : Parcel + TryFrom<u8, Error=TryFromIntError> + TryFrom<i8, Error=TryFromIntError> +
-                    TryFrom<u16, Error=TryFromIntError> + TryFrom<i16, Error=TryFromIntError> +
-                    TryFrom<u32, Error=TryFromIntError> + TryFrom<i32, Error=TryFromIntError> +
-                    TryFrom<u64, Error=TryFromIntError> + TryFrom<i64, Error=TryFromIntError> +
-                    TryFrom<usize, Error=TryFromIntError> + TryFrom<isize, Error=TryFromIntError> +
-                    TryInto<u8, Error=TryFromIntError> + TryInto<i8, Error=TryFromIntError> +
-                    TryInto<u16, Error=TryFromIntError> + TryInto<i16, Error=TryFromIntError> +
-                    TryInto<u32, Error=TryFromIntError> + TryInto<i32, Error=TryFromIntError> +
-                    TryInto<u64, Error=TryFromIntError> + TryInto<i64, Error=TryFromIntError> +
-                    TryInto<usize, Error=TryFromIntError> + TryInto<isize, Error=TryFromIntError>
+pub trait Integer : Parcel + FromPrimitive + ToPrimitive
 {
 
 }

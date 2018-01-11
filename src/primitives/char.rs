@@ -1,14 +1,13 @@
-use {Parcel, Error};
+use {Parcel, Error, CharTryFromError};
 
+use std::char;
 use std::io::prelude::*;
 
 impl Parcel for char
 {
     fn read(read: &mut Read) -> Result<Self, Error> {
-        use std::convert::TryFrom;
-
         let bytes = u32::read(read)?;
-        Ok(char::try_from(bytes)?)
+        Ok(char::from_u32(bytes).ok_or(CharTryFromError{ })?)
     }
 
     fn write(&self, write: &mut Write) -> Result<(), Error> {
