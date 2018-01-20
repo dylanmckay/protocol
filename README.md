@@ -11,10 +11,6 @@ Easy protocol definitions in Rust.
 This crate adds a custom derive that can be added to types, allowing
 structured data to be sent and received from any IO stream.
 
-## Under the hood
-
-The most interesting part here is the [`protocol::Parcel`](https://docs.rs/protocol/0.3.3/protocol/trait.Parcel.html) trait. Any type that implements this trait can then be serialised to and from a byte stream. All primitive types, standard collections, tuples, and arrays implement this trait.
-
 This crate also provides:
 
 * [TCP](https://docs.rs/protocol/0.3.3/protocol/wire/stream/index.html) and [UDP](https://docs.rs/protocol/0.3.3/protocol/wire/dgram/index.html) modules for easy sending and receicing of `Parcel`s
@@ -24,6 +20,31 @@ This crate also provides:
 
 Checkout the [examples](./examples) folder for usage.
 
+## Under the hood
+
+The most interesting part here is the [`protocol::Parcel`](https://docs.rs/protocol/0.3.3/protocol/trait.Parcel.html) trait. Any type that implements this trait can then be serialised to and from a byte stream. All primitive types, standard collections, tuples, and arrays implement this trait.
+
+This crate becomes particularly useful when you define your own `Parcel` types. You can use `#[derive(Protocol)]` to do this, or you can use the `define_composite_type!` macro instead. Note that in order for a type to implement `Parcel`, it must also implement `Clone`, `Debug`, and `PartialEq`.
+
+```rust
+#[derive(Parcel, Clone, Debug, PartialEq]
+pub struct Health(f32);
+
+#[derive(Parcel, Clone, Debug, PartialEq]
+pub struct SetPlayerPosition {
+    pub position: (f32, f32),
+    pub health: Health,
+    pub values: Vec<String>,
+}
+```
+
+### Custom derive
+
+Any user-defined type can have the `Parcel` trait automatically derived.
+
+*CAUTION*: Be careful when using `#[derive(Protocol)]` on an `enum`. These values are transmitted using the 1-based enum variant number as a discriminant. This means that you must always add new variants at the end, otherwise the new variant will be parsed incorrectly as a different variant by an older version of your program. Ideally we would force every enum to have discriminators explicitly specified, but this only works for C-like enums.
+
+It is possible to use the `define_packet_kind!` macro specifically if you'd like to have `protocol::Parcel` to be implemented, while also forcing you to specify IDs on every variant.
 
 ## Example
 
