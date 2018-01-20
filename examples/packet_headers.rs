@@ -2,20 +2,22 @@
 //! This works because types and packets are the same thing.
 //! This means that we can simply have a packet with another packet field.
 
-#[macro_use]
 extern crate protocol;
+#[macro_use] extern crate protocol_derive;
 
-define_packet!(Handshake);
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub struct Handshake;
 
-define_packet!(Packet {
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub struct Packet {
     headers: std::collections::HashMap<String, String>,
     kind: PacketKind
-});
+}
 
-// Defines a packet kind enum.
-define_packet_kind!(PacketKind: u32 {
-    0x00 => Handshake
-});
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub enum PacketKind {
+    Handshake(Handshake),
+}
 
 fn main() {
     use std::net::TcpStream;

@@ -1,17 +1,20 @@
-#[macro_use]
 extern crate protocol;
+#[macro_use] extern crate protocol_derive;
 
-define_packet!(Handshake);
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub struct Handshake;
 
-define_packet!(Hello {
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub struct Hello {
     id: i64,
     data: Vec<u8>
-});
+}
 
-define_packet_kind!(Packet: u32 {
-    0x00 => Handshake,
-    0x01 => Hello
-});
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub enum Packet {
+    Handshake(Handshake),
+    Hello(Hello),
+}
 
 fn main() {
     use std::net::UdpSocket;

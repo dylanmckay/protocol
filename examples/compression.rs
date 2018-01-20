@@ -2,15 +2,16 @@
 //! The default middleware pipeline supports compression, but is disabled
 //! by default.
 
-#[macro_use]
 extern crate protocol;
+#[macro_use] extern crate protocol_derive;
 
 pub const ALGORITHM: protocol::wire::middleware::compression::Algorithm = protocol::wire::middleware::compression::Algorithm::Zlib;
 
-define_packet!(Hello {
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub struct Hello {
     id: i64,
     data: Vec<u8>
-});
+}
 
 fn main() {
     use std::net::TcpStream;

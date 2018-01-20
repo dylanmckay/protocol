@@ -1,22 +1,26 @@
-#[macro_use]
-extern crate protocol;
+#[macro_use] extern crate protocol_derive;
+#[macro_use] extern crate protocol;
 
-define_packet!(Handshake);
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub struct Handshake;
 
-define_packet!(Hello {
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub struct Hello {
     id: i64,
-    data: Vec<u8>
-});
+    data: Vec<u8>,
+}
 
-define_packet!(Goodbye {
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub struct Goodbye {
     id: i64,
-    reason: String
-});
+    reason: String,
+}
 
-define_composite_type!(Node {
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub struct Node {
     name: String,
     enabled: bool
-});
+}
 
 // Defines a packet kind enum.
 define_packet_kind!(Packet: u32 {

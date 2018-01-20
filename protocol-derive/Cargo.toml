@@ -1,0 +1,12 @@
+[package]
+name = "protocol-derive"
+version = "0.3.2"
+authors = ["Dylan McKay <me@dylanmckay.io>"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "0.12.7"
+quote = "0.4.2"
+
