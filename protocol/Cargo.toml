@@ -20,3 +20,27 @@ uuid = { version = "0.5", optional = true }
 error-chain = "0.10"
 num-traits = "0.1"
 
+[dev-dependencies]
+# Used in examples
+protocol-derive = { path = "../protocol-derive", version = "0.3.2" }
+
+[[example]]
+name = "basic"
+path = "../examples/basic.rs"
+
+[[example]]
+name = "compression"
+path = "../examples/compression.rs"
+
+[[example]]
+name = "custom_middleware"
+path = "../examples/custom_middleware.rs"
+
+[[example]]
+name = "packet_headers"
+path = "../examples/packet_headers.rs"
+
+[[example]]
+name = "udp"
+path = "../examples/udp.rs"
+

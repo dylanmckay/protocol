@@ -17,7 +17,7 @@ macro_rules! define_packet
                 use $crate::Parcel;
 
                 Ok($ty {
-                    $( $field_name : <$field_ty as $crate::Parcel>::read(read)?, )+
+                    $( $field_name : $crate::Parcel::read(read)?, )+
                 })
             }
 

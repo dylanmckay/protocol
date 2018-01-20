@@ -1,5 +1,11 @@
-#[macro_use]
-extern crate protocol;
+#[macro_use] extern crate protocol_derive;
+#[macro_use] extern crate protocol;
+
+#[derive(Protocol)]
+pub struct Foo {
+    hello: u8,
+    world: String,
+}
 
 define_packet!(Handshake);
 
