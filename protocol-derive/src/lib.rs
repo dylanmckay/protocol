@@ -66,9 +66,35 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
             }
         },
         syn::Fields::Unnamed(ref fields_unnamed) => {
-            let field_numbers = (0..fields_unnamed.unnamed.len()).into_iter();
+            let field_numbers: Vec<_> = (0..fields_unnamed.unnamed.len()).into_iter().map(syn::Index::from).collect();
+            let field_numbers = &field_numbers[..];
 
-            unimplemented!();
+            let field_expressions = field_numbers.iter().map(|_| {
+                quote!{ protocol::Parcel::read(read)? }
+            });
+
+            quote! {
+                #[allow(non_upper_case_globals)]
+                const #anon_const_name: () = {
+                    extern crate protocol;
+                    use std::io;
+
+                    impl protocol::Parcel for #strukt_name {
+                        fn read(read: &mut io::Read)
+                            -> Result<Self, protocol::Error> {
+                            Ok(#strukt_name(
+                                #(#field_expressions),*
+                            ))
+                        }
+
+                        fn write(&self, write: &mut io::Write)
+                            -> Result<(), protocol::Error> {
+                            #( protocol::Parcel::write(&self. #field_numbers, write )?; )*
+                            Ok(())
+                        }
+                    }
+                };
+            }
         },
         syn::Fields::Unit => {
             unimplemented!();

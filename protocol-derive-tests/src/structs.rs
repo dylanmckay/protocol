@@ -1,5 +1,3 @@
-#![cfg(test)]
-
 use protocol::Parcel;
 
 #[derive(Protocol, Debug, PartialEq, Eq)]
@@ -8,6 +6,9 @@ pub struct Foobar {
     b: u8,
     c: u8,
 }
+
+#[derive(Protocol, Debug, PartialEq, Eq)]
+pub struct BizBong(u8, u8, pub u8);
 
 #[test]
 fn named_fields_are_correctly_written() {
@@ -25,5 +26,15 @@ fn named_fields_are_correctly_read() {
         b: '2' as u8,
         c: 1,
     }, Foobar::from_raw_bytes(&[3, '2' as u8, 1]).unwrap());
+}
+
+#[test]
+fn unnamed_fields_are_correctly_written() {
+    assert_eq!(vec![6, 1, 9], BizBong(6,1,9).raw_bytes().unwrap());
+}
+
+#[test]
+fn unnamed_fields_are_correctly_read() {
+    assert_eq!(BizBong(3, 1, 7), BizBong::from_raw_bytes(&[3, 1, 7]).unwrap());
 }
 
