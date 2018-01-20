@@ -10,6 +10,9 @@ pub struct Foobar {
 #[derive(Protocol, Debug, PartialEq, Eq)]
 pub struct BizBong(u8, u8, pub u8);
 
+#[derive(Protocol, Debug, PartialEq, Eq)]
+pub struct PartyInTheFront;
+
 #[test]
 fn named_fields_are_correctly_written() {
     assert_eq!(vec![3, '2' as u8, 1], Foobar {
@@ -36,5 +39,15 @@ fn unnamed_fields_are_correctly_written() {
 #[test]
 fn unnamed_fields_are_correctly_read() {
     assert_eq!(BizBong(3, 1, 7), BizBong::from_raw_bytes(&[3, 1, 7]).unwrap());
+}
+
+#[test]
+fn unit_structs_are_correctly_written() {
+    assert_eq!(PartyInTheFront.raw_bytes().unwrap(), &[]);
+}
+
+#[test]
+fn unit_structs_are_correctly_read() {
+    assert_eq!(PartyInTheFront, PartyInTheFront::from_raw_bytes(&[]).unwrap());
 }
 

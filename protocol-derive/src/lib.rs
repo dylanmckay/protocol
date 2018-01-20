@@ -97,7 +97,24 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
             }
         },
         syn::Fields::Unit => {
-            unimplemented!();
+            quote! {
+                #[allow(non_upper_case_globals)]
+                const #anon_const_name: () = {
+                    extern crate protocol;
+                    use std::io;
+
+                    impl protocol::Parcel for #strukt_name {
+                        fn read(read: &mut io::Read) -> Result<Self, protocol::Error> {
+                            Ok(#strukt_name)
+                        }
+
+                        fn write(&self, write: &mut io::Write)
+                            -> Result<(), protocol::Error> {
+                            Ok(())
+                        }
+                    }
+                };
+            }
         },
     }
 }
