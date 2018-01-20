@@ -11,6 +11,20 @@ Easy protocol definitions in Rust.
 This crate adds a custom derive that can be added to types, allowing
 structured data to be sent and received from any IO stream.
 
+## Under the hood
+
+The most interesting part here is the [`protocol::Parcel`](https://docs.rs/protocol/0.3.3/protocol/trait.Parcel.html) trait. Any type that implements this trait can then be serialised to and from a byte stream. All primitive types, standard collections, tuples, and arrays implement this trait.
+
+This crate also provides:
+
+* [TCP](https://docs.rs/protocol/0.3.3/protocol/wire/stream/index.html) and [UDP](https://docs.rs/protocol/0.3.3/protocol/wire/dgram/index.html) modules for easy sending and receicing of `Parcel`s
+* A generic [middleware](https://docs.rs/protocol/0.3.3/protocol/wire/middleware/index.html) library for automatic transformation of sent/received data
+  * Middleware has already been written to support [compression](https://docs.rs/protocol/0.3.3/protocol/wire/middleware/compression/index.html)
+  * Custom middleware can be implemented via a trait with two methods
+
+Checkout the [examples](./examples) folder for usage.
+
+
 ## Example
 
 ```rust
