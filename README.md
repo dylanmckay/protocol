@@ -9,7 +9,11 @@
 Easy protocol definitions in Rust.
 
 This crate adds a custom derive that can be added to types, allowing
-structured data to be sent and received from any IO stream.
+structured data to be sent and received from any IO stream. `macro_rules` macros also exist which can be used to define sendable/receivable types too.
+
+Networking is built-in, with special support for TCP and UDP.
+
+The protocol you define can be used outside of networking too - see the `Parcel::from_raw_bytes` and `Parcel::raw_bytes` methods.
 
 This crate also provides:
 
