@@ -1,8 +1,8 @@
 // Custom middleware example.
 // All bytes that go through the protocol are rotated by an offset of 13.
 
-#[macro_use]
-extern crate protocol;
+#[macro_use] extern crate protocol;
+#[macro_use] extern crate protocol_derive;
 
 use std::num::Wrapping;
 
@@ -45,10 +45,11 @@ impl Pipeline
     }
 }
 
-define_packet!(Ping {
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub struct Ping {
     id: i64,
     data: Vec<u8>
-});
+}
 
 define_packet_kind!(Packet: u8 {
     0x00 => Ping
