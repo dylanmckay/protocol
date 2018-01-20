@@ -1,0 +1,11 @@
+[package]
+name = "protocol-derive-tests"
+version = "0.1.0"
+authors = ["Dylan McKay <me@dylanmckay.io>"]
+
+publish = false
+
+[dependencies]
+protocol = { path = "../protocol" }
+protocol-derive = { path = "../protocol-derive" }
+

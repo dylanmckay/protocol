@@ -35,15 +35,6 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 
     match strukt.fields {
         syn::Fields::Named(ref fields_named) => {
-            // let field_readers: Vec<_> = fields_named.named.iter().map(|field| {
-            //     let field_name = field.ident;
-            //     quote! {
-            //         a: 1,
-            //         // #field_name : protocol::Parcel::read(read)?,
-            //     }
-            // }).collect();
-            // let field_readers = quote!((#field_readers)*);
-
             let field_names: Vec<_> = fields_named.named.iter().map(|field| {
                 field.ident
             }).collect();
@@ -74,7 +65,9 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                 };
             }
         },
-        syn::Fields::Unnamed(_) => {
+        syn::Fields::Unnamed(ref fields_unnamed) => {
+            let field_numbers = (0..fields_unnamed.unnamed.len()).into_iter();
+
             unimplemented!();
         },
         syn::Fields::Unit => {
