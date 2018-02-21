@@ -5,9 +5,6 @@ use flate2;
 use std::io::prelude::*;
 use std::io::Cursor;
 
-/// The compression type.
-pub const METHOD: flate2::Compression = flate2::Compression::Best;
-
 /// Defines a compression algorithm.
 #[derive(Copy, Clone, Debug)]
 pub enum Algorithm
@@ -29,7 +26,7 @@ impl wire::Middleware for Compression
         match *self {
             Compression::Enabled(algorithm) => match algorithm {
                 Algorithm::Zlib => {
-                    let e = flate2::write::ZlibEncoder::new(data, METHOD);
+                    let e = flate2::write::ZlibEncoder::new(data, flate2::Compression::best());
                     Ok(e.finish()?)
                 },
             },
