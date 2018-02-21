@@ -1,6 +1,6 @@
 [package]
 name = "protocol-derive-tests"
-version = "0.3.3"
+version = "1.0.0" # do not change this, no point, it never gets published.
 authors = ["Dylan McKay <me@dylanmckay.io>"]
 
 publish = false
