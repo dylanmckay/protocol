@@ -15,7 +15,7 @@ default = []
 
 [dependencies]
 byteorder = "1.2"
-flate2 = { version = "0.2", features = ["zlib"], default-features = false }
+flate2 = { version = "1.0", features = ["zlib"], default-features = false }
 uuid = { version = "0.6", optional = true }
 error-chain = "0.10"
 num-traits = "0.1"
