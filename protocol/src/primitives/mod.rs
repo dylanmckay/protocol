@@ -10,7 +10,7 @@ mod string;
 mod char;
 mod tuple;
 mod option;
-/// Defintions for the `std::collections` module.
+/// Definitions for the `std::collections` module.
 mod collections;
 /// Definitions for smart pointers in the `std` module.
 mod smart_ptr;

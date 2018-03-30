@@ -167,7 +167,7 @@ mod test
     }
 
     #[test]
-    fn successfully_deserialises_data_with_32bit_length_prefix() {
+    fn successfully_deserializes_data_with_32bit_length_prefix() {
         let data: Vec<u8> = vec![5, 4, 3, 2, 1];
         let expected_data = &[
                 0x00, 0x00, 0x00, 0x05, // 32-bit size prefix
