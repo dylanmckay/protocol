@@ -17,7 +17,7 @@ The protocol you define can be used outside of networking too - see the `Parcel:
 
 This crate also provides:
 
-* [TCP](https://docs.rs/protocol/0.3.4/protocol/wire/stream/index.html) and [UDP](https://docs.rs/protocol/0.3.4/protocol/wire/dgram/index.html) modules for easy sending and receicing of `Parcel`s
+* [TCP](https://docs.rs/protocol/0.3.4/protocol/wire/stream/index.html) and [UDP](https://docs.rs/protocol/0.3.4/protocol/wire/dgram/index.html) modules for easy sending and receiving of `Parcel`s
 * A generic [middleware](https://docs.rs/protocol/0.3.4/protocol/wire/middleware/index.html) library for automatic transformation of sent/received data
   * Middleware has already been written to support [compression](https://docs.rs/protocol/0.3.4/protocol/wire/middleware/compression/index.html)
   * Custom middleware can be implemented via a trait with two methods
@@ -26,7 +26,7 @@ Checkout the [examples](./examples) folder for usage.
 
 ## Under the hood
 
-The most interesting part here is the [`protocol::Parcel`](https://docs.rs/protocol/0.3.4/protocol/trait.Parcel.html) trait. Any type that implements this trait can then be serialised to and from a byte stream. All primitive types, standard collections, tuples, and arrays implement this trait.
+The most interesting part here is the [`protocol::Parcel`](https://docs.rs/protocol/0.3.4/protocol/trait.Parcel.html) trait. Any type that implements this trait can then be serialized to and from a byte stream. All primitive types, standard collections, tuples, and arrays implement this trait.
 
 This crate becomes particularly useful when you define your own `Parcel` types. You can use `#[derive(Protocol)]` to do this, or you can use the `define_composite_type!` macro instead. Note that in order for a type to implement `Parcel`, it must also implement `Clone`, `Debug`, and `PartialEq`.
 
@@ -103,4 +103,3 @@ fn main() {
 }
 
 ```
-

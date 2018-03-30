@@ -30,7 +30,7 @@ impl<P,S,M> Connection<P,S,M>
         }
     }
 
-    /// Processes any incoming data in thes stream.
+    /// Processes any incoming data in the stream.
     pub fn process_incoming_data(&mut self) -> Result<(), Error> {
         self.transport.process_data(&mut self.stream)
     }
