@@ -1,5 +1,6 @@
 //! Different protocol formats.
 
+use attr;
 use syn;
 
 pub type Discriminator = u32;
@@ -37,7 +38,7 @@ impl Enum {
                 quote!(#discriminator)
             },
             Enum::StringDiscriminator => {
-                let variant_name = variant.ident.to_string();
+                let variant_name = attr::name(&variant.attrs).unwrap_or_else(|| variant.ident.to_string());
                 quote! { String::from(#variant_name) }
             },
         }
@@ -51,11 +52,11 @@ impl Enum {
     }
 
     pub fn discriminator_variant_for_pattern_matching(&self, e: &syn::DataEnum,
-                                              variant: &syn::Variant) -> ::proc_macro2::TokenStream {
+                                                       variant: &syn::Variant) -> ::proc_macro2::TokenStream {
         match *self {
             Enum::IntegerDiscriminator => self.discriminator(e, variant),
             Enum::StringDiscriminator => {
-                let variant_name = variant.ident.to_string();
+                let variant_name = attr::name(&variant.attrs).unwrap_or_else(|| variant.ident.to_string());
                 quote! { #variant_name }
             },
         }

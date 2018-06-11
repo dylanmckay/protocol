@@ -3,9 +3,25 @@ mod string_discriminants {
     #[allow(unused_imports)]
     use protocol::Parcel;
 
+    #[derive(Protocol, Clone, Debug, PartialEq)]
+    #[protocol]
+    pub enum PlayerState {
+      Stationary,
+      Flying { velocity: (f32,f32,f32) },
+      Jumping { height: f32 },
+    }
+
     #[derive(Protocol, Debug, PartialEq)]
     #[protocol(discriminant = "string")]
     pub enum Axis { X, Y, Z, Other(String), Bimp { val: u64 } }
+
+    #[derive(Protocol, Debug, PartialEq)]
+    #[protocol(discriminant = "string")]
+    pub enum RenamedVariant {
+        Hello,
+        #[protocol(name = "Universe")]
+        World,
+    }
 
     fn verify_read_back<P: Parcel + ::std::fmt::Debug + ::std::cmp::PartialEq>(parcel: P) {
         let read_back = P::from_raw_bytes(&parcel.raw_bytes().unwrap()[..]).unwrap();
@@ -26,6 +42,17 @@ mod string_discriminants {
         verify_read_back(Axis::X);
         verify_read_back(Axis::Y);
         verify_read_back(Axis::Bimp { val: 77 });
+    }
+
+    #[test]
+    fn renamed_variants_are_transmitted() {
+        assert_eq!(vec![0, 0, 0, 5, 'H' as _, 'e' as _, 'l' as _, 'l' as _, 'o' as _], RenamedVariant::Hello.raw_bytes().unwrap());
+        assert_eq!(vec![0, 0, 0, 8, 'U' as _, 'n' as _, 'i' as _, 'v' as _, 'e' as _, 'r' as _, 's' as _, 'e' as _], RenamedVariant::World.raw_bytes().unwrap());
+    }
+
+    #[test]
+    fn renamed_variants_can_be_written_and_read_back() {
+        verify_read_back(RenamedVariant::World);
     }
 }
 

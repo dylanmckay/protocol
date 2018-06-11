@@ -7,6 +7,7 @@ extern crate syn;
 extern crate quote;
 
 mod format;
+mod attr;
 
 use proc_macro::TokenStream;
 
@@ -126,44 +127,12 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
     }
 }
 
-fn protocol_discriminant<F: format::Format>(ast: &syn::DeriveInput) -> Option<F> {
-    ast.attrs.iter().filter_map(|attr| match attr.interpret_meta() {
-        Some(syn::Meta::List(meta_list)) => {
-            if meta_list.ident == syn::Ident::new("protocol", proc_macro2::Span::call_site()) {
-                if let Some(meta) = meta_list.nested.iter().filter_map(|n| if let syn::NestedMeta::Meta(m) = n { Some(m) } else { None }).next() {
-                    match meta {
-                        syn::Meta::NameValue(syn::MetaNameValue { ident, lit, .. }) => {
-                            if ident == &syn::Ident::new("discriminant", proc_macro2::Span::call_site()) {
-                                match lit {
-                                    syn::Lit::Str(s) => match F::from_str(&s.value()) {
-                                        Ok(f) => Some(f),
-                                        Err(..) => panic!("invalid enum discriminant format: '{}'", s.value()),
-                                    }
-                                    _ => panic!("invalid discriminant type name"),
-                                }
-                            } else {
-                                None
-                            }
-                        },
-                        _ => None,
-                    }
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        },
-        _ => None,
-    }).next()
-}
-
 fn impl_parcel_for_enum(ast: &syn::DeriveInput,
                         e: &syn::DataEnum) -> proc_macro2::TokenStream {
     let enum_name = &ast.ident;
     let anon_const_name = syn::Ident::new(&format!("__IMPL_PARCEL_FOR_{}", ast.ident), proc_macro2::Span::call_site());
 
-    let format = protocol_discriminant::<format::Enum>(ast).unwrap_or(format::Enum::IntegerDiscriminator);
+    let format = attr::discriminant_format::<format::Enum>(&ast.attrs).unwrap_or(format::Enum::IntegerDiscriminator);
 
     let variant_writers = e.variants.iter().map(|variant| {
         let variant_name = &variant.ident;
