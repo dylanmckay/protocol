@@ -46,10 +46,6 @@ pub struct SetPlayerPosition {
 
 Any user-defined type can have the `Parcel` trait automatically derived.
 
-*CAUTION*: Be careful when using `#[derive(Protocol)]` on an `enum`. These values are transmitted using the 1-based enum variant number as a discriminant. This means that you must always add new variants at the end, otherwise the new variant will be parsed incorrectly as a different variant by an older version of your program. Ideally we would force every enum to have discriminators explicitly specified, but this only works for C-like enums.
-
-It is possible to use the `define_packet_kind!` macro specifically if you'd like to have `protocol::Parcel` to be implemented, while also forcing you to specify IDs on every variant.
-
 ## Example
 
 ```rust
@@ -101,5 +97,51 @@ fn main() {
         }
     }
 }
+```
 
+## Enums
+
+### Discriminators
+
+Enum values can be transmitted either by their 1-based variant index, or by transmitting the string name of each variant.
+
+**NOTE:** The default behaviour is to use *the 1-based variant index* (`integer`).
+
+This behaviour can be changed by the `#[protocol(discriminant = "string")]` attribute.
+
+Supported discriminant types:
+
+* `integer` (default)
+    * This transmits the 1-based variant number as the over-the-wire discriminant
+    * Enum variants cannot be reordered in the source without breaking the protocol
+* `string`
+    * This transmits the enum variant name as the over-the-wire discriminant
+    * This uses more bytes per message, but it very flexible
+
+**N.B.** `string` should become the default discriminant type for `#[derive(Protocol)]`. This would be a breaking change.
+Perhaps a major release?
+
+```rust
+#[derive(Protocol, Clone, Debug, PartialEq)]
+#[protocol(discriminant = "string")]
+pub enum PlayerState {
+  Stationary,
+  Flying { velocity: (f32,f32,f32) },
+  Jumping { height: f32 },
+}
+```
+
+### Misc
+
+You can rename the variant for their serialisation.
+
+```rust
+#[derive(Protocol, Clone, Debug, PartialEq)]
+#[protocol(discriminant = "string")]
+pub enum Foo {
+  Bar,
+  #[protocol(name = "Biz")] // the Bing variant will be send/received as 'Biz'.
+  Bing,
+  Baz,
+}
 ```

@@ -1,15 +1,17 @@
 #![recursion_limit = "128"]
 
 extern crate proc_macro;
+extern crate proc_macro2;
 extern crate syn;
 #[macro_use]
 extern crate quote;
 
+mod format;
+mod attr;
+
 use proc_macro::TokenStream;
 
-type Discriminator = u32;
-
-#[proc_macro_derive(Protocol)]
+#[proc_macro_derive(Protocol, attributes(protocol))]
 pub fn protocol(input: TokenStream) -> TokenStream {
     // Parse the string representation
     let ast: syn::DeriveInput = syn::parse(input).unwrap();
@@ -22,7 +24,7 @@ pub fn protocol(input: TokenStream) -> TokenStream {
 }
 
 // The `Parcel` trait is used for data that can be sent/received.
-fn impl_parcel(ast: &syn::DeriveInput) -> quote::Tokens {
+fn impl_parcel(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     match ast.data {
         syn::Data::Struct(ref s) => impl_parcel_for_struct(ast, s),
         syn::Data::Enum(ref e) => impl_parcel_for_enum(ast, e),
@@ -31,14 +33,14 @@ fn impl_parcel(ast: &syn::DeriveInput) -> quote::Tokens {
 }
 
 fn impl_parcel_for_struct(ast: &syn::DeriveInput,
-                          strukt: &syn::DataStruct) -> quote::Tokens {
+                          strukt: &syn::DataStruct) -> proc_macro2::TokenStream {
     let strukt_name = &ast.ident;
-    let anon_const_name = syn::Ident::from(format!("__IMPL_PARCEL_FOR_{}", strukt_name.to_owned()));
+    let anon_const_name = syn::Ident::new(&format!("__IMPL_PARCEL_FOR_{}", strukt_name.to_owned()), proc_macro2::Span::call_site());
 
     match strukt.fields {
         syn::Fields::Named(ref fields_named) => {
             let field_names: Vec<_> = fields_named.named.iter().map(|field| {
-                field.ident
+                &field.ident
             }).collect();
             let field_names = &field_names[..];
 
@@ -126,23 +128,22 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 }
 
 fn impl_parcel_for_enum(ast: &syn::DeriveInput,
-                        e: &syn::DataEnum) -> quote::Tokens {
-    let enum_name = ast.ident;
-    let anon_const_name = syn::Ident::from(format!("__IMPL_PARCEL_FOR_{}", ast.ident));
+                        e: &syn::DataEnum) -> proc_macro2::TokenStream {
+    let enum_name = &ast.ident;
+    let anon_const_name = syn::Ident::new(&format!("__IMPL_PARCEL_FOR_{}", ast.ident), proc_macro2::Span::call_site());
 
-    let variant_writers = e.variants.iter().enumerate().map(|(variant_index, variant)| {
-        // Reserve discriminator 0.
-        let discriminator = (variant_index as Discriminator) + 1;
-        let variant_name = variant.ident;
+    let format = attr::discriminant_format::<format::Enum>(&ast.attrs).unwrap_or(format::Enum::IntegerDiscriminator);
 
-        let write_discriminator = quote! {
-            protocol::Parcel::write(&#discriminator, __io_writer)?;
-        };
+    let variant_writers = e.variants.iter().map(|variant| {
+        let variant_name = &variant.ident;
+
+        let discriminator = format.discriminator(e, variant);
+        let write_discriminator = quote! { protocol::Parcel::write(&#discriminator, __io_writer)?; };
 
         match variant.fields {
             syn::Fields::Named(ref fields_named) => {
-                let field_names = fields_named.named.iter().map(|f| f.ident);
-                let field_name_refs = fields_named.named.iter().map(|f| f.ident).map(|n| quote! { ref #n });
+                let field_names = fields_named.named.iter().map(|f| &f.ident);
+                let field_name_refs = fields_named.named.iter().map(|f| &f.ident).map(|n| quote! { ref #n });
 
                 quote! {
                     #enum_name :: #variant_name { #( #field_name_refs ),* } => {
@@ -154,7 +155,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
             },
             syn::Fields::Unnamed(ref fields_unnamed) => {
                 let binding_names: Vec<_> = (0..fields_unnamed.unnamed.len()).into_iter()
-                    .map(|i| syn::Ident::from(format!("field_{}", i)))
+                    .map(|i| syn::Ident::new(&format!("field_{}", i), proc_macro2::Span::call_site()))
                     .collect();
 
                 let field_refs: Vec<_> = binding_names.iter().map(|i| quote! { ref #i }).collect();
@@ -170,20 +171,19 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
                 quote!{
                     #enum_name :: #variant_name => {
                         #write_discriminator;
-                    },
+                    }
                 }
             },
         }
     });
 
-    let variant_readers = e.variants.iter().enumerate().map(|(variant_index, variant)| {
-        // Reserve discriminator 0.
-        let discriminator = (variant_index as Discriminator) + 1;
-        let variant_name = variant.ident;
+    let variant_readers = e.variants.iter().map(|ref variant| {
+        let variant_name = &variant.ident;
+        let discriminator = format.discriminator_variant_for_pattern_matching(e, variant);
 
         match variant.fields {
             syn::Fields::Named(ref fields_named) => {
-                let field_names = fields_named.named.iter().map(|f| f.ident);
+                let field_names = fields_named.named.iter().map(|f| &f.ident);
 
                 quote! {
                     #discriminator => Ok(#enum_name :: #variant_name {
@@ -193,7 +193,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
             },
             syn::Fields::Unnamed(ref fields_unnamed) => {
                 let binding_names: Vec<_> = (0..fields_unnamed.unnamed.len()).into_iter()
-                    .map(|i| syn::Ident::from(format!("field_{}", i)))
+                    .map(|i| syn::Ident::new(&format!("field_{}", i), proc_macro2::Span::call_site()))
                     .collect();
 
                 let field_readers = binding_names.iter().map(|_| {
@@ -216,6 +216,8 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
         }
     });
 
+    let discriminator_type = format.discriminator_type();
+    let discriminator_for_pattern_matching = format.discriminator_for_pattern_matching();
     quote! {
         #[allow(non_upper_case_globals)]
         const #anon_const_name: () = {
@@ -225,8 +227,8 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
             impl protocol::Parcel for #enum_name {
                 #[allow(unused_variables)]
                 fn read(__io_reader: &mut io::Read) -> Result<Self, protocol::Error> {
-                    let discriminator: u32 = protocol::Parcel::read(__io_reader)?;
-                    match discriminator {
+                    let discriminator: #discriminator_type = protocol::Parcel::read(__io_reader)?;
+                    match #discriminator_for_pattern_matching {
                         #(#variant_readers,)*
                         _ => panic!("unknown discriminator"),
                     }
