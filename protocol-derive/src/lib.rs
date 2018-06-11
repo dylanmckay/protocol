@@ -10,7 +10,7 @@ mod format;
 
 use proc_macro::TokenStream;
 
-#[proc_macro_derive(Protocol, attributes(protocol_discriminant))]
+#[proc_macro_derive(Protocol, attributes(protocol))]
 pub fn protocol(input: TokenStream) -> TokenStream {
     // Parse the string representation
     let ast: syn::DeriveInput = syn::parse(input).unwrap();
@@ -128,16 +128,27 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 
 fn protocol_discriminant<F: format::Format>(ast: &syn::DeriveInput) -> Option<F> {
     ast.attrs.iter().filter_map(|attr| match attr.interpret_meta() {
-        Some(syn::Meta::NameValue(syn::MetaNameValue { ident, lit, .. })) => {
-            if ident == syn::Ident::new("protocol_discriminant", proc_macro2::Span::call_site()) {
-                match lit {
-                    syn::Lit::Str(s) => {
-                        match F::from_str(&s.value()) {
-                            Ok(f) => Some(f),
-                            Err(..) => None,
-                        }
-                    },
-                    _ => panic!("unexpected type"),
+        Some(syn::Meta::List(meta_list)) => {
+            if meta_list.ident == syn::Ident::new("protocol", proc_macro2::Span::call_site()) {
+                if let Some(meta) = meta_list.nested.iter().filter_map(|n| if let syn::NestedMeta::Meta(m) = n { Some(m) } else { None }).next() {
+                    match meta {
+                        syn::Meta::NameValue(syn::MetaNameValue { ident, lit, .. }) => {
+                            if ident == &syn::Ident::new("discriminant", proc_macro2::Span::call_site()) {
+                                match lit {
+                                    syn::Lit::Str(s) => match F::from_str(&s.value()) {
+                                        Ok(f) => Some(f),
+                                        Err(..) => panic!("invalid enum discriminant format: '{}'", s.value()),
+                                    }
+                                    _ => panic!("invalid discriminant type name"),
+                                }
+                            } else {
+                                None
+                            }
+                        },
+                        _ => None,
+                    }
+                } else {
+                    None
                 }
             } else {
                 None

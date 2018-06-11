@@ -4,7 +4,7 @@ mod string_discriminants {
     use protocol::Parcel;
 
     #[derive(Protocol, Debug, PartialEq)]
-    #[protocol_discriminant = "string"]
+    #[protocol(discriminant = "string")]
     pub enum Axis { X, Y, Z, Other(String), Bimp { val: u64 } }
 
     fn verify_read_back<P: Parcel + ::std::fmt::Debug + ::std::cmp::PartialEq>(parcel: P) {
@@ -35,7 +35,7 @@ mod integer_discriminants {
     use protocol::Parcel;
 
     #[derive(Protocol, Debug, PartialEq, Eq)]
-    #[protocol_discriminant = "integer"]
+    #[protocol(discriminant = "integer")]
     pub enum BoatKind {
         Speedboat { warp_speed_enabled: bool },
         Dingy(u8, u8),
