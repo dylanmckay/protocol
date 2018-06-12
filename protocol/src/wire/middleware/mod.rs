@@ -1,9 +1,11 @@
 pub use self::pipeline::Pipeline;
 pub use self::compression::Compression;
+pub use self::rotate_bytes::RotateBytes;
 
 #[macro_use]
 pub mod pipeline;
 pub mod compression;
+pub mod rotate_bytes;
 
 use Error;
 use std;
