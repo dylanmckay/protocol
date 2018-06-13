@@ -1,3 +1,9 @@
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub enum WithGenerics<A, B> {
+    Foo(A, B),
+    Bar,
+}
+
 #[cfg(test)]
 mod string_discriminants {
     #[allow(unused_imports)]
