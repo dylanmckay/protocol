@@ -44,7 +44,7 @@ fn build_generics(ast: &syn::DeriveInput) -> (Vec<proc_macro2::TokenStream>, Vec
                 where_predicates.push(quote!(#ident : ::protocol::Parcel));
                 quote!(#ident)
             },
-            syn::GenericParam::Lifetime(l) => {
+            syn::GenericParam::Lifetime(..) => {
                 let letter = ('a' as u8 + i as u8) as char;
                 quote!(#letter)
             },
