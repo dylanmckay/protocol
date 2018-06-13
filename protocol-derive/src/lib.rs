@@ -32,10 +32,36 @@ fn impl_parcel(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     }
 }
 
+/// Builds generics for a new impl.
+///
+/// Returns `(generics, where_predicates)`
+fn build_generics(ast: &syn::DeriveInput) -> (Vec<proc_macro2::TokenStream>, Vec<proc_macro2::TokenStream>) {
+    let mut where_predicates = Vec::new();
+    let generics: Vec<_> = ast.generics.params.iter().enumerate().map(|(i, p)| {
+        match p {
+            syn::GenericParam::Type(t) => {
+                let ident = &t.ident;
+                where_predicates.push(quote!(#ident : ::protocol::Parcel));
+                quote!(#ident)
+            },
+            syn::GenericParam::Lifetime(l) => {
+                let letter = ('a' as u8 + i as u8) as char;
+                quote!(#letter)
+            },
+            syn::GenericParam::Const(..) => panic!("const generics are unsupported"),
+        }
+    }).collect();
+
+    (generics, where_predicates)
+}
+
 fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                           strukt: &syn::DataStruct) -> proc_macro2::TokenStream {
     let strukt_name = &ast.ident;
     let anon_const_name = syn::Ident::new(&format!("__IMPL_PARCEL_FOR_{}", strukt_name.to_owned()), proc_macro2::Span::call_site());
+
+    let (generics, where_predicates) = build_generics(ast);
+    let (generics, where_predicates) = (&generics, where_predicates);
 
     match strukt.fields {
         syn::Fields::Named(ref fields_named) => {
@@ -50,7 +76,8 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                     extern crate protocol;
                     use std::io;
 
-                    impl protocol::Parcel for #strukt_name {
+                    impl < #(#generics),* > protocol::Parcel for #strukt_name < #(#generics),* >
+                        where #(#where_predicates),* {
                         #[allow(unused_variables)]
                         fn read(read: &mut io::Read)
                             -> Result<Self, protocol::Error> {
@@ -85,7 +112,8 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                     extern crate protocol;
                     use std::io;
 
-                    impl protocol::Parcel for #strukt_name {
+                    impl < #(#generics),* > protocol::Parcel for #strukt_name < #(#generics),* >
+                        where #(#where_predicates),* {
                         #[allow(unused_variables)]
                         fn read(read: &mut io::Read)
                             -> Result<Self, protocol::Error> {
@@ -216,6 +244,9 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
         }
     });
 
+    let (generics, where_predicates) = build_generics(ast);
+    let (generics, where_predicates) = (&generics, where_predicates);
+
     let discriminator_type = format.discriminator_type();
     let discriminator_for_pattern_matching = format.discriminator_for_pattern_matching();
     quote! {
@@ -224,7 +255,8 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
             extern crate protocol;
             use std::io;
 
-            impl protocol::Parcel for #enum_name {
+            impl < #(#generics),* > protocol::Parcel for #enum_name < #(#generics),* >
+                where #(#where_predicates),* {
                 #[allow(unused_variables)]
                 fn read(__io_reader: &mut io::Read) -> Result<Self, protocol::Error> {
                     let discriminator: #discriminator_type = protocol::Parcel::read(__io_reader)?;

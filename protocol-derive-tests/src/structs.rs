@@ -14,6 +14,15 @@ pub struct BizBong(u8, u8, pub u8);
 #[derive(Protocol, Debug, PartialEq, Eq)]
 pub struct PartyInTheFront;
 
+#[derive(Protocol, Debug, PartialEq, Eq)]
+pub struct NamedFieldsWithGenerics<A,D> {
+    pub value: A,
+    pub del: D,
+}
+
+#[derive(Protocol, Debug, PartialEq, Eq)]
+pub struct UnnamedFieldsWithGenerics<A,D>(A, D);
+
 #[test]
 fn named_fields_are_correctly_written() {
     assert_eq!(vec![3, '2' as u8, 1], Foobar {
