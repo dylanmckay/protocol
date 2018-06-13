@@ -40,8 +40,8 @@ fn build_generics(ast: &syn::DeriveInput) -> (Vec<proc_macro2::TokenStream>, Vec
     let generics: Vec<_> = ast.generics.params.iter().enumerate().map(|(i, p)| {
         match p {
             syn::GenericParam::Type(t) => {
-                let ident = &t.ident;
-                where_predicates.push(quote!(#ident : ::protocol::Parcel));
+                let (ident, bounds) = (&t.ident, &t.bounds);
+                where_predicates.push(quote!(#ident : protocol::Parcel + #bounds));
                 quote!(#ident)
             },
             syn::GenericParam::Lifetime(..) => {
