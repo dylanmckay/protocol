@@ -24,6 +24,16 @@ This crate also provides:
 
 Checkout the [examples](./examples) folder for usage.
 
+## Usage
+
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+protocol = "0.3"
+protocol-derive = "0.3"
+```
+
 ## Under the hood
 
 The most interesting part here is the [`protocol::Parcel`](https://docs.rs/protocol/0.3.4/protocol/trait.Parcel.html) trait. Any type that implements this trait can then be serialized to and from a byte stream. All primitive types, standard collections, tuples, and arrays implement this trait.
