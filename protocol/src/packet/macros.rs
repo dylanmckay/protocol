@@ -25,6 +25,13 @@ macro_rules! define_packet
                 })
             }
 
+            #[cfg(feature = "tokio")]
+            fn read_async(read: &mut ::tokio::io::AsyncRead,
+                          settings: &Settings)
+                -> Box<::tokio::prelude::Future<Item=Self, Error=$crate::Error> + Send> {
+                unimplemented!();
+            }
+
             fn write(&self, write: &mut ::std::io::Write,
                      settings: &Settings) -> Result<(), $crate::Error> {
                 #[allow(unused_imports)]
@@ -49,6 +56,14 @@ macro_rules! define_packet
             fn read(_read: &mut ::std::io::Read,
                     _: &$crate::Settings) -> Result<Self, $crate::Error> {
                 Ok($ty)
+            }
+
+            #[cfg(feature = "tokio")]
+            fn read_async(read: &mut ::tokio::io::AsyncRead,
+                          settings: &Settings)
+                -> Box<::tokio::prelude::Future<Item=Self, Error=$crate::Error> + Send> {
+                use tokio::prelude::IntoFuture;
+                Box::new(Ok($ty).into_future())
             }
 
             fn write(&self, _write: &mut ::std::io::Write,
@@ -96,6 +111,13 @@ macro_rules! define_packet_kind
                 };
 
                 Ok(packet)
+            }
+
+            #[cfg(feature = "tokio")]
+            fn read_async(read: &mut ::tokio::io::AsyncRead,
+                          settings: &$crate::Settings)
+                -> Box<::tokio::prelude::Future<Item=Self, Error=$crate::Error> + Send> {
+                unimplemented!();
             }
 
             fn write(&self, write: &mut ::std::io::Write,

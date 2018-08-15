@@ -1,6 +1,9 @@
-use Settings;
+use {Error, Settings};
 use std::io::prelude::*;
 use std::io;
+
+#[cfg(feature = "tokio")]
+use tokio::prelude::*;
 
 /// A value which can be read and written.
 ///
@@ -38,7 +41,7 @@ use std::io;
 ///       * `VecDeque<T: Parcel>`
 ///       * `HashMap<T: Parcel>`
 ///       * `BTreeMap<T: Parcel>`
-pub trait Parcel : Sized
+pub trait Parcel : Sized + Send
 {
     /// The textual name of the type.
     const TYPE_NAME: &'static str;
@@ -61,6 +64,16 @@ pub trait Parcel : Sized
         let mut buffer = ::std::io::Cursor::new(bytes);
         Self::read(&mut buffer, settings)
     }
+
+    /// Creates a future which asynchronously reads a value from the stream.
+    ///
+    /// On success, the future yields a tuple containing the remaining stream
+    /// and the parsed parcel.
+    #[cfg(feature = "tokio")]
+    fn read_async<R>(read: R,
+                     settings: &Settings)
+        -> Box<Future<Item=(R, Self), Error=Error> + Send>
+        where R: AsyncRead;
 
     /// Gets the raw byte representation of the value.
     fn raw_bytes(&self, settings: &Settings) -> Result<Vec<u8>, ::Error> {

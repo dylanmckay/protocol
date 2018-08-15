@@ -15,8 +15,6 @@ mod tuple;
 mod option;
 /// Definitions for the `std::collections` module.
 mod collections;
-/// Definitions for smart pointers in the `std` module.
-mod smart_ptr;
 
 mod util;
 

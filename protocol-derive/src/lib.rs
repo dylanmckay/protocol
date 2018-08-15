@@ -81,6 +81,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                 #[allow(non_upper_case_globals)]
                 const #anon_const_name: () = {
                     extern crate protocol;
+                    extern crate tokio;
                     use std::io;
 
                     impl < #(#generics),* > protocol::Parcel for #strukt_name < #(#generics),* >
@@ -96,6 +97,11 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                                     #field_names: protocol::Parcel::read(read, __settings)?
                                 ),*
                             })
+                        }
+
+                        fn read_async(read: &mut tokio::io::AsyncRead)
+                            -> Box<tokio::prelude::Future<Item=Self, Error=protocol::Error> + Send> {
+                            unimplemented!();
                         }
 
                         #[allow(unused_variables)]
@@ -121,6 +127,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                 #[allow(non_upper_case_globals)]
                 const #anon_const_name: () = {
                     extern crate protocol;
+                    extern crate tokio;
                     use std::io;
 
                     impl < #(#generics),* > protocol::Parcel for #strukt_name < #(#generics),* >
@@ -134,6 +141,11 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                             Ok(#strukt_name(
                                 #(#field_expressions),*
                             ))
+                        }
+
+                        fn read_async(read: &mut tokio::io::AsyncRead)
+                            -> Box<tokio::prelude::Future<Item=Self, Error=protocol::Error> + Send> {
+                            unimplemented!();
                         }
 
                         #[allow(unused_variables)]
@@ -152,6 +164,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                 #[allow(non_upper_case_globals)]
                 const #anon_const_name: () = {
                     extern crate protocol;
+                    extern crate tokio;
                     use std::io;
 
                     impl protocol::Parcel for #strukt_name {
@@ -160,6 +173,12 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                         fn read(_: &mut io::Read,
                                 _: &protocol::Settings) -> Result<Self, protocol::Error> {
                             Ok(#strukt_name)
+                        }
+
+                        #[cfg(feature = "tokio")]
+                        fn read_async(read: &mut AsyncRead)
+                            -> Box<Future<Item=Self, Error=Error> + Send> {
+                            unimplemented!();
                         }
 
                         fn write(&self, _: &mut io::Write, _: &protocol::Settings)
@@ -280,6 +299,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
         #[allow(non_upper_case_globals)]
         const #anon_const_name: () = {
             extern crate protocol;
+            extern crate tokio;
             use std::io;
 
             impl < #(#generics),* > protocol::Parcel for #enum_name < #(#generics),* >
@@ -294,6 +314,11 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
                         #(#variant_readers,)*
                         _ => panic!("unknown discriminator"),
                     }
+                }
+
+                fn read_async(read: &mut tokio::io::AsyncRead)
+                    -> Box<tokio::prelude::Future<Item=Self, Error=protocol::Error> + Send> {
+                    unimplemented!();
                 }
 
                 #[allow(unused_variables)]

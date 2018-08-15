@@ -3,6 +3,7 @@
 
 #[macro_use] extern crate protocol;
 #[macro_use] extern crate protocol_derive;
+extern crate tokio;
 
 use std::num::Wrapping;
 

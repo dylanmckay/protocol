@@ -30,6 +30,9 @@ extern crate error_chain;
 extern crate uuid;
 extern crate num_traits;
 
+#[cfg(feature = "tokio")]
+extern crate tokio;
+
 /// The default byte ordering.
 pub type DefaultByteOrder = ::byteorder::BigEndian;
 

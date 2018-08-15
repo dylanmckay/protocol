@@ -21,6 +21,13 @@ macro_rules! implement_composite_type {
                 })
             }
 
+            #[cfg(feature = "tokio")]
+            fn read_async(read: &mut ::tokio::io::AsyncRead,
+                          settings: &Settings)
+                -> Box<::tokio::prelude::Future<Item=Self, Error=$crate::Error> + Send> {
+                unimplemented!();
+            }
+
             fn write(&self, write: &mut ::std::io::Write,
                      settings: &$crate::Settings) -> Result<(), $crate::Error> {
                 $( self.$field_name.write(write, settings)?; )+

@@ -16,6 +16,12 @@ macro_rules! impl_list_type {
                 -> Result<(), $crate::Error> {
                 ::types::util::write_list(write, self.iter(), settings)
             }
+
+            #[cfg(feature = "tokio")]
+            fn read_async(read: &mut ::tokio::io::AsyncRead)
+                -> Box<::tokio::prelude::Future<Item=Self, Error=::Error> + Send> {
+                unimplemented!();
+            }
         }
 
         #[cfg(test)]

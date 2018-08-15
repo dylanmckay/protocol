@@ -1,5 +1,6 @@
 #[macro_use] extern crate protocol_derive;
 #[macro_use] extern crate protocol;
+extern crate tokio;
 
 #[derive(Protocol, Clone, Debug, PartialEq)]
 pub struct Handshake;

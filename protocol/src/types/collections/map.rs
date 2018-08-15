@@ -4,6 +4,8 @@ use std::collections::{HashMap, BTreeMap};
 use std::hash::Hash;
 
 use std::io::prelude::*;
+#[cfg(feature = "tokio")]
+use tokio::prelude::*;
 
 pub type SizeType = u32;
 
@@ -41,6 +43,13 @@ macro_rules! impl_map_type {
                 }
 
                 Ok(())
+            }
+
+            #[cfg(feature = "tokio")]
+            fn read_async(read: &mut AsyncRead,
+                          settings: &Settings)
+                -> Box<Future<Item=Self, Error=Error> + Send> {
+                unimplemented!();
             }
         }
     }

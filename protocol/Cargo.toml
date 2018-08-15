@@ -11,7 +11,7 @@ documentation = "https://docs.rs/protocol"
 keywords = ["protocol", "tcp", "udp", "connection", "encoding"]
 
 [features]
-default = []
+default = ["tokio"]
 
 [dependencies]
 byteorder = "1.2"
@@ -19,6 +19,7 @@ flate2 = { version = "1.0", features = ["zlib"], default-features = false }
 uuid = { version = "0.6", optional = true }
 error-chain = "0.11"
 num-traits = "0.2"
+tokio = { version = "0.1", optional = true }
 
 [dev-dependencies]
 # Used in examples

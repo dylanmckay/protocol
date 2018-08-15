@@ -1,6 +1,8 @@
 use {Parcel, Error, Settings};
 
 use std::io::prelude::*;
+#[cfg(feature = "tokio")]
+use tokio::prelude::*;
 
 use num_traits::{FromPrimitive, ToPrimitive};
 use byteorder::{ReadBytesExt, WriteBytesExt};
@@ -57,6 +59,12 @@ macro_rules! impl_parcel_for_numeric {
             fn write(&self, write: &mut Write,
                      settings: &Settings) -> Result<(), Error> {
                 settings.byte_order.$write_fn(*self, write)?; Ok(())
+            }
+
+            fn read_async(read: &mut AsyncRead,
+                          settings: &Settings)
+                -> Box<Future<Item=Self, Error=Error> + Send> {
+                unimplemented!();
             }
         }
     };
