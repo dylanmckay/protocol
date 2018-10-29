@@ -8,6 +8,7 @@ pub enum WithGenerics<A, B> {
 mod string_discriminants {
     #[allow(unused_imports)]
     use protocol::Parcel;
+    use verify_read_back;
 
     #[derive(Protocol, Clone, Debug, PartialEq)]
     #[protocol]
@@ -27,11 +28,6 @@ mod string_discriminants {
         Hello,
         #[protocol(name = "Universe")]
         World,
-    }
-
-    fn verify_read_back<P: Parcel + ::std::fmt::Debug + ::std::cmp::PartialEq>(parcel: P) {
-        let read_back = P::from_raw_bytes(&parcel.raw_bytes().unwrap()[..]).unwrap();
-        assert_eq!(parcel, read_back);
     }
 
     #[test]
@@ -60,6 +56,63 @@ mod string_discriminants {
     fn renamed_variants_can_be_written_and_read_back() {
         verify_read_back(RenamedVariant::World);
     }
+}
+
+#[cfg(test)]
+mod generics {
+    use verify_read_back;
+    use std::fmt;
+
+    #[derive(Protocol, Debug, PartialEq)]
+    pub enum EnumWithEmptyGenerics<> { First { a: u32, b: String, c: u64 } }
+    #[derive(Protocol, Debug, PartialEq)]
+    pub enum EnumWithUnconstrainedType<T> { Variant1 { a: T, b: T }, Variant2 { c: T } }
+    #[derive(Protocol, Debug, PartialEq)]
+    pub enum EnumWithUnconstrainedTypes<A,B,C,D> { Value { a: A, b: B, c: C, d: D }, Variant2 { a: A } }
+    #[derive(Protocol, Debug, PartialEq)]
+    pub enum EnumWithConstrainedType<T: Clone + PartialEq + fmt::Debug + fmt::Display> { Variant1 { inner: T }, Variant2 { c: T } }
+    #[derive(Protocol, Debug, PartialEq)]
+    pub enum EnumWithConstrainedTypes<T: Clone, A: fmt::Debug + fmt::Display, B: Copy> { Variant1 { t: T, a: A, b: B }, Variant2 { c: T } }
+    // #[derive(Protocol, Debug, PartialEq)]
+    // pub enum EnumWithWhereClause<T> where T: fmt::Debug + fmt::Display { Variant1 { t: T }, Variant2 { t: T } }
+
+    #[test]
+    fn can_read_back_empty_generics() {
+        verify_read_back(EnumWithEmptyGenerics::First { a: 22, b: "boop".to_owned(), c: !0 });
+    }
+
+    #[test]
+    fn can_read_back_single_unconstrained_type() {
+        let v: EnumWithUnconstrainedType<String> = EnumWithUnconstrainedType::Variant2 { c: "hello".to_owned() };
+        verify_read_back(v);
+    }
+
+    #[test]
+    fn can_read_back_multiple_unconstrained_types() {
+        let v = EnumWithUnconstrainedTypes::Value {
+            a: "hello".to_string(), b: 55u8, c: 128u64, d: 99i64,
+        };
+        verify_read_back(v);
+    }
+
+    #[test]
+    fn can_read_back_single_constrained_type() {
+        let v: EnumWithConstrainedType<String> = EnumWithConstrainedType::Variant1 { inner: "hello".to_owned() };
+        verify_read_back(v);
+    }
+
+    #[test]
+    fn can_read_back_multiple_constrained_types() {
+        let v = EnumWithConstrainedTypes::Variant1 { t: "hello".to_owned(), a: 250u8, b: 155i16 };
+        verify_read_back(v);
+    }
+
+
+    // #[test]
+    // fn can_read_back_where_clause() {
+    //     let v = EnumWithWhereClause::Variant1 { t: "hello".to_owned() };
+    //     verify_read_back(v);
+    // }
 }
 
 #[cfg(test)]

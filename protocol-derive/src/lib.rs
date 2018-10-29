@@ -37,20 +37,26 @@ fn impl_parcel(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
 /// Returns `(generics, where_predicates)`
 fn build_generics(ast: &syn::DeriveInput) -> (Vec<proc_macro2::TokenStream>, Vec<proc_macro2::TokenStream>) {
     let mut where_predicates = Vec::new();
-    let generics: Vec<_> = ast.generics.params.iter().enumerate().map(|(i, p)| {
-        match p {
-            syn::GenericParam::Type(t) => {
-                let (ident, bounds) = (&t.ident, &t.bounds);
-                where_predicates.push(quote!(#ident : protocol::Parcel + #bounds));
-                quote!(#ident)
-            },
-            syn::GenericParam::Lifetime(..) => {
-                let letter = ('a' as u8 + i as u8) as char;
-                quote!(#letter)
-            },
-            syn::GenericParam::Const(..) => panic!("const generics are unsupported"),
-        }
-    }).collect();
+    let mut generics = Vec::new();
+
+    generics.extend(ast.generics.type_params().map(|t| {
+        let (ident, bounds) = (&t.ident, &t.bounds);
+        where_predicates.push(quote!(#ident : protocol::Parcel + #bounds));
+        quote!(#ident)
+    }));
+
+    generics.extend(ast.generics.lifetimes().enumerate().map(|(i, _)| {
+        let letter = ('a' as u8 + i as u8) as char;
+        quote!(#letter)
+    }));
+
+    assert!(ast.generics.const_params().next().is_none(),
+            "constant parameters are not supported yet");
+
+    // FIXME: support where clauses (https://github.com/dylanmckay/protocol/issues/12)
+    // if let Some(where_clause) = ast.generics.where_clause {
+    //     where_predicates.extend(where_clause.into_token_stream());
+    // }
 
     (generics, where_predicates)
 }
