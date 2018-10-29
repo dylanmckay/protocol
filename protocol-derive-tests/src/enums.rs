@@ -73,8 +73,10 @@ mod generics {
     pub enum EnumWithConstrainedType<T: Clone + PartialEq + fmt::Debug + fmt::Display> { Variant1 { inner: T }, Variant2 { c: T } }
     #[derive(Protocol, Debug, PartialEq)]
     pub enum EnumWithConstrainedTypes<T: Clone, A: fmt::Debug + fmt::Display, B: Copy> { Variant1 { t: T, a: A, b: B }, Variant2 { c: T } }
-    // #[derive(Protocol, Debug, PartialEq)]
-    // pub enum EnumWithWhereClause<T> where T: fmt::Debug + fmt::Display { Variant1 { t: T }, Variant2 { t: T } }
+    #[derive(Protocol, Debug, PartialEq)]
+    pub enum EnumWithWhereClause<T> where T: fmt::Debug + fmt::Display { Variant1 { t: T }, Variant2 { t: T } }
+    #[derive(Protocol, Debug, PartialEq)]
+    pub enum EnumWithWhereClauses<A,B,C> where A: Copy, B: fmt::Debug + fmt::Display, C: Clone + Copy { Variant1 { a: A, b: B, c: C }, Variant2 { a: A } }
 
     #[test]
     fn can_read_back_empty_generics() {
@@ -107,12 +109,17 @@ mod generics {
         verify_read_back(v);
     }
 
+    #[test]
+    fn can_read_back_where_clause() {
+        let v = EnumWithWhereClause::Variant1 { t: "hello".to_owned() };
+        verify_read_back(v);
+    }
 
-    // #[test]
-    // fn can_read_back_where_clause() {
-    //     let v = EnumWithWhereClause::Variant1 { t: "hello".to_owned() };
-    //     verify_read_back(v);
-    // }
+    #[test]
+    fn can_read_back_where_clauses() {
+        let v = EnumWithWhereClauses::Variant1 { a: 7u16, b: "hello".to_owned(), c: 99u8 };
+        verify_read_back(v);
+    }
 }
 
 #[cfg(test)]

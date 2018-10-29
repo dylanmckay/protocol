@@ -36,6 +36,8 @@ fn impl_parcel(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
 ///
 /// Returns `(generics, where_predicates)`
 fn build_generics(ast: &syn::DeriveInput) -> (Vec<proc_macro2::TokenStream>, Vec<proc_macro2::TokenStream>) {
+    use quote::ToTokens;
+
     let mut where_predicates = Vec::new();
     let mut generics = Vec::new();
 
@@ -50,13 +52,12 @@ fn build_generics(ast: &syn::DeriveInput) -> (Vec<proc_macro2::TokenStream>, Vec
         quote!(#letter)
     }));
 
+    if let Some(where_clause) = ast.generics.where_clause.clone() {
+        where_predicates.push(where_clause.predicates.into_token_stream());
+    }
+
     assert!(ast.generics.const_params().next().is_none(),
             "constant parameters are not supported yet");
-
-    // FIXME: support where clauses (https://github.com/dylanmckay/protocol/issues/12)
-    // if let Some(where_clause) = ast.generics.where_clause {
-    //     where_predicates.extend(where_clause.into_token_stream());
-    // }
 
     (generics, where_predicates)
 }
