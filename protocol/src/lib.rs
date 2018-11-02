@@ -11,7 +11,7 @@ pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromInt
 mod packet;
 
 #[macro_use]
-pub mod primitives;
+pub mod types;
 #[macro_use]
 pub mod wire;
 

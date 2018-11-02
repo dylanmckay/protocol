@@ -1,5 +1,5 @@
 use {Parcel, Error, TryFromIntError};
-use primitives::Integer;
+use types::Integer;
 
 use std::io::prelude::*;
 

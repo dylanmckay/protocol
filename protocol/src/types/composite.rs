@@ -30,7 +30,7 @@ macro_rules! implement_composite_type {
 }
 
 
-/// Defines a type built out of other primitives.
+/// Defines a type built out of other `Parcel` types.
 ///
 /// ```none
 /// define_composite_type!(Foo {

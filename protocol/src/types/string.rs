@@ -1,4 +1,4 @@
-use {primitives, Parcel, Error};
+use {types, Parcel, Error};
 use std::io::prelude::*;
 use std;
 
@@ -22,13 +22,13 @@ impl Parcel for std::string::String
 /// A string with a custom size prefix integer type.
 /// `S` - The size prefix type.
 #[derive(Clone, Debug, PartialEq)]
-pub struct String<S: primitives::Integer = u32>
+pub struct String<S: types::Integer = u32>
 {
     pub value: std::string::String,
     _a: std::marker::PhantomData<S>,
 }
 
-impl<S: primitives::Integer> String<S>
+impl<S: types::Integer> String<S>
 {
     pub fn new(s: std::string::String) -> Self {
         String {
@@ -38,18 +38,18 @@ impl<S: primitives::Integer> String<S>
     }
 }
 
-impl<S: primitives::Integer> Parcel for String<S>
+impl<S: types::Integer> Parcel for String<S>
 {
     const TYPE_NAME: &'static str = "protocol::String<S>";
 
     fn read(read: &mut Read) -> Result<Self, Error> {
-        let bytes = primitives::Vec::<S, u8>::read(read)?;
+        let bytes = types::Vec::<S, u8>::read(read)?;
 
         Ok(String::new(std::string::String::from_utf8(bytes.elements)?))
     }
 
     fn write(&self, write: &mut Write) -> Result<(), Error> {
-        let array: primitives::Vec<S, u8> = primitives::Vec::new(self.value.bytes().collect());
+        let array: types::Vec<S, u8> = types::Vec::new(self.value.bytes().collect());
         array.write(write)
     }
 }
