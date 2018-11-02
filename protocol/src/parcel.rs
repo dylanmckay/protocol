@@ -65,5 +65,8 @@ pub trait Parcel : Sized
 
         Ok(buffer.into_inner())
     }
+
+    /// Gets the name of the type; `Parcel::TYPE_NAME`.
+    fn type_name(&self) -> &'static str { Self::TYPE_NAME }
 }
 
