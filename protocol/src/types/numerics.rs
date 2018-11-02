@@ -5,10 +5,8 @@ use std::io::prelude::*;
 use num_traits::{FromPrimitive, ToPrimitive};
 use byteorder::{ReadBytesExt, WriteBytesExt};
 
-pub trait Integer : Parcel + FromPrimitive + ToPrimitive
-{
-
-}
+/// An integer value that can be serialized and deserialized.
+pub trait Integer : Parcel + FromPrimitive + ToPrimitive { }
 
 impl Parcel for bool
 {

@@ -1,8 +1,7 @@
+//! Contains newtypes over the standard library types
+//! that support finer-grained serialization settings.
+
 pub use self::numerics::Integer;
-// Expose dynamic array as `Vec<T>` to users.
-//
-// We only really call it DynArray here to disambiguate
-// from the standard library type.
 pub use self::string::String;
 pub use self::vec::Vec;
 

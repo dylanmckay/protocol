@@ -1,3 +1,5 @@
+//! A type safe `Parcel` data transformation pipeline.
+
 pub use self::pipeline::Pipeline;
 pub use self::compression::Compression;
 pub use self::rotate_bytes::RotateBytes;
@@ -11,6 +13,9 @@ use Error;
 use std;
 
 /// A hook that sits between reading and writing packets.
+///
+/// Applies one transformation encoding the data, and
+/// performs the opposite transformation to decode it.
 pub trait Middleware : std::fmt::Debug
 {
     /// Processes some data.
