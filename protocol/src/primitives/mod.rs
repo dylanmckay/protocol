@@ -1,6 +1,10 @@
 pub use self::numerics::Integer;
-pub use self::array::DynArray;
+// Expose dynamic array as `Vec<T>` to users.
+//
+// We only really call it DynArray here to disambiguate
+// from the standard library type.
 pub use self::string::String;
+pub use self::vec::Vec;
 
 mod numerics;
 #[macro_use]
@@ -19,4 +23,5 @@ mod util;
 
 #[cfg(feature = "uuid")]
 mod uuid;
+mod vec;
 

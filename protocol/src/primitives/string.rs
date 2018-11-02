@@ -1,4 +1,4 @@
-use {primitives, Parcel, Error, DynArray};
+use {primitives, Parcel, Error};
 use std::io::prelude::*;
 use std;
 
@@ -43,13 +43,13 @@ impl<S: primitives::Integer> Parcel for String<S>
     const TYPE_NAME: &'static str = "protocol::String<S>";
 
     fn read(read: &mut Read) -> Result<Self, Error> {
-        let bytes = DynArray::<S, u8>::read(read)?;
+        let bytes = primitives::Vec::<S, u8>::read(read)?;
 
         Ok(String::new(std::string::String::from_utf8(bytes.elements)?))
     }
 
     fn write(&self, write: &mut Write) -> Result<(), Error> {
-        let array: DynArray<S, u8> = DynArray::new(self.value.bytes().collect());
+        let array: primitives::Vec<S, u8> = primitives::Vec::new(self.value.bytes().collect());
         array.write(write)
     }
 }

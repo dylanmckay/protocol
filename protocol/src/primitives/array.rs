@@ -1,36 +1,5 @@
-use {primitives, Parcel, Error};
-
+use {Parcel, Error};
 use std::io::prelude::*;
-use std;
-
-/// An dynamic array type with a custom size prefix type.
-#[derive(Clone, Debug, PartialEq)]
-pub struct DynArray<S: primitives::Integer, T: Parcel>
-{
-    pub elements: Vec<T>,
-    _a: std::marker::PhantomData<S>,
-}
-
-impl<S: primitives::Integer, T: Parcel> DynArray<S,T>
-{
-    pub fn new(elements: Vec<T>) -> Self {
-        DynArray { elements: elements, _a: std::marker::PhantomData }
-    }
-}
-
-impl<S: primitives::Integer, T: Parcel> Parcel for DynArray<S, T>
-{
-    const TYPE_NAME: &'static str = "DynArray<S,T>";
-
-    fn read(read: &mut Read) -> Result<Self, Error> {
-        let elements = primitives::util::read_list_ext::<S,T>(read)?;
-        Ok(Self::new(elements))
-    }
-
-    fn write(&self, write: &mut Write) -> Result<(), Error> {
-        primitives::util::write_list_ext::<S,T,_>(write, self.elements.iter())
-    }
-}
 
 macro_rules! impl_parcel_for_array {
     ($n:expr) => {
@@ -110,19 +79,6 @@ impl_parcel_for_array!(1000);
 impl_parcel_for_array!(1024);
 impl_parcel_for_array!(4096);
 impl_parcel_for_array!(0xffff);
-
-impl<T: Parcel> Parcel for Vec<T>
-{
-    const TYPE_NAME: &'static str = "Vec<T>";
-
-    fn read(read: &mut Read) -> Result<Self, Error> {
-        primitives::util::read_list(read)
-    }
-
-    fn write(&self, write: &mut Write) -> Result<(), Error> {
-        primitives::util::write_list(write, self.iter())
-    }
-}
 
 #[cfg(test)]
 mod test {

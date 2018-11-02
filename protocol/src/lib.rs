@@ -3,7 +3,6 @@
 //! * The `packet` module deals with defining packets.
 //! * The `wire` module deals with transmission of packets.
 
-pub use self::primitives::{Integer, DynArray, String};
 pub use self::parcel::Parcel;
 pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromIntError};
 
