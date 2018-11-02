@@ -270,7 +270,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
 
             impl < #(#generics),* > protocol::Parcel for #enum_name < #(#generics),* >
                 where #(#where_predicates),* {
-                const TYPE_NAME: &'static str = stringify!($enum_name);
+                const TYPE_NAME: &'static str = stringify!(#enum_name);
 
                 #[allow(unused_variables)]
                 fn read(__io_reader: &mut io::Read) -> Result<Self, protocol::Error> {
