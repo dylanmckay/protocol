@@ -85,6 +85,8 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 
                     impl < #(#generics),* > protocol::Parcel for #strukt_name < #(#generics),* >
                         where #(#where_predicates),* {
+                        const TYPE_NAME: &'static str = stringify!($strukt_name);
+
                         #[allow(unused_variables)]
                         fn read(read: &mut io::Read)
                             -> Result<Self, protocol::Error> {
@@ -121,6 +123,8 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 
                     impl < #(#generics),* > protocol::Parcel for #strukt_name < #(#generics),* >
                         where #(#where_predicates),* {
+                        const TYPE_NAME: &'static str = stringify!($strukt_name);
+
                         #[allow(unused_variables)]
                         fn read(read: &mut io::Read)
                             -> Result<Self, protocol::Error> {
@@ -147,6 +151,8 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                     use std::io;
 
                     impl protocol::Parcel for #strukt_name {
+                        const TYPE_NAME: &'static str = stringify!($strukt_name);
+
                         fn read(_: &mut io::Read) -> Result<Self, protocol::Error> {
                             Ok(#strukt_name)
                         }
@@ -264,6 +270,8 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
 
             impl < #(#generics),* > protocol::Parcel for #enum_name < #(#generics),* >
                 where #(#where_predicates),* {
+                const TYPE_NAME: &'static str = stringify!($enum_name);
+
                 #[allow(unused_variables)]
                 fn read(__io_reader: &mut io::Read) -> Result<Self, protocol::Error> {
                     let discriminator: #discriminator_type = protocol::Parcel::read(__io_reader)?;

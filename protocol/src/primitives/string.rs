@@ -5,6 +5,8 @@ use std;
 // The default implementation treats the string as a normal char array.
 impl Parcel for std::string::String
 {
+    const TYPE_NAME: &'static str = "String";
+
     fn read(read: &mut Read) -> Result<Self, Error> {
         let bytes = Vec::<u8>::read(read)?;
 
@@ -38,6 +40,8 @@ impl<S: primitives::Integer> String<S>
 
 impl<S: primitives::Integer> Parcel for String<S>
 {
+    const TYPE_NAME: &'static str = "protocol::String<S>";
+
     fn read(read: &mut Read) -> Result<Self, Error> {
         let bytes = DynArray::<S, u8>::read(read)?;
 

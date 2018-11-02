@@ -5,6 +5,8 @@ use std::io::prelude::*;
 impl<T0, T1> Parcel for (T0, T1)
     where T0: Parcel, T1: Parcel
 {
+    const TYPE_NAME: &'static str = "(T0, T1)";
+
     fn read(read: &mut Read) -> Result<Self, Error> {
         let v0 = T0::read(read)?;
         let v1 = T1::read(read)?;
@@ -22,6 +24,8 @@ impl<T0, T1> Parcel for (T0, T1)
 impl<T0, T1, T2> Parcel for (T0, T1, T2)
     where T0: Parcel, T1: Parcel, T2: Parcel
 {
+    const TYPE_NAME: &'static str = "(T0, T1, T2)";
+
     fn read(read: &mut Read) -> Result<Self, Error> {
         let v0 = T0::read(read)?;
         let v1 = T1::read(read)?;
@@ -41,6 +45,8 @@ impl<T0, T1, T2> Parcel for (T0, T1, T2)
 impl<T0, T1, T2, T3> Parcel for (T0, T1, T2, T3)
     where T0: Parcel, T1: Parcel, T2: Parcel, T3: Parcel
 {
+    const TYPE_NAME: &'static str = "(T0, T1, T2, T3)";
+
     fn read(read: &mut Read) -> Result<Self, Error> {
         let v0 = T0::read(read)?;
         let v1 = T1::read(read)?;
@@ -62,6 +68,8 @@ impl<T0, T1, T2, T3> Parcel for (T0, T1, T2, T3)
 impl<T0, T1, T2, T3, T4> Parcel for (T0, T1, T2, T3, T4)
     where T0: Parcel, T1: Parcel, T2: Parcel, T3: Parcel, T4: Parcel
 {
+    const TYPE_NAME: &'static str = "(T0, T1, T2, T3, T4)";
+
     fn read(read: &mut Read) -> Result<Self, Error> {
         let v0 = T0::read(read)?;
         let v1 = T1::read(read)?;

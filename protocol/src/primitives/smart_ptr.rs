@@ -9,6 +9,8 @@ macro_rules! impl_smart_ptr_type {
     ($ty:ident) => {
         impl<T: Parcel> Parcel for $ty<T>
         {
+            const TYPE_NAME: &'static str = stringify!($ty<T>);
+
             fn read(read: &mut Read) -> Result<Self, Error> {
                 let value = T::read(read)?;
                 Ok($ty::new(value))

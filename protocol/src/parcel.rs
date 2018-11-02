@@ -39,18 +39,26 @@ use std::io;
 ///       * `BTreeMap<T: Parcel>`
 pub trait Parcel : Sized
 {
+    /// The textual name of the type.
+    const TYPE_NAME: &'static str;
+
     /// Reads a value from a stream.
+    ///
+    /// Blocks until a value is received.
     fn read(read: &mut Read) -> Result<Self, ::Error>;
 
     /// Writes a value to a stream.
     fn write(&self, write: &mut Write) -> Result<(), ::Error>;
 
-    /// Creates a new parcel
+    /// Parses a new value from its raw byte representation.
+    ///
+    /// Returns `Err` if the bytes represent an invalid value.
     fn from_raw_bytes(bytes: &[u8]) -> Result<Self, ::Error> {
         let mut buffer = ::std::io::Cursor::new(bytes);
         Self::read(&mut buffer)
     }
 
+    /// Gets the raw byte representation of the value.
     fn raw_bytes(&self) -> Result<Vec<u8>, ::Error> {
         let mut buffer = io::Cursor::new(Vec::new());
         self.write(&mut buffer)?;

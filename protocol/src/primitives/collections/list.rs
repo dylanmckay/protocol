@@ -3,6 +3,8 @@ macro_rules! impl_list_type {
         impl<T> $crate::Parcel for ::std::collections::$ty<T>
             where T: $crate::Parcel $( + $ty_pred )*
         {
+            const TYPE_NAME: &'static str = stringify!($ty<T>);
+
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 let elements = ::primitives::util::read_list(read)?;
                 Ok(elements.into_iter().collect())

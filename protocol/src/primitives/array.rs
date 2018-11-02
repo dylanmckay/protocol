@@ -20,6 +20,8 @@ impl<S: primitives::Integer, T: Parcel> DynArray<S,T>
 
 impl<S: primitives::Integer, T: Parcel> Parcel for DynArray<S, T>
 {
+    const TYPE_NAME: &'static str = "DynArray<S,T>";
+
     fn read(read: &mut Read) -> Result<Self, Error> {
         let elements = primitives::util::read_list_ext::<S,T>(read)?;
         Ok(Self::new(elements))
@@ -33,6 +35,8 @@ impl<S: primitives::Integer, T: Parcel> Parcel for DynArray<S, T>
 macro_rules! impl_parcel_for_array {
     ($n:expr) => {
         impl<T: Parcel> Parcel for [T; $n] where T: Copy {
+            const TYPE_NAME: &'static str = stringify!([T; $n]);
+
             fn read(read: &mut Read) -> Result<Self, Error> {
                 use std::mem;
 
@@ -109,6 +113,8 @@ impl_parcel_for_array!(0xffff);
 
 impl<T: Parcel> Parcel for Vec<T>
 {
+    const TYPE_NAME: &'static str = "Vec<T>";
+
     fn read(read: &mut Read) -> Result<Self, Error> {
         primitives::util::read_list(read)
     }

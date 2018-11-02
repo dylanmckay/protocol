@@ -1,4 +1,5 @@
 
+/// Defines a new struct-based packet.
 #[macro_export]
 macro_rules! define_packet
 {
@@ -12,6 +13,8 @@ macro_rules! define_packet
 
         impl $crate::Parcel for $ty
         {
+            const TYPE_NAME: &'static str = stringify!($ty);
+
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 #[allow(unused_imports)]
                 use $crate::Parcel;
@@ -39,6 +42,8 @@ macro_rules! define_packet
 
         impl $crate::Parcel for $ty
         {
+            const TYPE_NAME: &'static str = stringify!($ty);
+
             fn read(_read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 Ok($ty)
             }
@@ -75,6 +80,8 @@ macro_rules! define_packet_kind
 
         impl $crate::Parcel for $ty
         {
+            const TYPE_NAME: &'static str = stringify!($ty);
+
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 let packet_id = <$id_ty as $crate::Parcel>::read(read)?;
 

@@ -12,6 +12,8 @@ macro_rules! implement_composite_type {
     ($ty:ident { $( $field_name:ident ),+ }) => {
         impl $crate::Parcel for $ty
         {
+            const TYPE_NAME: &'static str = stringify!($ty);
+
             fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
                 Ok($ty {
                     $( $field_name: $crate::Parcel::read(read)? ),+

@@ -4,6 +4,8 @@ use std::io::prelude::*;
 
 impl<T: Parcel> Parcel for Option<T>
 {
+    const TYPE_NAME: &'static str = "Option<T>";
+
     fn read(read: &mut Read) -> Result<Self, Error> {
         let is_some = bool::read(read)?;
 
