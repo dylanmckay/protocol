@@ -1,3 +1,5 @@
+//! A middleware for compressing all transmitted data.
+
 use Error;
 use wire;
 use flate2;
@@ -9,6 +11,9 @@ use std::io::Cursor;
 #[derive(Copy, Clone, Debug)]
 pub enum Algorithm
 {
+    /// The zlib compression algorithm.
+    ///
+    /// https://en.wikipedia.org/wiki/Zlib
     Zlib,
 }
 
@@ -16,7 +21,9 @@ pub enum Algorithm
 #[derive(Clone, Debug)]
 pub enum Compression
 {
+    /// No compression or decompression should be applied to the data.
     Disabled,
+    /// Compression and decompression should be applied to the data.
     Enabled(Algorithm),
 }
 

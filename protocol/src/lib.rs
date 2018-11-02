@@ -1,7 +1,8 @@
 //! Simple packet-based protocol definitions in Rust.
 //!
-//! * The `packet` module deals with defining packets.
-//! * The `wire` module deals with transmission of packets.
+//! * The `Parcel` trait defines any type that can be serialized
+//!   to a connection.
+//! * The `wire` module deals with transmission of `Parcel`s.
 
 pub use self::parcel::Parcel;
 pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromIntError};

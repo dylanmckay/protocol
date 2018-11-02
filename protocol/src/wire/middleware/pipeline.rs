@@ -1,3 +1,5 @@
+//! An ordered list of middleware that performs tested transformations.
+
 use Error;
 use wire::middleware;
 use std;
@@ -14,6 +16,7 @@ pub fn default() -> Default {
     Default::default()
 }
 
+/// Defines a new middleware pipeline that implements `Pipeline`.
 #[macro_export]
 macro_rules! define_middleware_pipeline {
     ($ty:ident { $( $mw_name:ident : $mw_ty:ty ),+ } ) => {

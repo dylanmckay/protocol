@@ -1,3 +1,5 @@
+//! A fixed-offset based caesar cipher middleware.
+
 use Error;
 use wire;
 
@@ -14,6 +16,8 @@ pub struct RotateBytes {
 
 impl RotateBytes {
     /// The ROT13 cipher.
+    ///
+    /// [ROT13 on Wikipedia](https://en.wikipedia.org/wiki/ROT13)
     pub const ROT13: RotateBytes = RotateBytes { amount: 13 };
 }
 
