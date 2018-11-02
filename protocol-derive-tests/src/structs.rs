@@ -66,3 +66,9 @@ fn unit_structs_are_correctly_read() {
     assert_eq!(PartyInTheFront, PartyInTheFront::from_raw_bytes(&[]).unwrap());
 }
 
+#[test]
+fn type_name_is_correct() {
+    assert_eq!("PartyInTheFront", PartyInTheFront.type_name());
+    assert_eq!("BizBong", BizBong(2,3,1).type_name());
+}
+

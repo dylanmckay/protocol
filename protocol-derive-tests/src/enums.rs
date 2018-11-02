@@ -1,10 +1,13 @@
+#![cfg(test)]
+
+use protocol::Parcel;
+
 #[derive(Protocol, Clone, Debug, PartialEq)]
 pub enum WithGenerics<A, B> {
     Foo(A, B),
     Bar,
 }
 
-#[cfg(test)]
 mod string_discriminants {
     #[allow(unused_imports)]
     use protocol::Parcel;
@@ -58,7 +61,6 @@ mod string_discriminants {
     }
 }
 
-#[cfg(test)]
 mod generics {
     use verify_read_back;
     use std::fmt;
@@ -122,7 +124,6 @@ mod generics {
     }
 }
 
-#[cfg(test)]
 mod integer_discriminants {
     #[allow(unused_imports)]
     use protocol::Parcel;
@@ -174,3 +175,14 @@ mod integer_discriminants {
     }
 }
 
+#[derive(Protocol)]
+enum OneVariant { A }
+
+#[derive(Protocol)]
+enum BuzzyBee { B(u32, u32) }
+
+#[test]
+fn type_name_is_correct() {
+    assert_eq!("OneVariant", OneVariant::A.type_name());
+    assert_eq!("BuzzyBee", BuzzyBee::B(2,1).type_name());
+}

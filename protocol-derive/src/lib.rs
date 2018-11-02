@@ -85,7 +85,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 
                     impl < #(#generics),* > protocol::Parcel for #strukt_name < #(#generics),* >
                         where #(#where_predicates),* {
-                        const TYPE_NAME: &'static str = stringify!($strukt_name);
+                        const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
                         #[allow(unused_variables)]
                         fn read(read: &mut io::Read)
@@ -123,7 +123,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 
                     impl < #(#generics),* > protocol::Parcel for #strukt_name < #(#generics),* >
                         where #(#where_predicates),* {
-                        const TYPE_NAME: &'static str = stringify!($strukt_name);
+                        const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
                         #[allow(unused_variables)]
                         fn read(read: &mut io::Read)
@@ -151,7 +151,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                     use std::io;
 
                     impl protocol::Parcel for #strukt_name {
-                        const TYPE_NAME: &'static str = stringify!($strukt_name);
+                        const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
                         fn read(_: &mut io::Read) -> Result<Self, protocol::Error> {
                             Ok(#strukt_name)
