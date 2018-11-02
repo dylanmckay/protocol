@@ -60,14 +60,14 @@ macro_rules! define_middleware_pipeline {
 
 // The default middleware pipeline.
 define_middleware_pipeline!(Default {
-    compression: middleware::Compression
+    compression: middleware::compression::Compression
 });
 
 impl std::default::Default for Default
 {
     fn default() -> Self {
         Default {
-            compression: middleware::Compression::Disabled,
+            compression: middleware::compression::Compression::Disabled,
         }
     }
 }

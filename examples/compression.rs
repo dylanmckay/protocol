@@ -5,7 +5,10 @@
 extern crate protocol;
 #[macro_use] extern crate protocol_derive;
 
-pub const ALGORITHM: protocol::wire::middleware::compression::Algorithm = protocol::wire::middleware::compression::Algorithm::Zlib;
+use protocol::wire::middleware::{self, compression};
+use protocol::wire::stream;
+
+pub const ALGORITHM: compression::Algorithm = compression::Algorithm::Zlib;
 
 #[derive(Protocol, Clone, Debug, PartialEq)]
 pub struct Hello {
@@ -17,9 +20,9 @@ fn main() {
     use std::net::TcpStream;
 
     let stream = TcpStream::connect("127.0.0.1:34254").unwrap();
-    let mut connection = protocol::wire::stream::Connection::new(stream, protocol::wire::middleware::pipeline::default());
+    let mut connection = stream::Connection::new(stream, middleware::pipeline::default());
 
-    connection.middleware.compression = protocol::wire::middleware::Compression::Enabled(ALGORITHM);
+    connection.middleware.compression = compression::Compression::Enabled(ALGORITHM);
 
     connection.send_packet(&Hello { id: 0, data: vec![ 55 ]}).unwrap();
 

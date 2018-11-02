@@ -1,8 +1,6 @@
 //! A type safe `Parcel` data transformation pipeline.
 
 pub use self::pipeline::Pipeline;
-pub use self::compression::Compression;
-pub use self::rotate_bytes::RotateBytes;
 
 #[macro_use]
 pub mod pipeline;
