@@ -136,6 +136,14 @@ mod integer_discriminants {
         Fart,
     }
 
+    #[derive(Protocol, Debug, PartialEq, Eq)]
+    #[protocol(discriminant = "integer")]
+    #[repr(u8)]
+    enum WithCustomRepr {
+        First = 1,
+        Second = 2,
+    }
+
     #[test]
     fn named_fields_are_correctly_written() {
         assert_eq!(vec![0, 0, 0, 1, 1], BoatKind::Speedboat {
@@ -172,6 +180,11 @@ mod integer_discriminants {
     fn unit_variants_are_correctly_read() {
         assert_eq!(BoatKind::Fart,
                    BoatKind::from_raw_bytes(&[0, 0, 0, 3]).unwrap());
+    }
+
+    #[test]
+    fn custom_int_discriminator_repr_is_respected() {
+        assert_eq!(vec![1], WithCustomRepr::First.raw_bytes().unwrap());
     }
 }
 

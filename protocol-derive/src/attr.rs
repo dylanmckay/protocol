@@ -17,6 +17,29 @@ pub fn name(attrs: &[syn::Attribute]) -> Option<String> {
     helper::protocol_meta_name_value_literal("name", attrs).map(helper::expect_lit_str)
 }
 
+/// Gets the value of the `repr(type)` attribute.
+pub fn repr(attrs: &[syn::Attribute]) -> Option<syn::Ident> {
+    if let Some(nested) = attribute::with_list("repr", attrs) {
+        nested.into_iter().filter_map(|nested| match nested {
+            syn::NestedMeta::Meta(syn::Meta::Word(ty)) => Some(ty),
+            _ => None,
+        }).next()
+    } else {
+        None
+    }
+}
+
+mod attribute {
+    pub fn with_list(name: &str, attrs: &[syn::Attribute]) -> Option<Vec<syn::NestedMeta>> {
+        attrs.iter().filter_map(|attr| match attr.interpret_meta() {
+            Some(syn::Meta::List(list)) => {
+                if list.ident == name { Some(list.nested.into_iter().collect()) } else { None }
+            },
+            _ => None,
+        }).next()
+    }
+}
+
 mod helper {
     use syn;
     use proc_macro2;

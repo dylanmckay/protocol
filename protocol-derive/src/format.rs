@@ -3,7 +3,7 @@
 use attr;
 use syn;
 
-pub type Discriminator = u32;
+pub const DEFAULT_INT_DISCRIMINATOR_TYPE: &'static str = "u32";
 
 /// Represents a format.
 pub trait Format : Clone {
@@ -21,7 +21,7 @@ pub enum Enum {
 }
 
 impl Enum {
-    /// Gets the discriminator of the enum.
+    /// Gets the discriminator of an enum variant.
     pub fn discriminator(&self, e: &syn::DataEnum,
                          variant: &syn::Variant) -> ::proc_macro2::TokenStream {
         match *self {
@@ -29,13 +29,14 @@ impl Enum {
                 let variant_index = e.variants.iter().position(|v| v.ident == variant.ident).expect("variant not a part of enum");
 
                 let discriminator = match variant.discriminant {
-                    Some((_, syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(ref n), .. }))) => n.value() as Discriminator,
+                    Some((_, syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(ref n), .. }))) => n.clone(),
                     Some(_) => panic!("unknown discriminator"),
                     // Reserve discriminator 0.
-                    None => variant_index as Discriminator + 1,
+                    None => syn::LitInt::new(variant_index as u64 + 1, syn::IntSuffix::None,
+                                             proc_macro2::Span::call_site()),
                 };
 
-                quote!(#discriminator)
+                quote!( #discriminator )
             },
             Enum::StringDiscriminator => {
                 let variant_name = attr::name(&variant.attrs).unwrap_or_else(|| variant.ident.to_string());
@@ -52,23 +53,13 @@ impl Enum {
     }
 
     pub fn discriminator_variant_for_pattern_matching(&self, e: &syn::DataEnum,
-                                                       variant: &syn::Variant) -> ::proc_macro2::TokenStream {
+                                                      variant: &syn::Variant) -> ::proc_macro2::TokenStream {
         match *self {
             Enum::IntegerDiscriminator => self.discriminator(e, variant),
             Enum::StringDiscriminator => {
                 let variant_name = attr::name(&variant.attrs).unwrap_or_else(|| variant.ident.to_string());
                 quote! { #variant_name }
             },
-        }
-    }
-
-    pub fn discriminator_type(&self) -> ::proc_macro2::TokenStream {
-        match *self {
-            Enum::IntegerDiscriminator => {
-                let s = syn::Ident::new(&format!("u{}", ::std::mem::size_of::<Discriminator>() * 8), ::proc_macro2::Span::call_site());
-                quote!(#s)
-            },
-            Enum::StringDiscriminator => quote!(String),
         }
     }
 }

@@ -175,11 +175,20 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
 
     let format = attr::discriminant_format::<format::Enum>(&ast.attrs).unwrap_or(format::Enum::IntegerDiscriminator);
 
+    let discriminator_ty = match format {
+        format::Enum::IntegerDiscriminator => {
+            attr::repr(&ast.attrs)
+                .unwrap_or(syn::Ident::new(format::DEFAULT_INT_DISCRIMINATOR_TYPE, proc_macro2::Span::call_site()))
+        },
+        format::Enum::StringDiscriminator => syn::Ident::new("String", proc_macro2::Span::call_site()),
+    };
+
     let variant_writers = e.variants.iter().map(|variant| {
         let variant_name = &variant.ident;
 
         let discriminator = format.discriminator(e, variant);
-        let write_discriminator = quote! { protocol::Parcel::write(&#discriminator, __io_writer)?; };
+
+        let write_discriminator = quote! { <#discriminator_ty as protocol::Parcel>::write(&(#discriminator as _), __io_writer)?; };
 
         match variant.fields {
             syn::Fields::Named(ref fields_named) => {
@@ -260,7 +269,6 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
     let (generics, where_predicates) = build_generics(ast);
     let (generics, where_predicates) = (&generics, where_predicates);
 
-    let discriminator_type = format.discriminator_type();
     let discriminator_for_pattern_matching = format.discriminator_for_pattern_matching();
     quote! {
         #[allow(non_upper_case_globals)]
@@ -274,7 +282,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
 
                 #[allow(unused_variables)]
                 fn read(__io_reader: &mut io::Read) -> Result<Self, protocol::Error> {
-                    let discriminator: #discriminator_type = protocol::Parcel::read(__io_reader)?;
+                    let discriminator: #discriminator_ty = protocol::Parcel::read(__io_reader)?;
                     match #discriminator_for_pattern_matching {
                         #(#variant_readers,)*
                         _ => panic!("unknown discriminator"),
