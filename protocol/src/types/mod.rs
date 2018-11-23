@@ -11,6 +11,7 @@ mod composite;
 mod array;
 mod string;
 mod char;
+mod marker;
 mod tuple;
 mod option;
 /// Definitions for the `std::collections` module.
