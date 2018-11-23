@@ -178,7 +178,8 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
     let enum_name = &ast.ident;
     let anon_const_name = syn::Ident::new(&format!("__IMPL_PARCEL_FOR_{}", ast.ident), proc_macro2::Span::call_site());
 
-    let format = attr::discriminant_format::<format::Enum>(&ast.attrs).unwrap_or(format::Enum::IntegerDiscriminator);
+    let format = attr::discriminant_format::<format::Enum>(&ast.attrs)
+                     .unwrap_or(format::DEFAULT_ENUM_DISCRIMINATOR_FORMAT);
 
     let discriminator_ty = match format {
         format::Enum::IntegerDiscriminator => {

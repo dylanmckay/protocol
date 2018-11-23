@@ -115,18 +115,19 @@ fn main() {
 
 Enum values can be transmitted either by their 1-based variant index, or by transmitting the string name of each variant.
 
-**NOTE:** The default behaviour is to use *the 1-based variant index* (`integer`).
+**NOTE:** The default behaviour is to use *the variant name as a string* (`string`).
 
-This behaviour can be changed by the `#[protocol(discriminant = "string")]` attribute.
+This behaviour can be changed by the `#[protocol(discriminant = "<type>")]` attribute.
 
 Supported discriminant types:
 
-* `integer` (default)
-    * This transmits the 1-based variant number as the over-the-wire discriminant
-    * Enum variants cannot be reordered in the source without breaking the protocol
-* `string`
+* `string` (default)
     * This transmits the enum variant name as the over-the-wire discriminant
     * This uses more bytes per message, but it very flexible
+* `integer
+    * This transmits the 1-based variant number as the over-the-wire discriminant
+    * If enum variants have explicit discriminators, the
+    * Enum variants cannot be reordered in the source without breaking the protocol
 
 **N.B.** `string` should become the default discriminant type for `#[derive(Protocol)]`. This would be a breaking change.
 Perhaps a major release?

@@ -113,6 +113,19 @@ mod integer_discriminants {
         Second = 2,
     }
 
+    #[derive(Protocol, Debug, PartialEq, Eq)]
+    #[protocol(discriminant = "integer")]
+    #[repr(i8)]
+    enum WithoutExplicitDiscriminators {
+        Only,
+    }
+
+    #[test]
+    fn discriminator_zero_is_reserved() {
+        assert_eq!(vec![1],
+                   WithoutExplicitDiscriminators::Only.raw_bytes(&protocol::Settings::default()).unwrap());
+    }
+
     #[test]
     fn named_fields_are_correctly_written() {
         assert_eq!(vec![0, 0, 0, 1, 1], BoatKind::Speedboat {

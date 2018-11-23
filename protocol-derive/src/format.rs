@@ -5,6 +5,8 @@ use syn;
 
 pub const DEFAULT_INT_DISCRIMINATOR_TYPE: &'static str = "u32";
 
+pub const DEFAULT_ENUM_DISCRIMINATOR_FORMAT: Enum = Enum::StringDiscriminator;
+
 /// Represents a format.
 pub trait Format : Clone {
     /// From a string.
@@ -24,14 +26,37 @@ impl Enum {
     /// Gets the discriminator of an enum variant.
     pub fn discriminator(&self, e: &syn::DataEnum,
                          variant: &syn::Variant) -> ::proc_macro2::TokenStream {
+        let allow_explicit_discriminators = match *self {
+            Enum::IntegerDiscriminator => true,
+            _ => false,
+        };
+
+        if !allow_explicit_discriminators {
+            for variant in e.variants.iter() {
+                if let Some(_) = variant.discriminant {
+                    panic!("only enums with integer discriminants may use explicit discriminants: '{}",
+                           quote!(#variant).to_string());
+                }
+            }
+        }
+
         match *self {
             Enum::IntegerDiscriminator => {
                 let variant_index = e.variants.iter().position(|v| v.ident == variant.ident).expect("variant not a part of enum");
+                let prior_variants: Vec<_> = e.variants.iter().collect();
+                let previous_discriminator = prior_variants.into_iter().rev().filter_map(|variant| {
+                    match variant.discriminant {
+                        Some((_, syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(ref n), .. }))) => Some(n.value()),
+                        _ => None,
+                    }
+                }).next()
+                  .unwrap_or_else(|| variant_index as u64 + 1); // incase no explicit discriminators
+                let default_discriminator = previous_discriminator + 1;
 
                 let discriminator = match variant.discriminant {
                     Some((_, syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(ref n), .. }))) => n.clone(),
                     Some(_) => panic!("unknown discriminator"),
-                    // Reserve discriminator 0.
+                    // If no explicit discriminant exists
                     None => syn::LitInt::new(variant_index as u64 + 1, syn::IntSuffix::None,
                                              proc_macro2::Span::call_site()),
                 };
