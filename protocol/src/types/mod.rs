@@ -19,8 +19,6 @@ mod collections;
 /// Definitions for smart pointers in the `std` module.
 mod smart_ptr;
 
-mod util;
-
 #[cfg(feature = "uuid")]
 mod uuid;
 mod vec;

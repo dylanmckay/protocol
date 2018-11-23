@@ -1,5 +1,5 @@
 use {Parcel, Error, Settings};
-use types;
+use {types, util};
 use std::io::prelude::*;
 use std;
 
@@ -26,20 +26,20 @@ impl<S: types::Integer, T: Parcel> Parcel for Vec<S, T>
 
     fn read(read: &mut Read,
             settings: &Settings) -> Result<Self, Error> {
-        let elements = types::util::read_list_ext::<S,T>(read, settings)?;
+        let elements = util::read_list_ext::<S,T>(read, settings)?;
         Ok(Self::new(elements))
     }
 
     fn write(&self, write: &mut Write,
              settings: &Settings) -> Result<(), Error> {
-        types::util::write_list_ext::<S,T,_>(write, self.elements.iter(), settings)
+        util::write_list_ext::<S,T,_>(write, self.elements.iter(), settings)
     }
 }
 
 /// Stuff relating to `std::vec::Vec<T>`.
 mod std_vec {
     use {Error, Parcel, Settings};
-    use types;
+    use util;
     use std::io::prelude::*;
 
     impl<T: Parcel> Parcel for Vec<T>
@@ -48,12 +48,12 @@ mod std_vec {
 
         fn read(read: &mut Read,
                 settings: &Settings) -> Result<Self, Error> {
-            types::util::read_list(read, settings)
+            util::read_list(read, settings)
         }
 
         fn write(&self, write: &mut Write,
                  settings: &Settings) -> Result<(), Error> {
-            types::util::write_list(write, self.iter(), settings)
+            util::write_list(write, self.iter(), settings)
         }
     }
 }

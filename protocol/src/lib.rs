@@ -20,6 +20,8 @@ pub mod wire;
 
 mod errors;
 mod parcel;
+pub mod util;
+
 
 extern crate byteorder;
 extern crate flate2;

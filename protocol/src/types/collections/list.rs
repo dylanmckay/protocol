@@ -7,14 +7,14 @@ macro_rules! impl_list_type {
 
             fn read(read: &mut ::std::io::Read,
                     settings: &::Settings) -> Result<Self, $crate::Error> {
-                let elements = ::types::util::read_list(read, settings)?;
+                let elements = ::util::read_list(read, settings)?;
                 Ok(elements.into_iter().collect())
             }
 
             fn write(&self, write: &mut ::std::io::Write,
                      settings: &::Settings)
                 -> Result<(), $crate::Error> {
-                ::types::util::write_list(write, self.iter(), settings)
+                ::util::write_list(write, self.iter(), settings)
             }
         }
 
