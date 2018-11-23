@@ -2,6 +2,7 @@
 
 use attr;
 use syn;
+use proc_macro2::Span;
 
 pub const DEFAULT_INT_DISCRIMINATOR_TYPE: &'static str = "u32";
 
@@ -42,29 +43,29 @@ impl Enum {
 
         match *self {
             Enum::IntegerDiscriminator => {
-                let variant_index = e.variants.iter().position(|v| v.ident == variant.ident).expect("variant not a part of enum");
-                let prior_variants: Vec<_> = e.variants.iter().collect();
-                let previous_discriminator = prior_variants.into_iter().rev().filter_map(|variant| {
+                let discriminator = attr::protocol_variant_discriminator(&variant.attrs)
+                                       // Otherwise, figure out the discriminator.
+                                       .unwrap_or_else(|| {
                     match variant.discriminant {
-                        Some((_, syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(ref n), .. }))) => Some(n.value()),
-                        _ => None,
-                    }
-                }).next()
-                  .unwrap_or_else(|| variant_index as u64 + 1); // incase no explicit discriminators
-                let default_discriminator = previous_discriminator + 1;
+                        Some((_, syn::Expr::Lit(syn::ExprLit { ref lit, .. }))) => lit.clone(),
+                        Some(_) => panic!("unknown discriminator"),
+                        // If no explicit discriminant exists, use the default
+                        None => {
+                            let variant_index = e.variants.iter().position(|v| v.ident == variant.ident)
+                                .expect("variant not a part of enum");
+                            let default_discriminator = variant_index as u64 + 1;
 
-                let discriminator = match variant.discriminant {
-                    Some((_, syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(ref n), .. }))) => n.clone(),
-                    Some(_) => panic!("unknown discriminator"),
-                    // If no explicit discriminant exists
-                    None => syn::LitInt::new(variant_index as u64 + 1, syn::IntSuffix::None,
-                                             proc_macro2::Span::call_site()),
-                };
+                            syn::LitInt::new(default_discriminator, syn::IntSuffix::None,
+                                             Span::call_site()).into()
+                        },
+                    }
+                });
 
                 quote!( #discriminator )
             },
             Enum::StringDiscriminator => {
-                let variant_name = attr::name(&variant.attrs).unwrap_or_else(|| variant.ident.to_string());
+                let variant_name = attr::protocol_variant_discriminator(&variant.attrs)
+                                 .unwrap_or_else(|| syn::LitStr::new(&variant.ident.to_string(), Span::call_site()).into());
                 quote! { String::from(#variant_name) }
             },
         }
@@ -82,7 +83,8 @@ impl Enum {
         match *self {
             Enum::IntegerDiscriminator => self.discriminator(e, variant),
             Enum::StringDiscriminator => {
-                let variant_name = attr::name(&variant.attrs).unwrap_or_else(|| variant.ident.to_string());
+                let variant_name = attr::protocol_variant_discriminator(&variant.attrs)
+                    .unwrap_or_else(|| syn::LitStr::new(&variant.ident.to_string(), Span::call_site()).into());
                 quote! { #variant_name }
             },
         }

@@ -28,8 +28,15 @@ mod string_discriminants {
     #[protocol(discriminant = "string")]
     pub enum RenamedVariant {
         Hello,
-        #[protocol(name = "Universe")]
+        #[protocol(discriminator("Universe"))]
         World,
+    }
+
+    #[derive(Protocol, Debug, PartialEq)]
+    #[protocol(discriminant = "string")]
+    pub enum WithDiscriminatorAttrs {
+        #[protocol(discriminator("FooBar"))]
+        Foo,
     }
 
     #[test]
@@ -113,11 +120,30 @@ mod integer_discriminants {
         Second = 2,
     }
 
+    #[derive(Protocol, Debug, PartialEq)]
+    #[protocol(discriminant = "integer")]
+    #[repr(u8)]
+    pub enum CustomDiscriminatorAttrs {
+        #[protocol(discriminator(255))]
+        Hello,
+        #[protocol(discriminator(122))]
+        World,
+    }
+
+
     #[derive(Protocol, Debug, PartialEq, Eq)]
     #[protocol(discriminant = "integer")]
     #[repr(i8)]
     enum WithoutExplicitDiscriminators {
         Only,
+    }
+
+    #[test]
+    fn custom_discriminators_are_transmitted() {
+        let settings = Settings::default();
+
+        assert_eq!(vec![255], CustomDiscriminatorAttrs::Hello.raw_bytes(&settings).unwrap());
+        assert_eq!(vec![122], CustomDiscriminatorAttrs::World.raw_bytes(&settings).unwrap());
     }
 
     #[test]

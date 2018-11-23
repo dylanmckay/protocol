@@ -138,6 +138,8 @@ Perhaps a major release?
 pub enum PlayerState {
   Stationary,
   Flying { velocity: (f32,f32,f32) },
+  // Discriminators can be explicitly specified.
+  #[protocol(discriminator("ArbitraryOverTheWireName"))]
   Jumping { height: f32 },
 }
 ```
