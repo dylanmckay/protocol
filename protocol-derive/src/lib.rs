@@ -88,19 +88,21 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                         const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
                         #[allow(unused_variables)]
-                        fn read(read: &mut io::Read)
+                        fn read(read: &mut io::Read,
+                                __settings: &protocol::Settings)
                             -> Result<Self, protocol::Error> {
                             Ok(#strukt_name {
                                 #(
-                                    #field_names: protocol::Parcel::read(read)?
+                                    #field_names: protocol::Parcel::read(read, __settings)?
                                 ),*
                             })
                         }
 
                         #[allow(unused_variables)]
-                        fn write(&self, write: &mut io::Write)
+                        fn write(&self, write: &mut io::Write,
+                                 __settings: &protocol::Settings)
                             -> Result<(), protocol::Error> {
-                            #( protocol::Parcel::write(&self. #field_names, write )?; )*
+                            #( protocol::Parcel::write(&self. #field_names, write, __settings )?; )*
                             Ok(())
                         }
                     }
@@ -112,7 +114,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
             let field_numbers = &field_numbers[..];
 
             let field_expressions = field_numbers.iter().map(|_| {
-                quote!{ protocol::Parcel::read(read)? }
+                quote!{ protocol::Parcel::read(read, __settings)? }
             });
 
             quote! {
@@ -126,7 +128,8 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                         const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
                         #[allow(unused_variables)]
-                        fn read(read: &mut io::Read)
+                        fn read(read: &mut io::Read,
+                                __settings: &protocol::Settings)
                             -> Result<Self, protocol::Error> {
                             Ok(#strukt_name(
                                 #(#field_expressions),*
@@ -134,9 +137,10 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                         }
 
                         #[allow(unused_variables)]
-                        fn write(&self, write: &mut io::Write)
+                        fn write(&self, write: &mut io::Write,
+                                 __settings: &protocol::Settings)
                             -> Result<(), protocol::Error> {
-                            #( protocol::Parcel::write(&self. #field_numbers, write )?; )*
+                            #( protocol::Parcel::write(&self. #field_numbers, write, __settings )?; )*
                             Ok(())
                         }
                     }
@@ -153,11 +157,12 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                     impl protocol::Parcel for #strukt_name {
                         const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
-                        fn read(_: &mut io::Read) -> Result<Self, protocol::Error> {
+                        fn read(_: &mut io::Read,
+                                _: &protocol::Settings) -> Result<Self, protocol::Error> {
                             Ok(#strukt_name)
                         }
 
-                        fn write(&self, _: &mut io::Write)
+                        fn write(&self, _: &mut io::Write, _: &protocol::Settings)
                             -> Result<(), protocol::Error> {
                             Ok(())
                         }
@@ -188,7 +193,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
 
         let discriminator = format.discriminator(e, variant);
 
-        let write_discriminator = quote! { <#discriminator_ty as protocol::Parcel>::write(&(#discriminator as _), __io_writer)?; };
+        let write_discriminator = quote! { <#discriminator_ty as protocol::Parcel>::write(&(#discriminator as _), __io_writer, __settings)?; };
 
         match variant.fields {
             syn::Fields::Named(ref fields_named) => {
@@ -199,7 +204,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
                     #enum_name :: #variant_name { #( #field_name_refs ),* } => {
                         #write_discriminator
 
-                        #( protocol::Parcel::write(#field_names, __io_writer)?; )*
+                        #( protocol::Parcel::write(#field_names, __io_writer, __settings)?; )*
                     }
                 }
             },
@@ -213,7 +218,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
                 quote! {
                     #enum_name :: #variant_name ( #( #field_refs ),* ) => {
                         #write_discriminator
-                        #( protocol::Parcel::write(#binding_names, __io_writer)?; )*
+                        #( protocol::Parcel::write(#binding_names, __io_writer, __settings)?; )*
                     }
                 }
             },
@@ -237,7 +242,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
 
                 quote! {
                     #discriminator => Ok(#enum_name :: #variant_name {
-                        #( #field_names : protocol::Parcel::read(__io_reader)? ),*
+                        #( #field_names : protocol::Parcel::read(__io_reader, __settings)? ),*
                     })
                 }
             },
@@ -248,7 +253,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
 
                 let field_readers = binding_names.iter().map(|_| {
                     quote! {
-                        protocol::Parcel::read(__io_reader)?
+                        protocol::Parcel::read(__io_reader, __settings)?
                     }
                 });
 
@@ -281,8 +286,9 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
                 const TYPE_NAME: &'static str = stringify!(#enum_name);
 
                 #[allow(unused_variables)]
-                fn read(__io_reader: &mut io::Read) -> Result<Self, protocol::Error> {
-                    let discriminator: #discriminator_ty = protocol::Parcel::read(__io_reader)?;
+                fn read(__io_reader: &mut io::Read,
+                        __settings: &protocol::Settings) -> Result<Self, protocol::Error> {
+                    let discriminator: #discriminator_ty = protocol::Parcel::read(__io_reader, __settings)?;
                     match #discriminator_for_pattern_matching {
                         #(#variant_readers,)*
                         _ => panic!("unknown discriminator"),
@@ -290,7 +296,8 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
                 }
 
                 #[allow(unused_variables)]
-                fn write(&self, __io_writer: &mut io::Write)
+                fn write(&self, __io_writer: &mut io::Write,
+                         __settings: &protocol::Settings)
                     -> Result<(), protocol::Error> {
                     match *self {
                         #(#variant_writers),*

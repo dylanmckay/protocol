@@ -23,7 +23,9 @@ fn main() {
     use std::net::TcpStream;
 
     let stream = TcpStream::connect("127.0.0.1:34254").unwrap();
-    let mut connection = protocol::wire::stream::Connection::new(stream, protocol::wire::middleware::pipeline::default());
+    let mut connection = protocol::wire::stream::Connection::new(stream,
+                                   protocol::wire::middleware::pipeline::default(),
+                                   protocol::Settings::default());
 
     connection.send_packet(&Packet {
         headers: std::collections::HashMap::new(),

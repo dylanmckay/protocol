@@ -22,7 +22,8 @@ fn main() {
     let socket = UdpSocket::bind("127.0.0.1:34254").unwrap();
     socket.connect("127.0.0.1:53111").unwrap();
 
-    let mut pipeline = protocol::wire::dgram::Pipeline::new(protocol::wire::middleware::pipeline::default());
+    let settings = protocol::Settings::default();
+    let mut pipeline = protocol::wire::dgram::Pipeline::new(protocol::wire::middleware::pipeline::default(), settings);
 
 
     // Send some data.

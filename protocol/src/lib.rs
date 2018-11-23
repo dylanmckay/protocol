@@ -6,11 +6,13 @@
 
 pub use self::parcel::Parcel;
 pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromIntError};
+pub use self::settings::*;
 
 // Must go first because it defines common macros.
 #[macro_use]
 mod packet;
 
+mod settings;
 #[macro_use]
 pub mod types;
 #[macro_use]
@@ -29,5 +31,5 @@ extern crate uuid;
 extern crate num_traits;
 
 /// The default byte ordering.
-pub type ByteOrder = ::byteorder::BigEndian;
+pub type DefaultByteOrder = ::byteorder::BigEndian;
 

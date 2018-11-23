@@ -1,4 +1,4 @@
-use {Parcel, Error};
+use {Parcel, Error, Settings};
 
 use std::collections::{HashMap, BTreeMap};
 use std::hash::Hash;
@@ -15,14 +15,15 @@ macro_rules! impl_map_type {
         {
             const TYPE_NAME: &'static str = stringify!($ty<K,V>);
 
-            fn read(read: &mut Read) -> Result<Self, Error> {
+            fn read(read: &mut Read,
+                    settings: &Settings) -> Result<Self, Error> {
                 let mut map = $ty::new();
 
-                let length = SizeType::read(read)?;
+                let length = SizeType::read(read, settings)?;
 
                 for _ in 0..length {
-                    let key = K::read(read)?;
-                    let value = V::read(read)?;
+                    let key = K::read(read, settings)?;
+                    let value = V::read(read, settings)?;
 
                     map.insert(key, value);
                 }
@@ -30,12 +31,13 @@ macro_rules! impl_map_type {
                 Ok(map)
             }
 
-            fn write(&self, write: &mut Write) -> Result<(), Error> {
-                (self.len() as SizeType).write(write)?;
+            fn write(&self, write: &mut Write,
+                     settings: &Settings) -> Result<(), Error> {
+                (self.len() as SizeType).write(write, settings)?;
 
                 for (key, value) in self.iter() {
-                    key.write(write)?;
-                    value.write(write)?;
+                    key.write(write, settings)?;
+                    value.write(write, settings)?;
                 }
 
                 Ok(())

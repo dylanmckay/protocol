@@ -1,5 +1,5 @@
 #[allow(unused_imports)]
-use protocol::Parcel;
+use protocol::{Parcel, Settings};
 
 #[derive(Protocol, Debug, PartialEq, Eq)]
 pub struct Foobar {
@@ -34,7 +34,7 @@ fn named_fields_are_correctly_written() {
         a: 3,
         b: '2' as u8,
         c: 1,
-    }.raw_bytes().unwrap());
+    }.raw_bytes(&Settings::default()).unwrap());
 }
 
 #[test]
@@ -43,27 +43,28 @@ fn named_fields_are_correctly_read() {
         a: 3,
         b: '2' as u8,
         c: 1,
-    }, Foobar::from_raw_bytes(&[3, '2' as u8, 1]).unwrap());
+    }, Foobar::from_raw_bytes(&[3, '2' as u8, 1], &Settings::default()).unwrap());
 }
 
 #[test]
 fn unnamed_fields_are_correctly_written() {
-    assert_eq!(vec![6, 1, 9], BizBong(6,1,9).raw_bytes().unwrap());
+    assert_eq!(vec![6, 1, 9], BizBong(6,1,9).raw_bytes(&Settings::default()).unwrap());
 }
 
 #[test]
 fn unnamed_fields_are_correctly_read() {
-    assert_eq!(BizBong(3, 1, 7), BizBong::from_raw_bytes(&[3, 1, 7]).unwrap());
+    assert_eq!(BizBong(3, 1, 7), BizBong::from_raw_bytes(&[3, 1, 7], &Settings::default()).unwrap());
 }
 
 #[test]
 fn unit_structs_are_correctly_written() {
-    assert_eq!(PartyInTheFront.raw_bytes().unwrap(), &[]);
+    assert_eq!(PartyInTheFront.raw_bytes(&Settings::default()).unwrap(), &[]);
 }
 
 #[test]
 fn unit_structs_are_correctly_read() {
-    assert_eq!(PartyInTheFront, PartyInTheFront::from_raw_bytes(&[]).unwrap());
+    assert_eq!(PartyInTheFront,
+               PartyInTheFront::from_raw_bytes(&[], &Settings::default()).unwrap());
 }
 
 #[test]

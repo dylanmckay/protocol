@@ -1,4 +1,4 @@
-use {Parcel, Error};
+use {Parcel, Error, Settings};
 use std::io::prelude::*;
 
 macro_rules! impl_parcel_for_array {
@@ -6,13 +6,14 @@ macro_rules! impl_parcel_for_array {
         impl<T: Parcel> Parcel for [T; $n] where T: Copy {
             const TYPE_NAME: &'static str = stringify!([T; $n]);
 
-            fn read(read: &mut Read) -> Result<Self, Error> {
+            fn read(read: &mut Read,
+                    settings: &Settings) -> Result<Self, Error> {
                 use std::mem;
 
                 let mut elements: Vec<T> = Vec::with_capacity($n);
 
                 for _ in 0..$n {
-                    let elem = T::read(read)?;
+                    let elem = T::read(read, settings)?;
                     elements.push(elem);
                 }
 
@@ -22,9 +23,10 @@ macro_rules! impl_parcel_for_array {
                 Ok(array)
             }
 
-            fn write(&self, write: &mut Write) -> Result<(), Error> {
+            fn write(&self, write: &mut Write,
+                     settings: &Settings) -> Result<(), Error> {
                 for elem in self.iter() {
-                    elem.write(write)?;
+                    elem.write(write, settings)?;
                 }
 
                 Ok(())
@@ -82,20 +84,21 @@ impl_parcel_for_array!(0xffff);
 
 #[cfg(test)]
 mod test {
-    use Parcel;
+    use {Parcel, Settings};
     use std::io::Cursor;
 
     #[test]
     fn can_read_array() {
         let mut data = Cursor::new([0u8, 1, 2, 3]);
-        let read_back: [u8; 4] = Parcel::read(&mut data).unwrap();
+        let read_back: [u8; 4] = Parcel::read(&mut data, &Settings::default()).unwrap();
         assert_eq!(read_back, [0, 1, 2, 3]);
     }
 
     #[test]
     fn can_write_array() {
         let mut buffer = Cursor::new(Vec::new());
-        [5u8, 7, 9, 11].write(&mut buffer).unwrap();
+
+        [5u8, 7, 9, 11].write(&mut buffer, &Settings::default()).unwrap();
         assert_eq!(buffer.into_inner(), vec![5, 7, 9, 11]);
     }
 }

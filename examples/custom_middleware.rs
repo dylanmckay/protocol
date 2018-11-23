@@ -59,7 +59,7 @@ fn main() {
     use std::net::TcpStream;
 
     let stream = TcpStream::connect("127.0.0.1:34254").unwrap();
-    let mut connection = protocol::wire::stream::Connection::new(stream, Pipeline::new());
+    let mut connection = protocol::wire::stream::Connection::new(stream, Pipeline::new(), protocol::Settings::default());
 
     connection.send_packet(&Packet::Ping(Ping { id: 0, data: vec![ 55 ]})).unwrap();
 

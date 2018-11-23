@@ -1,4 +1,4 @@
-use {Parcel, Error};
+use {Parcel, Error, Settings};
 use wire::middleware;
 
 use std::io::prelude::*;
@@ -10,6 +10,7 @@ use std;
 pub struct Pipeline<P: Parcel, M: middleware::Pipeline>
 {
     pub middleware: M,
+    pub settings: Settings,
 
     _a: std::marker::PhantomData<P>,
 }
@@ -17,9 +18,10 @@ pub struct Pipeline<P: Parcel, M: middleware::Pipeline>
 impl<P,M> Pipeline<P,M>
     where P: Parcel, M: middleware::Pipeline
 {
-    pub fn new(middleware: M) -> Self {
+    pub fn new(middleware: M,
+                settings: Settings) -> Self {
         Pipeline {
-            middleware: middleware,
+            middleware, settings,
             _a: std::marker::PhantomData,
         }
     }
@@ -31,13 +33,13 @@ impl<P,M> Pipeline<P,M>
         let raw_bytes = raw_bytes?;
 
         let mut bytes = Cursor::new(self.middleware.decode_data(raw_bytes)?);
-        P::read(&mut bytes)
+        P::read(&mut bytes, &self.settings)
     }
 
     /// Writes a packet into a buffer.
     pub fn send_to(&mut self, buffer: &mut Write, packet: &P)
         -> Result<(), Error> {
-        let bytes = self.middleware.encode_data(packet.raw_bytes()?)?;
+        let bytes = self.middleware.encode_data(packet.raw_bytes(&self.settings)?)?;
         buffer.write(&bytes)?;
         Ok(())
     }

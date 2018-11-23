@@ -1,6 +1,6 @@
 use super::Transport;
 
-use {Error, Parcel};
+use {Error, Parcel, Settings};
 
 use std::collections::VecDeque;
 use std::io::prelude::*;
@@ -39,7 +39,10 @@ impl Simple
         }
     }
 
-    fn process_bytes(&mut self, bytes: &[u8]) -> Result<(), Error> {
+    fn process_bytes(&mut self,
+                     bytes: &[u8],
+                     settings: &Settings)
+        -> Result<(), Error> {
         let mut read = Cursor::new(bytes);
 
         loop {
@@ -58,7 +61,7 @@ impl Simple
                     if size_bytes.len() == mem::size_of::<PacketSize>() {
                         let mut size_buffer = Cursor::new(size_bytes);
 
-                        let size = PacketSize::read(&mut size_buffer).unwrap();
+                        let size = PacketSize::read(&mut size_buffer, settings).unwrap();
 
                         // We are now ready to receive packet data.
                         self.state = State::AwaitingPacket { size: size, received_data: Vec::new() }
@@ -105,7 +108,8 @@ const BUFFER_SIZE: usize = 10000;
 impl Transport for Simple
 {
     fn process_data(&mut self,
-                    read: &mut Read) -> Result<(), Error> {
+                    read: &mut Read,
+                    settings: &Settings) -> Result<(), Error> {
         // Load the data into a temporary buffer before we process it.
         loop {
             let mut buffer = [0u8; BUFFER_SIZE];
@@ -115,7 +119,7 @@ impl Transport for Simple
             if bytes_read == 0 {
                 break;
             } else {
-                self.process_bytes(buffer)?;
+                self.process_bytes(buffer, settings)?;
 
                 // We didn't fill the whole buffer so stop now.
                 if bytes_read != BUFFER_SIZE { break; }
@@ -127,9 +131,10 @@ impl Transport for Simple
 
     fn send_raw_packet(&mut self,
                        write: &mut Write,
-                       packet: &[u8]) -> Result<(), Error> {
+                       packet: &[u8],
+                       settings: &Settings) -> Result<(), Error> {
         // Prefix the packet size.
-        (packet.len() as PacketSize).write(write)?;
+        (packet.len() as PacketSize).write(write, settings)?;
         // Write the packet data.
         write.write(&packet)?;
 
@@ -144,6 +149,7 @@ impl Transport for Simple
 #[cfg(test)]
 mod test
 {
+    use Settings;
     pub use super::Simple;
     pub use std::io::Cursor;
     pub use wire::stream::Transport;
@@ -160,7 +166,7 @@ mod test
 
         let mut buffer = Cursor::new(Vec::new());
 
-        transport.send_raw_packet(&mut buffer, &data).unwrap();
+        transport.send_raw_packet(&mut buffer, &data, &Settings::default()).unwrap();
         let written_data = buffer.into_inner();
 
         assert_eq!(&written_data, &expected_data);
@@ -178,7 +184,7 @@ mod test
 
         let mut buffer = Cursor::new(&expected_data);
 
-        transport.process_data(&mut buffer).unwrap();
+        transport.process_data(&mut buffer, &Settings::default()).unwrap();
         let read_data = transport.receive_raw_packet().ok().unwrap().unwrap();
         assert_eq!(&read_data, &data);
     }

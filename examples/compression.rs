@@ -20,7 +20,7 @@ fn main() {
     use std::net::TcpStream;
 
     let stream = TcpStream::connect("127.0.0.1:34254").unwrap();
-    let mut connection = stream::Connection::new(stream, middleware::pipeline::default());
+    let mut connection = stream::Connection::new(stream, middleware::pipeline::default(), protocol::Settings::default());
 
     connection.middleware.compression = compression::Compression::Enabled(ALGORITHM);
 

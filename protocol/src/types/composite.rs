@@ -14,14 +14,16 @@ macro_rules! implement_composite_type {
         {
             const TYPE_NAME: &'static str = stringify!($ty);
 
-            fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
+            fn read(read: &mut ::std::io::Read,
+                    settings: &$crate::Settings) -> Result<Self, $crate::Error> {
                 Ok($ty {
-                    $( $field_name: $crate::Parcel::read(read)? ),+
+                    $( $field_name: $crate::Parcel::read(read, settings)? ),+
                 })
             }
 
-            fn write(&self, write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
-                $( self.$field_name.write(write)?; )+
+            fn write(&self, write: &mut ::std::io::Write,
+                     settings: &$crate::Settings) -> Result<(), $crate::Error> {
+                $( self.$field_name.write(write, settings)?; )+
 
                 Ok(())
             }
@@ -57,7 +59,7 @@ macro_rules! define_composite_type {
 #[allow(unused_variables)]
 mod test
 {
-    pub use Parcel;
+    pub use {Parcel, Settings};
     pub use std::io::Cursor;
 
     #[derive(Clone, Debug, PartialEq)]
@@ -82,22 +84,23 @@ mod test
 
     #[test]
     fn is_consistent_when_using_the_different_macros() {
+        let settings = Settings::default();
         let foo = Foo { baz: "baz".to_string(), bing: 32 };
         let bar = Bar { baz: "baz".to_string(), bing: 32 };
-        assert_eq!(foo.raw_bytes().unwrap(), bar.raw_bytes().unwrap());
+        assert_eq!(foo.raw_bytes(&settings).unwrap(), bar.raw_bytes(&settings).unwrap());
     }
 
     #[test]
     fn writing_matches_expected_output() {
         let bing = Bing { a: 3, b: 2, c: 1 };
-        assert_eq!(&bing.raw_bytes().unwrap(), &[bing.a, bing.b, bing.c]);
+        assert_eq!(&bing.raw_bytes(&Settings::default()).unwrap(), &[bing.a, bing.b, bing.c]);
     }
 
     #[test]
     fn reading_reads_expected_value() {
         let bing = Bing { a: 3, b: 2, c: 1 };
         let mut buffer = Cursor::new([bing.a, bing.b, bing.c]);
-        let read = Bing::read(&mut buffer).unwrap();
+        let read = Bing::read(&mut buffer, &Settings::default()).unwrap();
 
         assert_eq!(read, bing);
     }

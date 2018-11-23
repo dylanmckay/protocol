@@ -15,20 +15,22 @@ macro_rules! define_packet
         {
             const TYPE_NAME: &'static str = stringify!($ty);
 
-            fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
+            fn read(read: &mut ::std::io::Read,
+                    settings: &Settings) -> Result<Self, $crate::Error> {
                 #[allow(unused_imports)]
                 use $crate::Parcel;
 
                 Ok($ty {
-                    $( $field_name : $crate::Parcel::read(read)?, )+
+                    $( $field_name : $crate::Parcel::read(read, settings)?, )+
                 })
             }
 
-            fn write(&self, write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
+            fn write(&self, write: &mut ::std::io::Write,
+                     settings: &Settings) -> Result<(), $crate::Error> {
                 #[allow(unused_imports)]
                 use $crate::Parcel;
 
-                $( self.$field_name.write(write)?; )+
+                $( self.$field_name.write(write, settings)?; )+
 
                 Ok(())
             }
@@ -44,11 +46,13 @@ macro_rules! define_packet
         {
             const TYPE_NAME: &'static str = stringify!($ty);
 
-            fn read(_read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
+            fn read(_read: &mut ::std::io::Read,
+                    _: &$crate::Settings) -> Result<Self, $crate::Error> {
                 Ok($ty)
             }
 
-            fn write(&self, _write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
+            fn write(&self, _write: &mut ::std::io::Write,
+                     _: &$crate::Settings) -> Result<(), $crate::Error> {
                 Ok(())
             }
         }
@@ -82,25 +86,27 @@ macro_rules! define_packet_kind
         {
             const TYPE_NAME: &'static str = stringify!($ty);
 
-            fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
-                let packet_id = <$id_ty as $crate::Parcel>::read(read)?;
+            fn read(read: &mut ::std::io::Read,
+                    settings: &$crate::Settings) -> Result<Self, $crate::Error> {
+                let packet_id = <$id_ty as $crate::Parcel>::read(read, settings)?;
 
                 let packet = match packet_id {
-                    $( $packet_id => $ty::$packet_ty(<$packet_ty as $crate::Parcel>::read(read)?), )+
+                    $( $packet_id => $ty::$packet_ty(<$packet_ty as $crate::Parcel>::read(read, settings)?), )+
                     _ => return Err($crate::ErrorKind::UnknownPacketId.into()),
                 };
 
                 Ok(packet)
             }
 
-            fn write(&self, write: &mut ::std::io::Write) -> Result<(), $crate::Error> {
+            fn write(&self, write: &mut ::std::io::Write,
+                     settings: &$crate::Settings) -> Result<(), $crate::Error> {
                 #[allow(unused_imports)]
                 use $crate::Parcel;
 
-                self.packet_id().write(write)?;
+                self.packet_id().write(write, settings)?;
 
                 match *self {
-                    $( $ty::$packet_ty(ref p) => <$packet_ty as $crate::Parcel>::write(p, write)? ),+
+                    $( $ty::$packet_ty(ref p) => <$packet_ty as $crate::Parcel>::write(p, write, settings)? ),+
                 }
 
                 Ok(())

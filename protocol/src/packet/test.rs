@@ -1,4 +1,5 @@
 pub use Parcel;
+use Settings;
 
 define_packet!(Handshake);
 define_packet!(Kick);
@@ -46,9 +47,10 @@ fn sets_packet_ids_correctly() {
 
 #[test]
 fn reads_packet_ids_correctly() {
-    let packet = PacketKind::from_raw_bytes(HELLO_EXPECTED_BYTES).unwrap();
+    let settings = Settings::default();
+    let packet = PacketKind::from_raw_bytes(HELLO_EXPECTED_BYTES, &settings).unwrap();
 
-    assert_eq!(packet.raw_bytes().unwrap(), HELLO_EXPECTED_BYTES);
+    assert_eq!(packet.raw_bytes(&settings).unwrap(), HELLO_EXPECTED_BYTES);
 }
 
 #[test]
@@ -56,6 +58,6 @@ fn writes_packet_ids_correctly() {
     let hello = Hello { id: 55, data: vec![1, 2, 3] };
     let packet = PacketKind::Hello(hello);
 
-    assert_eq!(packet.raw_bytes().unwrap(), HELLO_EXPECTED_BYTES);
+    assert_eq!(packet.raw_bytes(&Settings::default()).unwrap(), HELLO_EXPECTED_BYTES);
 }
 

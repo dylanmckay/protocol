@@ -1,4 +1,4 @@
-use {Parcel, Error};
+use {Parcel, Settings, Error};
 
 use std::rc::Rc;
 use std::sync::Arc;
@@ -11,13 +11,14 @@ macro_rules! impl_smart_ptr_type {
         {
             const TYPE_NAME: &'static str = stringify!($ty<T>);
 
-            fn read(read: &mut Read) -> Result<Self, Error> {
-                let value = T::read(read)?;
+            fn read(read: &mut Read, settings: &Settings) -> Result<Self, Error> {
+                let value = T::read(read, settings)?;
                 Ok($ty::new(value))
             }
 
-            fn write(&self, write: &mut Write) -> Result<(), Error> {
-                self.deref().write(write)
+            fn write(&self, write: &mut Write,
+                     settings: &Settings) -> Result<(), Error> {
+                self.deref().write(write, settings)
             }
         }
     }

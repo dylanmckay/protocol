@@ -1,3 +1,4 @@
+use Settings;
 use std::io::prelude::*;
 use std::io;
 
@@ -45,23 +46,26 @@ pub trait Parcel : Sized
     /// Reads a value from a stream.
     ///
     /// Blocks until a value is received.
-    fn read(read: &mut Read) -> Result<Self, ::Error>;
+    fn read(read: &mut Read,
+            settings: &Settings) -> Result<Self, ::Error>;
 
     /// Writes a value to a stream.
-    fn write(&self, write: &mut Write) -> Result<(), ::Error>;
+    fn write(&self, write: &mut Write,
+             settings: &Settings) -> Result<(), ::Error>;
 
     /// Parses a new value from its raw byte representation.
     ///
     /// Returns `Err` if the bytes represent an invalid value.
-    fn from_raw_bytes(bytes: &[u8]) -> Result<Self, ::Error> {
+    fn from_raw_bytes(bytes: &[u8],
+                      settings: &Settings) -> Result<Self, ::Error> {
         let mut buffer = ::std::io::Cursor::new(bytes);
-        Self::read(&mut buffer)
+        Self::read(&mut buffer, settings)
     }
 
     /// Gets the raw byte representation of the value.
-    fn raw_bytes(&self) -> Result<Vec<u8>, ::Error> {
+    fn raw_bytes(&self, settings: &Settings) -> Result<Vec<u8>, ::Error> {
         let mut buffer = io::Cursor::new(Vec::new());
-        self.write(&mut buffer)?;
+        self.write(&mut buffer, settings)?;
 
         Ok(buffer.into_inner())
     }

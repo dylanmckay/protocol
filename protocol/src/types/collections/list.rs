@@ -5,29 +5,32 @@ macro_rules! impl_list_type {
         {
             const TYPE_NAME: &'static str = stringify!($ty<T>);
 
-            fn read(read: &mut ::std::io::Read) -> Result<Self, $crate::Error> {
-                let elements = ::types::util::read_list(read)?;
+            fn read(read: &mut ::std::io::Read,
+                    settings: &::Settings) -> Result<Self, $crate::Error> {
+                let elements = ::types::util::read_list(read, settings)?;
                 Ok(elements.into_iter().collect())
             }
 
-            fn write(&self, write: &mut ::std::io::Write)
+            fn write(&self, write: &mut ::std::io::Write,
+                     settings: &::Settings)
                 -> Result<(), $crate::Error> {
-                ::types::util::write_list(write, self.iter())
+                ::types::util::write_list(write, self.iter(), settings)
             }
         }
 
         #[cfg(test)]
         mod test
         {
-            pub use Parcel;
+            pub use {Parcel, Settings};
             pub use std::collections::$ty;
 
             #[test]
             fn can_be_written_and_read_back_correctly() {
                 let original: $ty<u32> = [1, 2, 3, 4, 5].iter().cloned().collect();
 
-                let raw_bytes = original.raw_bytes().unwrap();
-                let read_deque = $ty::<u32>::from_raw_bytes(&raw_bytes).unwrap();
+                let settings = Settings::default();
+                let raw_bytes = original.raw_bytes(&settings).unwrap();
+                let read_deque = $ty::<u32>::from_raw_bytes(&raw_bytes, &settings).unwrap();
 
                 assert_eq!(original, read_deque);
             }
