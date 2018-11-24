@@ -3,6 +3,9 @@ use {Parcel, Error, Settings};
 
 use std::io::prelude::*;
 
+/// A type that does not have any protocol serialization implemented.
+///
+/// Panics whenever a read or write of this value is attempted.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Unimplemented;
 
