@@ -6,10 +6,13 @@ extern crate syn;
 #[macro_use]
 extern crate quote;
 
-mod format;
 mod attr;
+mod format;
+mod plan;
 
 use proc_macro::TokenStream;
+use proc_macro2::Span;
+use quote::ToTokens;
 
 #[proc_macro_derive(Protocol, attributes(protocol))]
 pub fn protocol(input: TokenStream) -> TokenStream {
@@ -173,28 +176,50 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
     }
 }
 
+/// Creates a layout plan for an enum.
+fn create_enum_plan(ast: &syn::DeriveInput,
+                    e: &syn::DataEnum) -> plan::Enum {
+    let mut plan = plan::Enum {
+        ident: ast.ident.clone(),
+        repr_attr: attr::repr(&ast.attrs),
+        explicit_format: attr::discriminant_format::<format::Enum>(&ast.attrs),
+        variants: e.variants.iter().map(|variant| {
+            let equals_discriminant = match variant.discriminant.clone().map(|a| a.1) {
+                Some(syn::Expr::Lit(expr_lit)) => Some(expr_lit.lit),
+                Some(_) => panic!("'VariantName = <expr>' can only be used with literals"),
+                None => None,
+            };
+
+            plan::EnumVariant {
+                ident: variant.ident.clone(),
+                explicit_discriminator_attr: attr::protocol_variant_discriminator(&variant.attrs),
+                explicit_int_discriminator_equals: equals_discriminant,
+                actual_discriminator: None,
+                fields: variant.fields.clone(),
+            }
+        }).collect(),
+    };
+    plan.resolve();
+    plan
+}
+
+/// Generates a `Parcel` trait implementation for an enum.
 fn impl_parcel_for_enum(ast: &syn::DeriveInput,
                         e: &syn::DataEnum) -> proc_macro2::TokenStream {
+    let plan = create_enum_plan(ast, e);
+
     let enum_name = &ast.ident;
     let anon_const_name = syn::Ident::new(&format!("__IMPL_PARCEL_FOR_{}", ast.ident), proc_macro2::Span::call_site());
+    let discriminator_ty = plan.discriminant();
 
-    let format = attr::discriminant_format::<format::Enum>(&ast.attrs)
-                     .unwrap_or(format::DEFAULT_ENUM_DISCRIMINATOR_FORMAT);
+    let discriminator_var = syn::Ident::new("discriminator", Span::call_site());
 
-    let discriminator_ty = match format {
-        format::Enum::IntegerDiscriminator => {
-            attr::repr(&ast.attrs)
-                .unwrap_or(syn::Ident::new(format::DEFAULT_INT_DISCRIMINATOR_TYPE, proc_macro2::Span::call_site()))
-        },
-        format::Enum::StringDiscriminator => syn::Ident::new("String", proc_macro2::Span::call_site()),
-    };
-
-    let variant_writers = e.variants.iter().map(|variant| {
+    let variant_writers = plan.variants.iter().map(|variant| {
         let variant_name = &variant.ident;
+        let discriminator = variant.discriminator();
+        let discriminator_ref_expr = plan.discriminator_ref_expr(discriminator.into_token_stream());
 
-        let discriminator = format.discriminator(e, variant);
-
-        let write_discriminator = quote! { <#discriminator_ty as protocol::Parcel>::write(&(#discriminator as _), __io_writer, __settings)?; };
+        let write_discriminator = quote! { <#discriminator_ty as protocol::Parcel>::write(#discriminator_ref_expr, __io_writer, __settings)?; };
 
         match variant.fields {
             syn::Fields::Named(ref fields_named) => {
@@ -233,9 +258,9 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
         }
     });
 
-    let variant_readers = e.variants.iter().map(|ref variant| {
+    let variant_readers = plan.variants.iter().map(|ref variant| {
         let variant_name = &variant.ident;
-        let discriminator = format.discriminator_variant_for_pattern_matching(e, variant);
+        let discriminator = variant.discriminator();
 
         match variant.fields {
             syn::Fields::Named(ref fields_named) => {
@@ -275,7 +300,7 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
     let (generics, where_predicates) = build_generics(ast);
     let (generics, where_predicates) = (&generics, where_predicates);
 
-    let discriminator_for_pattern_matching = format.discriminator_for_pattern_matching();
+    let discriminator_for_pattern_matching = plan.matchable_discriminator_expr(discriminator_var.clone());
     quote! {
         #[allow(non_upper_case_globals)]
         const #anon_const_name: () = {

@@ -4,6 +4,7 @@
 //!   to a connection.
 //! * The `wire` module deals with transmission of `Parcel`s.
 
+pub use self::enum_ty::Enum;
 pub use self::parcel::Parcel;
 pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromIntError};
 pub use self::settings::*;
@@ -18,6 +19,7 @@ pub mod types;
 #[macro_use]
 pub mod wire;
 
+mod enum_ty;
 mod errors;
 mod parcel;
 pub mod util;
