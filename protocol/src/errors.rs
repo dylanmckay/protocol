@@ -66,6 +66,12 @@ error_chain! {
             description("unknown packet identifier")
             display("unknown packet identifier")
         }
+
+        /// A parcel type was read that has not been implemented yet.
+        UnimplementedParcel(type_name: &'static str) {
+            description("unimplemented parcel")
+            display("unimplemented parcel type '{}", type_name)
+        }
     }
 }
 

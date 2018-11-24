@@ -1,11 +1,19 @@
-
-use {Parcel, Error, Settings};
+use {Parcel, Error, ErrorKind, Settings};
 
 use std::io::prelude::*;
 
 /// A type that does not have any protocol serialization implemented.
 ///
-/// Panics whenever a read or write of this value is attempted.
+/// # Behaviour
+///
+/// If any unimplemented parcel is read, an error of type
+/// `UnimplementedParcel` is returned. This allows clients to
+/// handle unimplemented data gracefully.
+///
+/// If you attempt to write an unimplemented parcel, the
+/// program panics. It makes sense to do error handling on
+/// unimplemented types that are read from remote machines,
+/// but it does not make sense to allow undefined data to be sent.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Unimplemented;
 
@@ -15,7 +23,7 @@ impl Parcel for Unimplemented
 
     fn read(_: &mut Read,
             _: &Settings) -> Result<Self, Error> {
-        unimplemented!();
+        Err(ErrorKind::UnimplementedParcel(Self::TYPE_NAME).into())
     }
 
     fn write(&self, _: &mut Write,
