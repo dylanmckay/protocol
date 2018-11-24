@@ -1,5 +1,6 @@
 use std::io::prelude::*;
 
+/// Defines serialization settings.
 #[derive(Clone, Debug, PartialEq, PartialOrd, Default)]
 pub struct Settings {
     /// The byte ordering of data transmitted.
@@ -7,16 +8,58 @@ pub struct Settings {
 }
 
 /// Specifies the byte order of data transfer.
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+///
+/// # `Eq` implementation
+///
+/// Here is a list of rules the `Eq` implementation satisfies.
+///
+///   * `LittleEndian == LittleEndian`
+///   * `LittleEndian != BigEndian`
+///   * `NativeEndian == LittleEndian` (but only on little endian machines)
+///   * `NativeEndian == BigEndian` (but only on big endian machines)
+///
+/// The `NativeEndian` byte order will successfully match against
+/// one of the two real-life byte orders.
+#[derive(Copy, Clone, Debug, Eq, PartialOrd, Ord, Hash)]
 pub enum ByteOrder {
+    /// Least significant byte first.
     LittleEndian,
+    /// Most significant byte first.
     BigEndian,
+    /// Whatever the byte ordering of the current machine is.
     NativeEndian,
+}
+
+#[cfg(target_endian = "little")]
+const NATIVE_BYTE_ORDER: ByteOrder = ByteOrder::LittleEndian;
+#[cfg(target_endian = "big")]
+const NATIVE_BYTE_ORDER: ByteOrder = ByteOrder::BigEndian;
+
+impl ByteOrder {
+    /// Resolves the byte order into either little or big endian.
+    fn realize(self) -> Self {
+        match self {
+            ByteOrder::NativeEndian => NATIVE_BYTE_ORDER,
+            b => b,
+        }
+    }
 }
 
 impl Default for ByteOrder {
     fn default() -> Self {
         ByteOrder::BigEndian
+    }
+}
+
+impl ::std::cmp::PartialEq for ByteOrder {
+    fn eq(&self, other: &Self) -> bool {
+        use ByteOrder::*;
+
+        match (self.realize(), other.realize()) {
+            (LittleEndian, LittleEndian) => true,
+            (BigEndian, BigEndian) => true,
+            _ => false,
+        }
     }
 }
 
