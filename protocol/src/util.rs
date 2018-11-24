@@ -8,6 +8,15 @@ use std::io::prelude::*;
 /// The integer type that we will use to send length prefixes.
 pub type SizeType = u32;
 
+/// Reads a string of specified length from a stream.
+pub fn read_string(byte_count: usize,
+                   read: &mut Read,
+                   settings: &Settings)
+    -> Result<String, Error> {
+    let bytes: Vec<u8> = read_items(byte_count, read, settings)?.collect();
+    String::from_utf8(bytes).map_err(Into::into)
+}
+
 /// Reads a specified number of items from a stream.
 pub fn read_items<T>(item_count: usize,
                      read: &mut Read,
