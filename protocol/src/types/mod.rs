@@ -3,22 +3,23 @@
 
 pub use self::numerics::Integer;
 pub use self::string::String;
+pub use self::unimplemented::Unimplemented;
 pub use self::vec::Vec;
 
-mod numerics;
-#[macro_use]
-mod composite;
 mod array;
-mod string;
 mod char;
-mod marker;
-mod tuple;
-mod option;
 /// Definitions for the `std::collections` module.
 mod collections;
+#[macro_use]
+mod composite;
+mod marker;
+mod numerics;
+mod option;
+mod string;
+mod tuple;
 /// Definitions for smart pointers in the `std` module.
 mod smart_ptr;
-
+mod unimplemented;
 #[cfg(feature = "uuid")]
 mod uuid;
 mod vec;
