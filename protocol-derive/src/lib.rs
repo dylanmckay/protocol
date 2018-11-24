@@ -12,7 +12,6 @@ mod plan;
 
 use proc_macro::TokenStream;
 use proc_macro2::Span;
-use quote::ToTokens;
 
 #[proc_macro_derive(Protocol, attributes(protocol))]
 pub fn protocol(input: TokenStream) -> TokenStream {
@@ -30,7 +29,13 @@ pub fn protocol(input: TokenStream) -> TokenStream {
 fn impl_parcel(ast: &syn::DeriveInput) -> proc_macro2::TokenStream {
     match ast.data {
         syn::Data::Struct(ref s) => impl_parcel_for_struct(ast, s),
-        syn::Data::Enum(ref e) => impl_parcel_for_enum(ast, e),
+        syn::Data::Enum(ref e) => {
+            let plan = plan::Enum::new(ast, e);
+
+            let mut stream = impl_parcel_for_enum(&plan, ast);
+            stream.extend(impl_enum_for_enum(&plan, ast));
+            stream
+        },
         syn::Data::Union(..) => unimplemented!(),
     }
 }
@@ -68,12 +73,8 @@ fn build_generics(ast: &syn::DeriveInput) -> (Vec<proc_macro2::TokenStream>, Vec
 fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                           strukt: &syn::DataStruct) -> proc_macro2::TokenStream {
     let strukt_name = &ast.ident;
-    let anon_const_name = syn::Ident::new(&format!("__IMPL_PARCEL_FOR_{}", strukt_name.to_owned()), proc_macro2::Span::call_site());
 
-    let (generics, where_predicates) = build_generics(ast);
-    let (generics, where_predicates) = (&generics, where_predicates);
-
-    match strukt.fields {
+    impl_trait_for(ast, quote!(protocol::Parcel), match strukt.fields {
         syn::Fields::Named(ref fields_named) => {
             let field_names: Vec<_> = fields_named.named.iter().map(|field| {
                 &field.ident
@@ -81,35 +82,26 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
             let field_names = &field_names[..];
 
             quote! {
-                #[allow(non_upper_case_globals)]
-                const #anon_const_name: () = {
-                    extern crate protocol;
-                    use std::io;
+                const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
-                    impl < #(#generics),* > protocol::Parcel for #strukt_name < #(#generics),* >
-                        where #(#where_predicates),* {
-                        const TYPE_NAME: &'static str = stringify!(#strukt_name);
+                #[allow(unused_variables)]
+                fn read(read: &mut io::Read,
+                        __settings: &protocol::Settings)
+                    -> Result<Self, protocol::Error> {
+                    Ok(#strukt_name {
+                        #(
+                            #field_names: protocol::Parcel::read(read, __settings)?
+                        ),*
+                    })
+                }
 
-                        #[allow(unused_variables)]
-                        fn read(read: &mut io::Read,
-                                __settings: &protocol::Settings)
-                            -> Result<Self, protocol::Error> {
-                            Ok(#strukt_name {
-                                #(
-                                    #field_names: protocol::Parcel::read(read, __settings)?
-                                ),*
-                            })
-                        }
-
-                        #[allow(unused_variables)]
-                        fn write(&self, write: &mut io::Write,
-                                 __settings: &protocol::Settings)
-                            -> Result<(), protocol::Error> {
-                            #( protocol::Parcel::write(&self. #field_names, write, __settings )?; )*
-                            Ok(())
-                        }
-                    }
-                };
+                #[allow(unused_variables)]
+                fn write(&self, write: &mut io::Write,
+                         __settings: &protocol::Settings)
+                    -> Result<(), protocol::Error> {
+                    #( protocol::Parcel::write(&self. #field_names, write, __settings )?; )*
+                    Ok(())
+                }
             }
         },
         syn::Fields::Unnamed(ref fields_unnamed) => {
@@ -121,76 +113,56 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
             });
 
             quote! {
-                #[allow(non_upper_case_globals)]
-                const #anon_const_name: () = {
-                    extern crate protocol;
-                    use std::io;
+                const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
-                    impl < #(#generics),* > protocol::Parcel for #strukt_name < #(#generics),* >
-                        where #(#where_predicates),* {
-                        const TYPE_NAME: &'static str = stringify!(#strukt_name);
+                #[allow(unused_variables)]
+                fn read(read: &mut io::Read,
+                        __settings: &protocol::Settings)
+                    -> Result<Self, protocol::Error> {
+                    Ok(#strukt_name(
+                        #(#field_expressions),*
+                    ))
+                }
 
-                        #[allow(unused_variables)]
-                        fn read(read: &mut io::Read,
-                                __settings: &protocol::Settings)
-                            -> Result<Self, protocol::Error> {
-                            Ok(#strukt_name(
-                                #(#field_expressions),*
-                            ))
-                        }
-
-                        #[allow(unused_variables)]
-                        fn write(&self, write: &mut io::Write,
-                                 __settings: &protocol::Settings)
-                            -> Result<(), protocol::Error> {
-                            #( protocol::Parcel::write(&self. #field_numbers, write, __settings )?; )*
-                            Ok(())
-                        }
-                    }
-                };
+                #[allow(unused_variables)]
+                fn write(&self, write: &mut io::Write,
+                         __settings: &protocol::Settings)
+                    -> Result<(), protocol::Error> {
+                    #( protocol::Parcel::write(&self. #field_numbers, write, __settings )?; )*
+                    Ok(())
+                }
             }
         },
         syn::Fields::Unit => {
             quote! {
-                #[allow(non_upper_case_globals)]
-                const #anon_const_name: () = {
-                    extern crate protocol;
-                    use std::io;
+                const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
-                    impl protocol::Parcel for #strukt_name {
-                        const TYPE_NAME: &'static str = stringify!(#strukt_name);
+                fn read(_: &mut io::Read,
+                        _: &protocol::Settings) -> Result<Self, protocol::Error> {
+                    Ok(#strukt_name)
+                }
 
-                        fn read(_: &mut io::Read,
-                                _: &protocol::Settings) -> Result<Self, protocol::Error> {
-                            Ok(#strukt_name)
-                        }
-
-                        fn write(&self, _: &mut io::Write, _: &protocol::Settings)
-                            -> Result<(), protocol::Error> {
-                            Ok(())
-                        }
-                    }
-                };
+                fn write(&self, _: &mut io::Write, _: &protocol::Settings)
+                    -> Result<(), protocol::Error> {
+                    Ok(())
+                }
             }
         },
-    }
+    })
 }
 
 /// Generates a `Parcel` trait implementation for an enum.
-fn impl_parcel_for_enum(ast: &syn::DeriveInput,
-                        e: &syn::DataEnum) -> proc_macro2::TokenStream {
-    let plan = plan::Enum::new(ast, e);
-
-    let enum_name = &ast.ident;
-    let anon_const_name = syn::Ident::new(&format!("__IMPL_PARCEL_FOR_{}", ast.ident), proc_macro2::Span::call_site());
+fn impl_parcel_for_enum(plan: &plan::Enum,
+                        ast: &syn::DeriveInput)
+    -> proc_macro2::TokenStream {
+    let enum_name = &plan.ident;
     let discriminator_ty = plan.discriminant();
 
     let discriminator_var = syn::Ident::new("discriminator", Span::call_site());
 
     let variant_writers = plan.variants.iter().map(|variant| {
         let variant_name = &variant.ident;
-        let discriminator = variant.discriminator();
-        let discriminator_ref_expr = plan.discriminator_ref_expr(discriminator.into_token_stream());
+        let discriminator_ref_expr = variant.discriminator_ref_expr();
 
         let write_discriminator = quote! { <#discriminator_ty as protocol::Parcel>::write(#discriminator_ref_expr, __io_writer, __settings)?; };
 
@@ -233,14 +205,14 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
 
     let variant_readers = plan.variants.iter().map(|ref variant| {
         let variant_name = &variant.ident;
-        let discriminator = variant.discriminator();
+        let discriminator_literal = variant.discriminator_literal();
 
         match variant.fields {
             syn::Fields::Named(ref fields_named) => {
                 let field_names = fields_named.named.iter().map(|f| &f.ident);
 
                 quote! {
-                    #discriminator => Ok(#enum_name :: #variant_name {
+                    #discriminator_literal => Ok(#enum_name :: #variant_name {
                         #( #field_names : protocol::Parcel::read(__io_reader, __settings)? ),*
                     })
                 }
@@ -257,55 +229,111 @@ fn impl_parcel_for_enum(ast: &syn::DeriveInput,
                 });
 
                 quote! {
-                    #discriminator => Ok(#enum_name :: #variant_name (
+                    #discriminator_literal => Ok(#enum_name :: #variant_name (
                         #(#field_readers),*
                     ))
                 }
             },
             syn::Fields::Unit => {
                 quote! {
-                    #discriminator => Ok(#enum_name :: #variant_name)
+                    #discriminator_literal => Ok(#enum_name :: #variant_name)
                 }
             },
         }
     });
 
-    let (generics, where_predicates) = build_generics(ast);
-    let (generics, where_predicates) = (&generics, where_predicates);
-
     let discriminator_for_pattern_matching = plan.matchable_discriminator_expr(discriminator_var.clone());
+    impl_trait_for(ast, quote!(protocol::Parcel), quote! {
+        const TYPE_NAME: &'static str = stringify!(#enum_name);
+
+        #[allow(unused_variables)]
+        fn read(__io_reader: &mut io::Read,
+                __settings: &protocol::Settings) -> Result<Self, protocol::Error> {
+            let discriminator: #discriminator_ty = protocol::Parcel::read(__io_reader, __settings)?;
+            match #discriminator_for_pattern_matching {
+                #(#variant_readers,)*
+                _ => panic!("unknown discriminator"),
+            }
+        }
+
+        #[allow(unused_variables)]
+        fn write(&self, __io_writer: &mut io::Write,
+                 __settings: &protocol::Settings)
+            -> Result<(), protocol::Error> {
+            match *self {
+                #(#variant_writers),*
+            }
+
+            Ok(())
+        }
+    })
+}
+
+fn impl_enum_for_enum(plan: &plan::Enum,
+                      ast: &syn::DeriveInput)
+    -> proc_macro2::TokenStream {
+    let enum_ident = &plan.ident;
+    let discriminant = plan.discriminant();
+
+    let variant_matchers = plan.variants.iter().map(|variant| {
+        let variant_ident = &variant.ident;
+        let discriminator = variant.discriminator_expr();
+        let fields_expr = variant.ignore_fields_pattern_expr();
+
+        quote!(#enum_ident::#variant_ident #fields_expr => {
+            #discriminator
+        })
+    });
+
+    impl_trait_for(ast, quote!(protocol::Enum), quote!(
+        type Discriminant = #discriminant;
+
+        fn discriminator(&self) -> Self::Discriminant {
+            match *self {
+                #(#variant_matchers)*
+            }
+        }
+    ))
+}
+
+/// Wraps a stream of tokens in an anonymous constant block.
+///
+/// Inside this block, the protocol crate accessible.
+fn anonymous_constant_block(description: &str,
+                            item_name: &syn::Ident,
+                            body: proc_macro2::TokenStream)
+    -> proc_macro2::TokenStream {
+    let anon_const_name = syn::Ident::new(&format!("__{}_FOR_{}",
+                                                   description.replace(" ", "_").replace("::", "_"),
+                                                   item_name.to_owned()),
+                                          proc_macro2::Span::call_site());
+
     quote! {
         #[allow(non_upper_case_globals)]
         const #anon_const_name: () = {
             extern crate protocol;
             use std::io;
 
-            impl < #(#generics),* > protocol::Parcel for #enum_name < #(#generics),* >
-                where #(#where_predicates),* {
-                const TYPE_NAME: &'static str = stringify!(#enum_name);
-
-                #[allow(unused_variables)]
-                fn read(__io_reader: &mut io::Read,
-                        __settings: &protocol::Settings) -> Result<Self, protocol::Error> {
-                    let discriminator: #discriminator_ty = protocol::Parcel::read(__io_reader, __settings)?;
-                    match #discriminator_for_pattern_matching {
-                        #(#variant_readers,)*
-                        _ => panic!("unknown discriminator"),
-                    }
-                }
-
-                #[allow(unused_variables)]
-                fn write(&self, __io_writer: &mut io::Write,
-                         __settings: &protocol::Settings)
-                    -> Result<(), protocol::Error> {
-                    match *self {
-                        #(#variant_writers),*
-                    }
-
-                    Ok(())
-                }
-            }
+            #body
         };
     }
+}
+
+fn impl_trait_for(ast: &syn::DeriveInput,
+                  trait_name: proc_macro2::TokenStream,
+                  impl_body: proc_macro2::TokenStream)
+    -> proc_macro2::TokenStream {
+    let item_name = &ast.ident;
+    let description = format!("impl {}", trait_name);
+
+    let (generics, where_predicates) = build_generics(ast);
+    let (generics, where_predicates) = (&generics, where_predicates);
+
+    anonymous_constant_block(&description, item_name, quote! {
+        impl < #(#generics),* > #trait_name for #item_name < #(#generics),* >
+            where #(#where_predicates),* {
+            #impl_body
+        }
+    })
 }
 

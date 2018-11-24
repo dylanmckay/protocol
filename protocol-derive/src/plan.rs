@@ -104,18 +104,6 @@ impl Enum {
         }
     }
 
-    /// Gets an expression representing a reference to the discriminator.
-    pub fn discriminator_ref_expr(&self,
-                                  discriminator_expr: TokenStream)
-        -> TokenStream {
-        match self.format() {
-            // Integer literals need to be borrowed.
-            format::Enum::IntegerDiscriminator => quote!(&#discriminator_expr),
-            // String literals are already references.
-            format::Enum::StringDiscriminator => quote!(&#discriminator_expr.to_owned()),
-        }
-    }
-
     pub fn resolve(&mut self) {
         let mut current_default_int_discriminator = DEFAULT_FIRST_INT_DISCRIMINATOR;
         let format = self.format().clone();
@@ -152,7 +140,7 @@ impl Enum {
 
 impl EnumVariant {
     /// Gets the discriminator of the variant.
-    pub fn discriminator(&self) -> &syn::Lit {
+    pub fn discriminator_literal(&self) -> &syn::Lit {
         self.actual_discriminator.as_ref().expect("discriminator has not been resolved yet")
     }
 
@@ -166,6 +154,35 @@ impl EnumVariant {
             // When one is specified, use it.
             (Some(lit), None) | (None, Some(lit)) => Some(lit),
             (None, None) => None,
+        }
+    }
+
+    /// Gets an expression representing the discriminator.
+    pub fn discriminator_expr(&self) -> TokenStream {
+        match self.discriminator_literal() {
+            s @ syn::Lit::Str(..) => quote!(#s.to_owned()),
+            i @ syn::Lit::Int(..) => quote!(#i),
+            _ => unreachable!(),
+        }
+    }
+
+    /// Gets an expression representing a reference to
+    /// the discriminator.
+    pub fn discriminator_ref_expr(&self) -> TokenStream {
+        match self.discriminator_literal() {
+            s @ syn::Lit::Str(..) => quote!(&#s.to_owned()),
+            i @ syn::Lit::Int(..) => quote!(&#i),
+            _ => unreachable!(),
+        }
+    }
+
+    /// Gets a pattern expression that ignores the fields of
+    /// this variant.
+    pub fn ignore_fields_pattern_expr(&self) -> TokenStream {
+        match self.fields {
+            syn::Fields::Named(..) => quote!({ .. }),
+            syn::Fields::Unnamed(..) => quote!((..)),
+            syn::Fields::Unit => quote!(),
         }
     }
 }

@@ -1,5 +1,3 @@
-#![cfg(test)]
-
 use protocol::Parcel;
 
 #[derive(Protocol, Clone, Debug, PartialEq)]
