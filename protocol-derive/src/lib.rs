@@ -176,37 +176,10 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
     }
 }
 
-/// Creates a layout plan for an enum.
-fn create_enum_plan(ast: &syn::DeriveInput,
-                    e: &syn::DataEnum) -> plan::Enum {
-    let mut plan = plan::Enum {
-        ident: ast.ident.clone(),
-        repr_attr: attr::repr(&ast.attrs),
-        explicit_format: attr::discriminant_format::<format::Enum>(&ast.attrs),
-        variants: e.variants.iter().map(|variant| {
-            let equals_discriminant = match variant.discriminant.clone().map(|a| a.1) {
-                Some(syn::Expr::Lit(expr_lit)) => Some(expr_lit.lit),
-                Some(_) => panic!("'VariantName = <expr>' can only be used with literals"),
-                None => None,
-            };
-
-            plan::EnumVariant {
-                ident: variant.ident.clone(),
-                explicit_discriminator_attr: attr::protocol_variant_discriminator(&variant.attrs),
-                explicit_int_discriminator_equals: equals_discriminant,
-                actual_discriminator: None,
-                fields: variant.fields.clone(),
-            }
-        }).collect(),
-    };
-    plan.resolve();
-    plan
-}
-
 /// Generates a `Parcel` trait implementation for an enum.
 fn impl_parcel_for_enum(ast: &syn::DeriveInput,
                         e: &syn::DataEnum) -> proc_macro2::TokenStream {
-    let plan = create_enum_plan(ast, e);
+    let plan = plan::Enum::new(ast, e);
 
     let enum_name = &ast.ident;
     let anon_const_name = syn::Ident::new(&format!("__IMPL_PARCEL_FOR_{}", ast.ident), proc_macro2::Span::call_site());

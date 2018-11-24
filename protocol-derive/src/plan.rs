@@ -1,4 +1,4 @@
-use format;
+use {attr, format};
 use syn;
 use proc_macro2::{Span, TokenStream};
 
@@ -41,6 +41,34 @@ pub struct EnumVariant {
 }
 
 impl Enum {
+    /// Creates a layout plan for an enum.
+    pub fn new(ast: &syn::DeriveInput,
+               e: &syn::DataEnum) -> Enum {
+        let mut plan = Enum {
+            ident: ast.ident.clone(),
+            repr_attr: attr::repr(&ast.attrs),
+            explicit_format: attr::discriminant_format::<format::Enum>(&ast.attrs),
+            variants: e.variants.iter().map(|variant| {
+                let equals_discriminant = match variant.discriminant.clone().map(|a| a.1) {
+                    Some(syn::Expr::Lit(expr_lit)) => Some(expr_lit.lit),
+                    Some(_) => panic!("'VariantName = <expr>' can only be used with literals"),
+                    None => None,
+                };
+
+                EnumVariant {
+                    ident: variant.ident.clone(),
+                    explicit_discriminator_attr: attr::protocol_variant_discriminator(&variant.attrs),
+                    explicit_int_discriminator_equals: equals_discriminant,
+                    actual_discriminator: None,
+                    fields: variant.fields.clone(),
+                }
+            }).collect(),
+        };
+        plan.resolve();
+        plan
+    }
+
+
     pub fn format(&self) -> format::Enum {
         if let Some(ref explicit_format) = self.explicit_format {
             explicit_format.clone()
