@@ -94,3 +94,60 @@ pub fn write_list_ext<'a,S,T,I>(write: &mut Write,
     Ok(())
 }
 
+/// Align input bytes so the total size if a multiple of
+/// the specified alignment.
+pub fn align_bytes(align_to: usize,
+                   bytes: Vec<u8>)
+    -> Vec<u8> {
+    // Thanks for the formula Ned!
+    // https://stackoverflow.com/a/11642218
+    let extra_padding_needed = (align_to - (bytes.len() % align_to)) % align_to;
+
+    let extra_padding = (0..).into_iter().take(extra_padding_needed).map(|_| 0x00);
+
+    let bytes: Vec<_> = bytes.into_iter().chain(extra_padding).collect();
+    assert_eq!(0, bytes.len() % align_to,
+            "failed to align");
+    bytes
+}
+
+#[cfg(test)]
+mod test {
+    mod alignment {
+        use super::super::*;
+
+        #[test]
+        fn test_aligning_when_none_needed() {
+            assert_eq!(vec![1, 2], align_bytes(1, vec![1, 2]));
+            assert_eq!(vec![1, 2], align_bytes(2, vec![1, 2]));
+        }
+
+        #[test]
+        fn test_align_to_3_with_size_2() {
+            assert_eq!(vec![1, 2, 0], align_bytes(3, vec![1, 2]));
+        }
+
+        #[test]
+        fn test_align_to_4_with_size_2() {
+            assert_eq!(vec![1, 2, 0, 0], align_bytes(4, vec![1, 2]));
+        }
+
+        #[test]
+        fn test_align_to_3_with_size_5() {
+            assert_eq!(vec![1, 2, 3, 4, 5, 0], align_bytes(3, vec![1, 2, 3, 4, 5]));
+        }
+
+        #[test]
+        fn test_align_to_4_with_size_97() {
+            let original = [1; 97];
+            let aligned = align_bytes(4, original.to_vec());
+
+            let count_ones = aligned.iter().filter(|&&i| i == 1).count();
+            let count_zeros = aligned.iter().filter(|&&i| i == 0).count();
+
+            assert_eq!(97, count_ones);
+            assert_eq!(3, count_zeros);
+        }
+    }
+}
+

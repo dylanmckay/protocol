@@ -1,11 +1,13 @@
 //! Contains newtypes over the standard library types
 //! that support finer-grained serialization settings.
 
+pub use self::aligned::Aligned;
 pub use self::numerics::Integer;
 pub use self::string::String;
 pub use self::unimplemented::Unimplemented;
 pub use self::vec::Vec;
 
+mod aligned;
 mod array;
 mod char;
 /// Definitions for the `std::collections` module.
