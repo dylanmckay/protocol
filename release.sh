@@ -8,7 +8,7 @@ if [ -z "$1" ]; then echo "please pass a new version number on the cmdline" && e
 PREVIOUS_VERSION=$(sed -E 's/^version = "(.*)"/\1/;t;d' "$DIR/protocol/Cargo.toml")
 
 if ! git diff-index --quiet HEAD --; then
-  echo "git worktree has uncomitted changes" 1>&2
+  echo "error: git worktree has uncomitted changes" 1>&2
   exit 1
 fi
 
