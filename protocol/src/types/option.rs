@@ -1,4 +1,5 @@
 use {Parcel, Error, Settings};
+use hint;
 
 use std::io::prelude::*;
 
@@ -7,11 +8,12 @@ impl<T: Parcel> Parcel for Option<T>
     const TYPE_NAME: &'static str = "Option<T>";
 
     fn read(read: &mut Read,
-            settings: &Settings) -> Result<Self, Error> {
-        let is_some = bool::read(read, settings)?;
+            settings: &Settings,
+            hints: &mut hint::Hints) -> Result<Self, Error> {
+        let is_some = bool::read(read, settings, hints)?;
 
         if is_some {
-            let value = T::read(read, settings)?;
+            let value = T::read(read, settings, hints)?;
             Ok(Some(value))
         } else {
             Ok(None)

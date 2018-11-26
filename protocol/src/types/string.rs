@@ -1,4 +1,4 @@
-use {types, Parcel, Error, Settings};
+use {hint, types, Parcel, Error, Settings};
 use std::io::prelude::*;
 use std;
 
@@ -8,8 +8,9 @@ impl Parcel for std::string::String
     const TYPE_NAME: &'static str = "String";
 
     fn read(read: &mut Read,
-            settings: &Settings) -> Result<Self, Error> {
-        let bytes = Vec::<u8>::read(read, settings)?;
+            settings: &Settings,
+            hints: &mut hint::Hints) -> Result<Self, Error> {
+        let bytes = Vec::<u8>::read(read, settings, hints)?;
 
         Ok(std::string::String::from_utf8(bytes)?)
     }
@@ -45,8 +46,9 @@ impl<S: types::Integer> Parcel for String<S>
     const TYPE_NAME: &'static str = "protocol::String<S>";
 
     fn read(read: &mut Read,
-            settings: &Settings) -> Result<Self, Error> {
-        let bytes = types::Vec::<S, u8>::read(read, settings)?;
+            settings: &Settings,
+            hints: &mut hint::Hints) -> Result<Self, Error> {
+        let bytes = types::Vec::<S, u8>::read(read, settings, hints)?;
 
         Ok(String::new(std::string::String::from_utf8(bytes.elements)?))
     }

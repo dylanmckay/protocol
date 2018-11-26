@@ -1,4 +1,5 @@
 use {Parcel, Error, Settings};
+use hint;
 use std::marker::PhantomData;
 
 use std::io::prelude::*;
@@ -8,7 +9,8 @@ impl<T> Parcel for PhantomData<T>
     const TYPE_NAME: &'static str = "PhantomData<T>";
 
     fn read(_: &mut Read,
-            _: &Settings) -> Result<Self, Error> {
+            _: &Settings,
+            _: &mut hint::Hints) -> Result<Self, Error> {
         Ok(PhantomData)
     }
 

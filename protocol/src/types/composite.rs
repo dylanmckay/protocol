@@ -15,9 +15,10 @@ macro_rules! implement_composite_type {
             const TYPE_NAME: &'static str = stringify!($ty);
 
             fn read(read: &mut ::std::io::Read,
-                    settings: &$crate::Settings) -> Result<Self, $crate::Error> {
+                    settings: &$crate::Settings,
+                    hints: &mut $crate::hint::Hints) -> Result<Self, $crate::Error> {
                 Ok($ty {
-                    $( $field_name: $crate::Parcel::read(read, settings)? ),+
+                    $( $field_name: $crate::Parcel::read(read, settings, hints)? ),+
                 })
             }
 
@@ -100,7 +101,7 @@ mod test
     fn reading_reads_expected_value() {
         let bing = Bing { a: 3, b: 2, c: 1 };
         let mut buffer = Cursor::new([bing.a, bing.b, bing.c]);
-        let read = Bing::read(&mut buffer, &Settings::default()).unwrap();
+        let read = Bing::read_new(&mut buffer, &Settings::default()).unwrap();
 
         assert_eq!(read, bing);
     }

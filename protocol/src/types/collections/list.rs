@@ -6,8 +6,9 @@ macro_rules! impl_list_type {
             const TYPE_NAME: &'static str = stringify!($ty<T>);
 
             fn read(read: &mut ::std::io::Read,
-                    settings: &::Settings) -> Result<Self, $crate::Error> {
-                let elements = ::util::read_list(read, settings)?;
+                    settings: &::Settings,
+                    hints: &mut ::hint::Hints) -> Result<Self, $crate::Error> {
+                let elements = ::util::read_list(read, settings, hints)?;
                 Ok(elements.into_iter().collect())
             }
 

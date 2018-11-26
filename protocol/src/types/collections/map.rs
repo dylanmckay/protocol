@@ -1,4 +1,5 @@
 use {Parcel, Error, Settings};
+use hint;
 
 use std::collections::{HashMap, BTreeMap};
 use std::hash::Hash;
@@ -16,14 +17,15 @@ macro_rules! impl_map_type {
             const TYPE_NAME: &'static str = stringify!($ty<K,V>);
 
             fn read(read: &mut Read,
-                    settings: &Settings) -> Result<Self, Error> {
+                    settings: &Settings,
+                    hints: &mut hint::Hints) -> Result<Self, Error> {
                 let mut map = $ty::new();
 
-                let length = SizeType::read(read, settings)?;
+                let length = SizeType::read(read, settings, hints)?;
 
                 for _ in 0..length {
-                    let key = K::read(read, settings)?;
-                    let value = V::read(read, settings)?;
+                    let key = K::read(read, settings, hints)?;
+                    let value = V::read(read, settings, hints)?;
 
                     map.insert(key, value);
                 }

@@ -86,11 +86,15 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 
                 #[allow(unused_variables)]
                 fn read(read: &mut io::Read,
-                        __settings: &protocol::Settings)
+                        __settings: &protocol::Settings,
+                        _: &mut protocol::hint::Hints)
                     -> Result<Self, protocol::Error> {
+                    // Each type gets its own hints.
+                    let mut __hints = protocol::hint::Hints::default();
+
                     Ok(#strukt_name {
                         #(
-                            #field_names: protocol::Parcel::read(read, __settings)?
+                            #field_names: protocol::Parcel::read(read, __settings, &mut __hints)?
                         ),*
                     })
                 }
@@ -109,7 +113,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
             let field_numbers = &field_numbers[..];
 
             let field_expressions = field_numbers.iter().map(|_| {
-                quote!{ protocol::Parcel::read(read, __settings)? }
+                quote!{ protocol::Parcel::read(read, __settings, &mut __hints)? }
             });
 
             quote! {
@@ -117,8 +121,12 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 
                 #[allow(unused_variables)]
                 fn read(read: &mut io::Read,
-                        __settings: &protocol::Settings)
+                        __settings: &protocol::Settings,
+                        _: &mut protocol::hint::Hints)
                     -> Result<Self, protocol::Error> {
+                    // Each type gets its own hints.
+                    let mut __hints = protocol::hint::Hints::default();
+
                     Ok(#strukt_name(
                         #(#field_expressions),*
                     ))
@@ -138,7 +146,8 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                 const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
                 fn read(_: &mut io::Read,
-                        _: &protocol::Settings) -> Result<Self, protocol::Error> {
+                        _: &protocol::Settings,
+                        _: &mut protocol::hint::Hints) -> Result<Self, protocol::Error> {
                     Ok(#strukt_name)
                 }
 
@@ -213,7 +222,7 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
 
                 quote! {
                     #discriminator_literal => Ok(#enum_name :: #variant_name {
-                        #( #field_names : protocol::Parcel::read(__io_reader, __settings)? ),*
+                        #( #field_names : protocol::Parcel::read(__io_reader, __settings, &mut __hints)? ),*
                     })
                 }
             },
@@ -224,7 +233,7 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
 
                 let field_readers = binding_names.iter().map(|_| {
                     quote! {
-                        protocol::Parcel::read(__io_reader, __settings)?
+                        protocol::Parcel::read(__io_reader, __settings, &mut __hints)?
                     }
                 });
 
@@ -248,8 +257,13 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
 
         #[allow(unused_variables)]
         fn read(__io_reader: &mut io::Read,
-                __settings: &protocol::Settings) -> Result<Self, protocol::Error> {
-            let discriminator: #discriminator_ty = protocol::Parcel::read(__io_reader, __settings)?;
+                __settings: &protocol::Settings,
+                _: &mut protocol::hint::Hints)
+            -> Result<Self, protocol::Error> {
+            // Each type gets its own hints.
+            let mut __hints = protocol::hint::Hints::default();
+
+            let discriminator: #discriminator_ty = protocol::Parcel::read(__io_reader, __settings, &mut __hints)?;
             match #discriminator_for_pattern_matching {
                 #(#variant_readers,)*
                 _ => panic!("unknown discriminator"),

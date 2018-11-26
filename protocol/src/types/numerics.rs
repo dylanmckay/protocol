@@ -1,4 +1,5 @@
 use {Parcel, Error, Settings};
+use hint;
 
 use std::io::prelude::*;
 
@@ -13,7 +14,8 @@ impl Parcel for bool
     const TYPE_NAME: &'static str = "bool";
 
     fn read(read: &mut Read,
-            _: &Settings) -> Result<Self, Error> {
+            _: &Settings,
+            _: &mut hint::Hints) -> Result<Self, Error> {
         if read.read_u8()? == 0 { Ok(false) } else { Ok(true) }
     }
 
@@ -29,7 +31,8 @@ impl Parcel for u8
     const TYPE_NAME: &'static str = "u8";
 
     fn read(read: &mut Read,
-            _: &Settings) -> Result<Self, Error> { Ok(read.read_u8()?) }
+            _: &Settings,
+            _: &mut hint::Hints) -> Result<Self, Error> { Ok(read.read_u8()?) }
     fn write(&self, write: &mut Write,
              _: &Settings) -> Result<(), Error> { write.write_u8(*self)?; Ok(()) }
 }
@@ -39,7 +42,8 @@ impl Parcel for i8
     const TYPE_NAME: &'static str = "i8";
 
     fn read(read: &mut Read,
-            _: &Settings) -> Result<Self, Error> { Ok(read.read_i8()?) }
+            _: &Settings,
+            _: &mut hint::Hints) -> Result<Self, Error> { Ok(read.read_i8()?) }
     fn write(&self, write: &mut Write,
              _: &Settings) -> Result<(), Error> { write.write_i8(*self)?; Ok(()) }
 }
@@ -50,7 +54,8 @@ macro_rules! impl_parcel_for_numeric {
             const TYPE_NAME: &'static str = stringify!($ty);
 
             fn read(read: &mut Read,
-                    settings: &Settings) -> Result<Self, Error> {
+                    settings: &Settings,
+                    _: &mut hint::Hints) -> Result<Self, Error> {
                 Ok(settings.byte_order.$read_fn(read)?)
             }
 

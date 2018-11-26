@@ -1,4 +1,5 @@
 use {Parcel, Error, Settings};
+use hint;
 use std::io::prelude::*;
 
 macro_rules! impl_parcel_for_array {
@@ -7,13 +8,14 @@ macro_rules! impl_parcel_for_array {
             const TYPE_NAME: &'static str = stringify!([T; $n]);
 
             fn read(read: &mut Read,
-                    settings: &Settings) -> Result<Self, Error> {
+                    settings: &Settings,
+                    hints: &mut hint::Hints) -> Result<Self, Error> {
                 use std::mem;
 
                 let mut elements: Vec<T> = Vec::with_capacity($n);
 
                 for _ in 0..$n {
-                    let elem = T::read(read, settings)?;
+                    let elem = T::read(read, settings, hints)?;
                     elements.push(elem);
                 }
 
@@ -90,7 +92,7 @@ mod test {
     #[test]
     fn can_read_array() {
         let mut data = Cursor::new([0u8, 1, 2, 3]);
-        let read_back: [u8; 4] = Parcel::read(&mut data, &Settings::default()).unwrap();
+        let read_back: [u8; 4] = Parcel::read_new(&mut data, &Settings::default()).unwrap();
         assert_eq!(read_back, [0, 1, 2, 3]);
     }
 

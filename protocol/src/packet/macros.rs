@@ -16,17 +16,18 @@ macro_rules! define_packet
             const TYPE_NAME: &'static str = stringify!($ty);
 
             fn read(read: &mut ::std::io::Read,
-                    settings: &Settings) -> Result<Self, $crate::Error> {
+                    settings: &$crate::Settings,
+                    hints: &mut $crate::hint::Hints) -> Result<Self, $crate::Error> {
                 #[allow(unused_imports)]
                 use $crate::Parcel;
 
                 Ok($ty {
-                    $( $field_name : $crate::Parcel::read(read, settings)?, )+
+                    $( $field_name : $crate::Parcel::read(read, settings, hints)?, )+
                 })
             }
 
             fn write(&self, write: &mut ::std::io::Write,
-                     settings: &Settings) -> Result<(), $crate::Error> {
+                     settings: &$crate::Settings) -> Result<(), $crate::Error> {
                 #[allow(unused_imports)]
                 use $crate::Parcel;
 
@@ -47,7 +48,8 @@ macro_rules! define_packet
             const TYPE_NAME: &'static str = stringify!($ty);
 
             fn read(_read: &mut ::std::io::Read,
-                    _: &$crate::Settings) -> Result<Self, $crate::Error> {
+                    _: &$crate::Settings,
+                    _: &mut $crate::hint::Hints) -> Result<Self, $crate::Error> {
                 Ok($ty)
             }
 
@@ -87,11 +89,12 @@ macro_rules! define_packet_kind
             const TYPE_NAME: &'static str = stringify!($ty);
 
             fn read(read: &mut ::std::io::Read,
-                    settings: &$crate::Settings) -> Result<Self, $crate::Error> {
-                let packet_id = <$id_ty as $crate::Parcel>::read(read, settings)?;
+                    settings: &$crate::Settings,
+                    hints: &mut $crate::hint::Hints) -> Result<Self, $crate::Error> {
+                let packet_id = <$id_ty as $crate::Parcel>::read(read, settings, hints)?;
 
                 let packet = match packet_id {
-                    $( $packet_id => $ty::$packet_ty(<$packet_ty as $crate::Parcel>::read(read, settings)?), )+
+                    $( $packet_id => $ty::$packet_ty(<$packet_ty as $crate::Parcel>::read(read, settings, hints)?), )+
                     _ => return Err($crate::ErrorKind::UnknownPacketId.into()),
                 };
 

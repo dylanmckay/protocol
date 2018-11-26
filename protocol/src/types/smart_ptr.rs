@@ -1,4 +1,5 @@
 use {Parcel, Settings, Error};
+use hint;
 
 use std::rc::Rc;
 use std::sync::Arc;
@@ -11,8 +12,10 @@ macro_rules! impl_smart_ptr_type {
         {
             const TYPE_NAME: &'static str = stringify!($ty<T>);
 
-            fn read(read: &mut Read, settings: &Settings) -> Result<Self, Error> {
-                let value = T::read(read, settings)?;
+            fn read(read: &mut Read,
+                    settings: &Settings,
+                    hints: &mut hint::Hints) -> Result<Self, Error> {
+                let value = T::read(read, settings, hints)?;
                 Ok($ty::new(value))
             }
 

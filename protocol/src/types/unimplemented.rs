@@ -1,4 +1,5 @@
 use {Parcel, Error, ErrorKind, Settings};
+use hint;
 
 use std::io::prelude::*;
 
@@ -22,7 +23,8 @@ impl Parcel for Unimplemented
     const TYPE_NAME: &'static str = "Unimplemented";
 
     fn read(_: &mut Read,
-            _: &Settings) -> Result<Self, Error> {
+            _: &Settings,
+            _: &mut hint::Hints) -> Result<Self, Error> {
         Err(ErrorKind::UnimplementedParcel(Self::TYPE_NAME).into())
     }
 

@@ -1,4 +1,5 @@
 use {Parcel, Error, Settings};
+use hint;
 use wire::stream::{Transport, transport};
 use wire::middleware;
 
@@ -46,7 +47,7 @@ impl<P,S,M> Connection<P,S,M>
         if let Some(raw_packet) = self.transport.receive_raw_packet()? {
             let mut packet_data = Cursor::new(self.middleware.decode_data(raw_packet)?);
 
-            let packet = P::read(&mut packet_data, &self.settings)?;
+            let packet = P::read(&mut packet_data, &self.settings, &mut hint::Hints::default())?;
 
             Ok(Some(packet))
         } else {

@@ -177,6 +177,7 @@ pub mod wire;
 
 mod enum_ty;
 mod errors;
+pub mod hint;
 mod parcel;
 pub mod util;
 

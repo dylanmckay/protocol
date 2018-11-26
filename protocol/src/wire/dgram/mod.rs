@@ -33,7 +33,7 @@ impl<P,M> Pipeline<P,M>
         let raw_bytes = raw_bytes?;
 
         let mut bytes = Cursor::new(self.middleware.decode_data(raw_bytes)?);
-        P::read(&mut bytes, &self.settings)
+        P::read_new(&mut bytes, &self.settings)
     }
 
     /// Writes a packet into a buffer.

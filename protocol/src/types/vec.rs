@@ -1,5 +1,5 @@
 use {Parcel, Error, Settings};
-use {types, util};
+use {hint, types, util};
 use std::io::prelude::*;
 use std;
 
@@ -25,8 +25,9 @@ impl<S: types::Integer, T: Parcel> Parcel for Vec<S, T>
     const TYPE_NAME: &'static str = "protocol::Vec<S,T>";
 
     fn read(read: &mut Read,
-            settings: &Settings) -> Result<Self, Error> {
-        let elements = util::read_list_ext::<S,T>(read, settings)?;
+            settings: &Settings,
+            hints: &mut hint::Hints) -> Result<Self, Error> {
+        let elements = util::read_list_ext::<S,T>(read, settings, hints)?;
         Ok(Self::new(elements))
     }
 
@@ -39,7 +40,7 @@ impl<S: types::Integer, T: Parcel> Parcel for Vec<S, T>
 /// Stuff relating to `std::vec::Vec<T>`.
 mod std_vec {
     use {Error, Parcel, Settings};
-    use util;
+    use {hint, util};
     use std::io::prelude::*;
 
     impl<T: Parcel> Parcel for Vec<T>
@@ -47,8 +48,9 @@ mod std_vec {
         const TYPE_NAME: &'static str = "Vec<T>";
 
         fn read(read: &mut Read,
-                settings: &Settings) -> Result<Self, Error> {
-            util::read_list(read, settings)
+                settings: &Settings,
+                hints: &mut hint::Hints) -> Result<Self, Error> {
+            util::read_list(read, settings, hints)
         }
 
         fn write(&self, write: &mut Write,

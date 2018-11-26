@@ -1,4 +1,5 @@
 use Settings;
+use hint;
 use std::io::prelude::*;
 use std::io;
 
@@ -43,11 +44,25 @@ pub trait Parcel : Sized
     /// The textual name of the type.
     const TYPE_NAME: &'static str;
 
+    /// Reads a new item with a fresh set of hints.
+    ///
+    /// Blocks until a value is received.
+    fn read_new(read: &mut Read,
+                settings: &Settings) -> Result<Self, ::Error> {
+        Self::read(read, settings, &mut hint::Hints::default())
+    }
+
     /// Reads a value from a stream.
+    ///
+    /// Parameters:
+    ///
+    ///   * `hints` - a list of hints accessible by the current
+    ///   parcel chain only.
     ///
     /// Blocks until a value is received.
     fn read(read: &mut Read,
-            settings: &Settings) -> Result<Self, ::Error>;
+            settings: &Settings,
+            hints: &mut hint::Hints) -> Result<Self, ::Error>;
 
     /// Writes a value to a stream.
     fn write(&self, write: &mut Write,
@@ -58,8 +73,9 @@ pub trait Parcel : Sized
     /// Returns `Err` if the bytes represent an invalid value.
     fn from_raw_bytes(bytes: &[u8],
                       settings: &Settings) -> Result<Self, ::Error> {
+        let mut hints = hint::Hints::default();
         let mut buffer = ::std::io::Cursor::new(bytes);
-        Self::read(&mut buffer, settings)
+        Self::read(&mut buffer, settings, &mut hints)
     }
 
     /// Gets the raw byte representation of the value.
