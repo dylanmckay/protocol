@@ -1,4 +1,3 @@
-#[allow(unused_imports)]
 use protocol::{Parcel, Settings};
 
 #[derive(Protocol, Debug, PartialEq, Eq)]

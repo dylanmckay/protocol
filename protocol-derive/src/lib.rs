@@ -91,10 +91,15 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                     -> Result<Self, protocol::Error> {
                     // Each type gets its own hints.
                     let mut __hints = protocol::hint::Hints::default();
+                    __hints.begin_fields();
 
                     Ok(#strukt_name {
                         #(
-                            #field_names: protocol::Parcel::read(read, __settings, &mut __hints)?
+                            #field_names: {
+                                let res = protocol::Parcel::read(read, __settings, &mut __hints);
+                                __hints.next_field();
+                                res?
+                            }
                         ),*
                     })
                 }
@@ -113,7 +118,13 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
             let field_numbers = &field_numbers[..];
 
             let field_expressions = field_numbers.iter().map(|_| {
-                quote!{ protocol::Parcel::read(read, __settings, &mut __hints)? }
+                quote! {
+                    {
+                        let res = protocol::Parcel::read(read, __settings, &mut __hints);
+                        __hints.next_field();
+                        res?
+                    }
+                }
             });
 
             quote! {
@@ -126,6 +137,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                     -> Result<Self, protocol::Error> {
                     // Each type gets its own hints.
                     let mut __hints = protocol::hint::Hints::default();
+                    __hints.begin_fields();
 
                     Ok(#strukt_name(
                         #(#field_expressions),*
@@ -222,7 +234,11 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
 
                 quote! {
                     #discriminator_literal => Ok(#enum_name :: #variant_name {
-                        #( #field_names : protocol::Parcel::read(__io_reader, __settings, &mut __hints)? ),*
+                        #( #field_names : {
+                            let res = protocol::Parcel::read(__io_reader, __settings, &mut __hints);
+                            __hints.next_field();
+                            res?
+                        }),*
                     })
                 }
             },
@@ -233,7 +249,11 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
 
                 let field_readers = binding_names.iter().map(|_| {
                     quote! {
-                        protocol::Parcel::read(__io_reader, __settings, &mut __hints)?
+                        {
+                            let res = protocol::Parcel::read(__io_reader, __settings, &mut __hints);
+                            __hints.next_field();
+                            res?
+                        }
                     }
                 });
 
@@ -262,6 +282,7 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
             -> Result<Self, protocol::Error> {
             // Each type gets its own hints.
             let mut __hints = protocol::hint::Hints::default();
+            __hints.begin_fields();
 
             let discriminator: #discriminator_ty = protocol::Parcel::read(__io_reader, __settings, &mut __hints)?;
             match #discriminator_for_pattern_matching {

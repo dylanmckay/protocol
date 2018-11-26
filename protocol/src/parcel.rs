@@ -1,4 +1,4 @@
-use Settings;
+use {Error, Settings};
 use hint;
 use std::io::prelude::*;
 use std::io;
@@ -48,7 +48,7 @@ pub trait Parcel : Sized
     ///
     /// Blocks until a value is received.
     fn read_new(read: &mut Read,
-                settings: &Settings) -> Result<Self, ::Error> {
+                settings: &Settings) -> Result<Self, Error> {
         Self::read(read, settings, &mut hint::Hints::default())
     }
 
@@ -62,24 +62,30 @@ pub trait Parcel : Sized
     /// Blocks until a value is received.
     fn read(read: &mut Read,
             settings: &Settings,
-            hints: &mut hint::Hints) -> Result<Self, ::Error>;
+            hints: &mut hint::Hints) -> Result<Self, Error>;
 
     /// Writes a value to a stream.
     fn write(&self, write: &mut Write,
-             settings: &Settings) -> Result<(), ::Error>;
+             settings: &Settings) -> Result<(), Error>;
+
+    /// Convers the value into a byte stream that implements `std::io::Read`.
+    fn into_stream(self, settings: &Settings)
+        -> Result<io::Cursor<Vec<u8>>, Error> {
+        self.raw_bytes(settings).map(io::Cursor::new)
+    }
 
     /// Parses a new value from its raw byte representation.
     ///
     /// Returns `Err` if the bytes represent an invalid value.
     fn from_raw_bytes(bytes: &[u8],
-                      settings: &Settings) -> Result<Self, ::Error> {
+                      settings: &Settings) -> Result<Self, Error> {
         let mut hints = hint::Hints::default();
         let mut buffer = ::std::io::Cursor::new(bytes);
         Self::read(&mut buffer, settings, &mut hints)
     }
 
     /// Gets the raw byte representation of the value.
-    fn raw_bytes(&self, settings: &Settings) -> Result<Vec<u8>, ::Error> {
+    fn raw_bytes(&self, settings: &Settings) -> Result<Vec<u8>, Error> {
         let mut buffer = io::Cursor::new(Vec::new());
         self.write(&mut buffer, settings)?;
 
