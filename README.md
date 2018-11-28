@@ -9,7 +9,7 @@
 Easy protocol definitions in Rust.
 
 This crate adds a custom derive that can be added to types, allowing
-structured data to be sent and received from any IO stream. `macro_rules` macros also exist which can be used to define sendable/receivable types too.
+structured data to be sent and received from any IO stream.
 
 Networking is built-in, with special support for TCP and UDP.
 
@@ -38,7 +38,7 @@ protocol-derive = "0.5"
 
 The most interesting part here is the [`protocol::Parcel`](https://docs.rs/protocol/0.3.4/protocol/trait.Parcel.html) trait. Any type that implements this trait can then be serialized to and from a byte stream. All primitive types, standard collections, tuples, and arrays implement this trait.
 
-This crate becomes particularly useful when you define your own `Parcel` types. You can use `#[derive(Protocol)]` to do this, or you can use the `define_composite_type!` macro instead. Note that in order for a type to implement `Parcel`, it must also implement `Clone`, `Debug`, and `PartialEq`.
+This crate becomes particularly useful when you define your own `Parcel` types. You can use `#[derive(Protocol)]` to do this. Note that in order for a type to implement `Parcel`, it must also implement `Clone`, `Debug`, and `PartialEq`.
 
 ```rust
 #[derive(Parcel, Clone, Debug, PartialEq]
@@ -83,12 +83,16 @@ pub struct Node {
     enabled: bool
 }
 
-// Defines a packet kind enum.
-define_packet_kind!(Packet: u32 {
-    0x00 => Handshake,
-    0x01 => Hello,
-    0x02 => Goodbye
-});
+#[protocol(discriminant = "integer")]
+#[derive(Protocol, Clone, Debug, PartialEq)]
+pub enum PacketKind {
+    #[protocol(discriminator(0x00))]
+    Handshake(Handshake),
+    #[protocol(discriminator(0xaa))]
+    Hello(Hello),
+    #[protocol(discriminator(0xaf))]
+    Goodbye(Goodbye),
+}
 
 fn main() {
     use std::net::TcpStream;
@@ -124,13 +128,11 @@ Supported discriminant types:
 * `string` (default)
     * This transmits the enum variant name as the over-the-wire discriminant
     * This uses more bytes per message, but it very flexible
-* `integer
+* `integer`
     * This transmits the 1-based variant number as the over-the-wire discriminant
     * If enum variants have explicit discriminators, the
     * Enum variants cannot be reordered in the source without breaking the protocol
 
-**N.B.** `string` should become the default discriminant type for `#[derive(Protocol)]`. This would be a breaking change.
-Perhaps a major release?
 
 ```rust
 #[derive(Protocol, Clone, Debug, PartialEq)]
