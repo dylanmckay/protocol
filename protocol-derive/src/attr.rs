@@ -1,6 +1,7 @@
 use format;
 use format::Format;
 
+use proc_macro2::TokenStream;
 use syn;
 
 #[derive(Debug)]
@@ -8,9 +9,23 @@ pub enum Protocol {
     DiscriminantFormat(format::Enum),
     Discriminator(syn::Lit),
     LengthPrefix {
-        kind: protocol::hint::LengthPrefixKind,
+        kind: LengthPrefixKind,
         prefix_field_name: syn::Ident,
     },
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum LengthPrefixKind {
+    Bytes,
+}
+
+impl LengthPrefixKind {
+    /// Gets a path to the length prefix in the protocol crate.
+    pub fn path_expr(&self) -> TokenStream {
+        match *self {
+            LengthPrefixKind::Bytes => quote!(protocol::hint::LengthPrefixKind::Bytes),
+        }
+    }
 }
 
 /// Gets the value of the `repr(type)` attribute.
@@ -43,7 +58,7 @@ pub fn protocol(attrs: &[syn::Attribute])
                     let nested_list = expect::meta_list::nested_list(nested_list)
                                             .expect("expected a nested list");
                     let prefix_kind = match &nested_list.ident.to_string()[..] {
-                        "bytes" => protocol::hint::LengthPrefixKind::Bytes,
+                        "bytes" => LengthPrefixKind::Bytes,
                         invalid_prefix => panic!("invalid length prefix type: '{}'", invalid_prefix),
                     };
 

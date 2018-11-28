@@ -51,9 +51,7 @@ fn update_hints_after_read<'a>(field: &'a syn::Field,
                                fields: impl IntoIterator<Item=&'a syn::Field> + Clone)
     -> TokenStream {
     if let Some((length_prefix_of, kind)) = length_prefix_of(field, fields.clone()) {
-        let kind = match kind {
-            protocol::hint::LengthPrefixKind::Bytes => quote!(protocol::hint::LengthPrefixKind::Bytes),
-        };
+        let kind = kind.path_expr();
 
         quote! {
             if let Ok(parcel) = res {
@@ -73,7 +71,7 @@ fn update_hints_after_read<'a>(field: &'a syn::Field,
 /// Returns the field index of the field whose length is specified.
 fn length_prefix_of<'a>(field: &'a syn::Field,
                         fields: impl IntoIterator<Item=&'a syn::Field> + Clone)
-    -> Option<(usize, protocol::hint::LengthPrefixKind)> {
+    -> Option<(usize, attr::LengthPrefixKind)> {
     let potential_prefix = field.ident.as_ref();
 
     let prefix_of = fields.clone().into_iter().find(|potential_prefix_of| {

@@ -51,9 +51,8 @@ macro_rules! verify_read_back {
     };
 }
 
-mod enums;
-mod enum_trait;
-mod hints;
-mod length_prefix;
-mod structs;
-
+#[cfg(test)] mod enums;
+#[cfg(test)] mod enum_trait;
+#[cfg(test)] mod hints;
+#[cfg(test)] mod length_prefix;
+#[cfg(test)] mod structs;

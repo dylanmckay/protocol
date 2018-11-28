@@ -1,4 +1,4 @@
-use protocol::{hint, Parcel, Settings};
+use protocol::{hint, Settings};
 use super::{SaveHints, HasSavedHints};
 
 #[derive(Protocol, Debug, PartialEq)]
@@ -28,6 +28,7 @@ define_common_hint_invariant_tests!(with_named_fields => WithNamedFields : WithN
 define_common_hint_invariant_tests!(with_unnamed_fields => WithUnnamedFields : WithUnnamedFields::default());
 
 mod named_fields {
+    use protocol::Parcel;
     use super::*;
 
     #[test]
@@ -47,6 +48,7 @@ mod named_fields {
 }
 
 mod unnamed_fields {
+    use protocol::Parcel;
     use super::*;
 
     #[test]
