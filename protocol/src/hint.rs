@@ -8,7 +8,23 @@ pub struct Hints {
     pub current_field_index: Option<FieldIndex>,
     /// The fields for which a length prefix
     /// was already present earlier in the layout.
-    pub known_field_lengths: HashMap<FieldIndex, usize>,
+    pub known_field_lengths: HashMap<FieldIndex, FieldLength>,
+}
+
+/// Information about the length of a field.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct FieldLength {
+    pub length: usize,
+    pub kind: LengthPrefixKind,
+}
+
+/// Specifies what kind of data the length prefix captures.
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum LengthPrefixKind {
+    /// The length prefix stores the total number of bytes making up another field.
+    Bytes,
+    /// The length prefix stores the total number of elements in another field.
+    Elements,
 }
 
 
@@ -24,7 +40,7 @@ impl Default for Hints {
 impl Hints {
     /// Gets the length of the field currently being
     /// read, if known.
-    pub fn current_field_length(&self) -> Option<usize> {
+    pub fn current_field_length(&self) -> Option<FieldLength> {
         self.current_field_index.and_then(|index| self.known_field_lengths.get(&index)).cloned()
     }
 }
@@ -45,6 +61,15 @@ mod protocol_derive_helpers {
         pub fn next_field(&mut self) {
             *self.current_field_index.as_mut()
                 .expect("cannot increment next field when not in a struct")+= 1;
+        }
+
+        // Sets the length of a variable-sized field by its 0-based index.
+        #[doc(hidden)]
+        pub fn set_field_length(&mut self,
+                                field_index: FieldIndex,
+                                length: usize,
+                                kind: LengthPrefixKind) {
+            self.known_field_lengths.insert(field_index, FieldLength { kind, length });
         }
     }
 }

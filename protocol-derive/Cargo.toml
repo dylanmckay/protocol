@@ -13,7 +13,8 @@ keywords = ["protocol", "tcp", "udp", "connection", "encoding"]
 proc-macro = true
 
 [dependencies]
-syn = "0.15.21"
+protocol = { path = "../protocol", version = "0.5.12" }
+syn = { version = "0.15.22", features = ["default", "extra-traits"] }
 quote = "0.6.10"
 proc-macro2 = "0.4"
 

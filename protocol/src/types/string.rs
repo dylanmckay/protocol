@@ -1,4 +1,4 @@
-use {hint, types, Parcel, Error, Settings};
+use {hint, types, util, Parcel, Error, Settings};
 use std::io::prelude::*;
 use std;
 
@@ -10,7 +10,7 @@ impl Parcel for std::string::String
     fn read(read: &mut Read,
             settings: &Settings,
             hints: &mut hint::Hints) -> Result<Self, Error> {
-        let bytes = Vec::<u8>::read(read, settings, hints)?;
+        let bytes: Vec<u8> = util::read_list(read, settings, hints)?;
 
         Ok(std::string::String::from_utf8(bytes)?)
     }
@@ -18,7 +18,7 @@ impl Parcel for std::string::String
     fn write(&self, write: &mut Write,
              settings: &Settings) -> Result<(), Error> {
         let bytes: Vec<u8> = self.bytes().collect();
-        bytes.write(write, settings)
+        util::write_list(write, &bytes, settings)
     }
 }
 

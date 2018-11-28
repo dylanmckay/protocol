@@ -76,10 +76,19 @@ pub fn read_list_ext<S,T>(read: &mut Read,
     -> Result<Vec<T>, Error>
     where S: Integer,
           T: Parcel {
-    let size = S::read(read, settings, hints)?;
-    let size: usize = size.to_usize().ok_or(TryFromIntError{ })?;
+    match hints.current_field_length() {
+        Some(length) => {
+            panic!("list length: {:#?}", length);
+        },
+        None => {
+            // We do not know the length in the field in advance, therefore there
+            // the length prefix is not disjoint.
+            let size = S::read(read, settings, hints)?;
+            let size: usize = size.to_usize().ok_or(TryFromIntError{ })?;
 
-    read_items(size, read, settings, hints).map(|i| i.collect())
+            read_items(size, read, settings, hints).map(|i| i.collect())
+        },
+    }
 }
 
 /// Writes a length-prefixed list to a stream.

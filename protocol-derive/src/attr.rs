@@ -1,15 +1,16 @@
 use format;
+use format::Format;
 
 use syn;
 
-/// Gets the discriminant format of an enum.
-pub fn discriminant_format<F: format::Format>(attrs: &[syn::Attribute]) -> Option<F> {
-    helper::protocol_meta_name_value_literal("discriminant", attrs).map(helper::expect_lit_str).map(|format_name| {
-        match F::from_str(&format_name) {
-            Ok(f) => f,
-            Err(..) => panic!("invalid enum discriminant format: '{}'", format_name),
-        }
-    })
+#[derive(Debug)]
+pub enum Protocol {
+    DiscriminantFormat(format::Enum),
+    Discriminator(syn::Lit),
+    LengthPrefix {
+        kind: protocol::hint::LengthPrefixKind,
+        prefix_field_name: syn::Ident,
+    },
 }
 
 /// Gets the value of the `repr(type)` attribute.
@@ -17,8 +18,101 @@ pub fn repr(attrs: &[syn::Attribute]) -> Option<syn::Ident> {
     attribute::with_ident("repr", attrs)
 }
 
-pub fn protocol_variant_discriminator(attrs: &[syn::Attribute]) -> Option<syn::Lit> {
-    helper::protocol_meta_nested_named_literal("discriminator", attrs)
+pub fn protocol(attrs: &[syn::Attribute])
+    -> Option<Protocol> {
+    let meta_list = attrs.iter().filter_map(|attr| match attr.interpret_meta() {
+        Some(syn::Meta::List(meta_list)) => {
+            if meta_list.ident == syn::Ident::new("protocol", proc_macro2::Span::call_site()) {
+                Some(meta_list)
+            } else {
+                // Unrelated attribute.
+                None
+            }
+        },
+        _ => None,
+    }).next();
+
+    let meta_list: syn::MetaList = if let Some(meta_list) = meta_list { meta_list } else { return None };
+    let mut nested_metas = meta_list.nested.into_iter();
+
+    match nested_metas.next() {
+        Some(syn::NestedMeta::Meta(syn::Meta::List(nested_list))) => {
+            match &nested_list.ident.to_string()[..] {
+                // #[protocol(length_prefix(<kind>(<prefix field name>)))]
+                "length_prefix" => {
+                    let nested_list = expect::meta_list::nested_list(nested_list)
+                                            .expect("expected a nested list");
+                    let prefix_kind = match &nested_list.ident.to_string()[..] {
+                        "bytes" => protocol::hint::LengthPrefixKind::Bytes,
+                        invalid_prefix => panic!("invalid length prefix type: '{}'", invalid_prefix),
+                    };
+
+                    let prefix_field_name = expect::meta_list::single_word(nested_list).unwrap(); // FIXME: better error
+
+                    Some(Protocol::LengthPrefix { kind: prefix_kind, prefix_field_name })
+                },
+                "discriminator" => {
+                    let literal = expect::meta_list::single_literal(nested_list)
+                                        .expect("expected a single literal");
+                    Some(Protocol::Discriminator(literal))
+                },
+                name => panic!("#[protocol({})] is not valid", name),
+            }
+        },
+        Some(syn::NestedMeta::Meta(syn::Meta::NameValue(name_value))) => {
+            match &name_value.ident.to_string()[..] {
+                // #[protocol(discriminant = "<format_name>")]
+                "discriminant" => {
+                    let format_kind = match name_value.lit {
+                        syn::Lit::Str(s) => match format::Enum::from_str(&s.value()) {
+                            Ok(f) => f,
+                            Err(()) => panic!("invalid enum discriminant format: '{}", s.value()),
+                        },
+                        _ => panic!("discriminant format mut be string"),
+                    };
+
+                    Some(Protocol::DiscriminantFormat(format_kind))
+                },
+                ident => panic!("expected 'discriminant' but got '{}", ident),
+            }
+        },
+        _ => panic!("#[protocol(..)] attributes cannot be empty"),
+    }
+}
+
+mod expect {
+    pub mod meta_list {
+        pub fn nested_list(list: syn::MetaList)
+            -> Result<syn::MetaList, ()> {
+            assert!(list.nested.len() == 1, "list should only have one item");
+            match list.nested.into_iter().next().unwrap() {
+                syn::NestedMeta::Meta(syn::Meta::List(nested)) => Ok(nested),
+                _ => Err(()),
+            }
+        }
+
+        /// A single word `name(word)`.
+        pub fn single_word(list: syn::MetaList)
+            -> Result<syn::Ident, ()> {
+            assert!(list.nested.len() == 1, "list should only have one item");
+
+            match list.nested.into_iter().next().unwrap() {
+                syn::NestedMeta::Meta(syn::Meta::Word(ident)) => Ok(ident),
+                _ => Err(()),
+            }
+        }
+
+        /// A single word `name(literal)`.
+        pub fn single_literal(list: syn::MetaList)
+            -> Result<syn::Lit, ()> {
+            assert!(list.nested.len() == 1, "list should only have one item");
+
+            match list.nested.into_iter().next().unwrap() {
+                syn::NestedMeta::Literal(lit) => Ok(lit),
+                _ => Err(()),
+            }
+        }
+    }
 }
 
 mod attribute {
@@ -43,77 +137,6 @@ mod attribute {
             syn::NestedMeta::Meta(syn::Meta::Word(ident)) => ident,
             _ => panic!("expected an ident"),
         })
-    }
-}
-
-mod helper {
-    use syn;
-    use proc_macro2;
-
-    fn protocol_meta_list(attrs: &[syn::Attribute]) -> Option<syn::MetaList> {
-        attrs.iter().filter_map(|attr| match attr.interpret_meta() {
-            Some(syn::Meta::List(meta_list)) => {
-                if meta_list.ident == syn::Ident::new("protocol", proc_macro2::Span::call_site()) {
-                    Some(meta_list)
-                } else {
-                    // Unrelated attribute.
-                    None
-                }
-            },
-            _ => None,
-        }).next()
-    }
-
-    pub fn protocol_meta_nested_named_literal(name: &str, attrs: &[syn::Attribute]) -> Option<syn::Lit> {
-        protocol_meta_list(attrs).and_then(|meta_list| {
-            meta_list.nested.into_iter().
-                filter_map(|n| match n {
-                    syn::NestedMeta::Meta(syn::Meta::List(nested_list)) => {
-                        if nested_list.ident == name {
-                            if nested_list.nested.len() != 1 {
-                                panic!("#[protocol({}(<value>))] attributes can only have one value", name)
-                            }
-
-                            match nested_list.nested.into_iter().next().unwrap() {
-                                syn::NestedMeta::Literal(lit) => Some(lit),
-                                _ => panic!("#[protocol({}(<value>))] values must be valid literals", name),
-                            }
-                        } else {
-                            // irrelevant meta
-                            None
-                        }
-                    },
-                    _ => None,
-                }).next()
-        })
-    }
-
-    pub fn protocol_meta_nested_name_values(attrs: &[syn::Attribute]) -> Vec<syn::MetaNameValue> {
-        protocol_meta_list(attrs).map(|meta_list| {
-            let name_values: Vec<_> = meta_list.nested.iter().
-                filter_map(|n| match n {
-                    syn::NestedMeta::Meta(syn::Meta::NameValue(nv)) => Some(nv.clone()),
-                    _ => None,
-                }).collect();
-            name_values
-        }).unwrap_or_else(|| Vec::new())
-    }
-
-    pub fn protocol_meta_name_value_literal(meta_name: &str, attrs: &[syn::Attribute]) -> Option<syn::Lit> {
-        protocol_meta_nested_name_values(attrs).iter().filter_map(|name_value| {
-            if name_value.ident == syn::Ident::new(meta_name, proc_macro2::Span::call_site()) {
-                Some(name_value.lit.clone())
-            } else {
-                None // Different meta_name
-            }
-        }).next()
-    }
-
-    pub fn expect_lit_str(lit: syn::Lit) -> String {
-        match lit {
-            syn::Lit::Str(s) => s.value(),
-            _ => panic!("expected a string literal"),
-        }
     }
 }
 

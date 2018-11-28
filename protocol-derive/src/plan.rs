@@ -47,7 +47,10 @@ impl Enum {
         let mut plan = Enum {
             ident: ast.ident.clone(),
             repr_attr: attr::repr(&ast.attrs),
-            explicit_format: attr::discriminant_format::<format::Enum>(&ast.attrs),
+            explicit_format: attr::protocol(&ast.attrs).map(|p| match p {
+                attr::Protocol::DiscriminantFormat(format) => format,
+                _ => panic!("expected a discriminant format but got {:?}", p),
+            }),
             variants: e.variants.iter().map(|variant| {
                 let equals_discriminant = match variant.discriminant.clone().map(|a| a.1) {
                     Some(syn::Expr::Lit(expr_lit)) => Some(expr_lit.lit),
@@ -57,7 +60,11 @@ impl Enum {
 
                 EnumVariant {
                     ident: variant.ident.clone(),
-                    explicit_discriminator_attr: attr::protocol_variant_discriminator(&variant.attrs),
+                    // explicit_discriminator_attr: attr::protocol_variant_discriminator(&variant.attrs),
+                    explicit_discriminator_attr: attr::protocol(&variant.attrs).map(|protocol| match protocol {
+                        attr::Protocol::Discriminator(value) => value,
+                        _ => panic!("expected a discriminator but got {:?}", protocol),
+                    }),
                     explicit_int_discriminator_equals: equals_discriminant,
                     actual_discriminator: None,
                     fields: variant.fields.clone(),

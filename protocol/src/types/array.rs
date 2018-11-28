@@ -1,5 +1,5 @@
 use {Parcel, Error, Settings};
-use hint;
+use {hint, util};
 use std::io::prelude::*;
 
 macro_rules! impl_parcel_for_array {
@@ -12,12 +12,7 @@ macro_rules! impl_parcel_for_array {
                     hints: &mut hint::Hints) -> Result<Self, Error> {
                 use std::mem;
 
-                let mut elements: Vec<T> = Vec::with_capacity($n);
-
-                for _ in 0..$n {
-                    let elem = T::read(read, settings, hints)?;
-                    elements.push(elem);
-                }
+                let elements: Vec<_> = util::read_items($n, read, settings, hints)?.collect();
 
                 let mut array: [T; $n] = unsafe { mem::uninitialized() };
                 array.clone_from_slice(&elements[..]);
@@ -27,11 +22,7 @@ macro_rules! impl_parcel_for_array {
 
             fn write(&self, write: &mut Write,
                      settings: &Settings) -> Result<(), Error> {
-                for elem in self.iter() {
-                    elem.write(write, settings)?;
-                }
-
-                Ok(())
+                util::write_items(write, self.iter(), settings)
             }
         }
     }
