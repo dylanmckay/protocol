@@ -175,6 +175,7 @@ pub mod types;
 #[macro_use]
 pub mod wire;
 
+pub mod attributes;
 mod enum_ty;
 mod errors;
 pub mod hint;

@@ -53,7 +53,6 @@ fn update_hints_after_read<'a>(field: &'a syn::Field,
     if let Some((length_prefix_of, kind)) = length_prefix_of(field, fields.clone()) {
         let kind = match kind {
             protocol::hint::LengthPrefixKind::Bytes => quote!(protocol::hint::LengthPrefixKind::Bytes),
-            protocol::hint::LengthPrefixKind::Elements => quote!(protocol::hint::LengthPrefixKind::Elements),
         };
 
         quote! {

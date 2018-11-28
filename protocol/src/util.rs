@@ -104,9 +104,6 @@ pub fn read_list_ext<S,T>(read: &mut Read,
 
                     Ok(items)
                 },
-                hint::LengthPrefixKind::Elements => {
-                    unimplemented!();
-                },
             }
         },
         None => {
