@@ -179,7 +179,6 @@ pub mod attributes;
 mod enum_ty;
 mod errors;
 pub mod hint;
-pub mod logic;
 mod parcel;
 pub mod util;
 
