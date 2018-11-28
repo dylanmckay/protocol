@@ -1,10 +1,11 @@
 //! Helper functions for dealing with sets or lists of parcels.
 
-use {Parcel, Error, TryFromIntError, Settings};
+use {Parcel, Error, ErrorKind, TryFromIntError, Settings};
 use hint;
 use types::Integer;
 
 use std::io::prelude::*;
+use std::io;
 
 /// The integer type that we will use to send length prefixes.
 pub type SizeType = u32;
@@ -78,7 +79,35 @@ pub fn read_list_ext<S,T>(read: &mut Read,
           T: Parcel {
     match hints.current_field_length() {
         Some(length) => {
-            panic!("list length: {:#?}", length);
+            match length.kind {
+                hint::LengthPrefixKind::Bytes => {
+                    let byte_count = length.length;
+
+                    // First, read all bytes of the list without processing them.
+                    let bytes: Vec<u8> = read_items(byte_count, read, settings, hints)?.collect();
+                    let mut read_back_bytes = io::Cursor::new(bytes);
+
+                    // Then, parse the items until we reach the end of the buffer stream.
+                    let mut items = Vec::new();
+                    // FIXME: potential DoS vector, should timeout.
+                    while read_back_bytes.position() < byte_count as u64 {
+                        let item = match T::read(&mut read_back_bytes, settings, hints).map_err(|e| e.0) {
+                            Ok(item) => item,
+                            Err(ErrorKind::Io(ref io)) if io.kind() == io::ErrorKind::UnexpectedEof => {
+                                // FIXME: make this a client error.
+                                panic!("length prefix in bytes does not match actual size");
+                            },
+                            Err(e) => return Err(e.into()),
+                        };
+                        items.push(item);
+                    }
+
+                    Ok(items)
+                },
+                hint::LengthPrefixKind::Elements => {
+                    unimplemented!();
+                },
+            }
         },
         None => {
             // We do not know the length in the field in advance, therefore there
