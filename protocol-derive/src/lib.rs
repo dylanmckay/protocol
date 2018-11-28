@@ -7,11 +7,11 @@ extern crate syn;
 extern crate quote;
 
 mod attr;
+mod codegen;
 mod format;
 mod plan;
 
 use proc_macro::TokenStream;
-use proc_macro2::Span;
 
 #[proc_macro_derive(Protocol, attributes(protocol))]
 pub fn protocol(input: TokenStream) -> TokenStream {
@@ -73,102 +73,31 @@ fn build_generics(ast: &syn::DeriveInput) -> (Vec<proc_macro2::TokenStream>, Vec
 fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                           strukt: &syn::DataStruct) -> proc_macro2::TokenStream {
     let strukt_name = &ast.ident;
+    let read_fields = codegen::read_fields(&strukt.fields);
+    let write_fields = codegen::write_fields(&strukt.fields);
 
-    impl_trait_for(ast, quote!(protocol::Parcel), match strukt.fields {
-        syn::Fields::Named(ref fields_named) => {
-            let field_names: Vec<_> = fields_named.named.iter().map(|field| {
-                &field.ident
-            }).collect();
-            let field_names = &field_names[..];
+    impl_trait_for(ast, quote!(protocol::Parcel), quote! {
+        const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
-            quote! {
-                const TYPE_NAME: &'static str = stringify!(#strukt_name);
+        #[allow(unused_variables)]
+        fn read(__io_reader: &mut io::Read,
+                __settings: &protocol::Settings,
+                _: &mut protocol::hint::Hints)
+            -> Result<Self, protocol::Error> {
+            // Each type gets its own hints.
+            let mut __hints = protocol::hint::Hints::default();
+            __hints.begin_fields();
 
-                #[allow(unused_variables)]
-                fn read(read: &mut io::Read,
-                        __settings: &protocol::Settings,
-                        _: &mut protocol::hint::Hints)
-                    -> Result<Self, protocol::Error> {
-                    // Each type gets its own hints.
-                    let mut __hints = protocol::hint::Hints::default();
-                    __hints.begin_fields();
+            Ok(#strukt_name # read_fields)
+        }
 
-                    Ok(#strukt_name {
-                        #(
-                            #field_names: {
-                                let res = protocol::Parcel::read(read, __settings, &mut __hints);
-                                __hints.next_field();
-                                res?
-                            }
-                        ),*
-                    })
-                }
-
-                #[allow(unused_variables)]
-                fn write(&self, write: &mut io::Write,
-                         __settings: &protocol::Settings)
-                    -> Result<(), protocol::Error> {
-                    #( protocol::Parcel::write(&self. #field_names, write, __settings )?; )*
-                    Ok(())
-                }
-            }
-        },
-        syn::Fields::Unnamed(ref fields_unnamed) => {
-            let field_numbers: Vec<_> = (0..fields_unnamed.unnamed.len()).into_iter().map(syn::Index::from).collect();
-            let field_numbers = &field_numbers[..];
-
-            let field_expressions = field_numbers.iter().map(|_| {
-                quote! {
-                    {
-                        let res = protocol::Parcel::read(read, __settings, &mut __hints);
-                        __hints.next_field();
-                        res?
-                    }
-                }
-            });
-
-            quote! {
-                const TYPE_NAME: &'static str = stringify!(#strukt_name);
-
-                #[allow(unused_variables)]
-                fn read(read: &mut io::Read,
-                        __settings: &protocol::Settings,
-                        _: &mut protocol::hint::Hints)
-                    -> Result<Self, protocol::Error> {
-                    // Each type gets its own hints.
-                    let mut __hints = protocol::hint::Hints::default();
-                    __hints.begin_fields();
-
-                    Ok(#strukt_name(
-                        #(#field_expressions),*
-                    ))
-                }
-
-                #[allow(unused_variables)]
-                fn write(&self, write: &mut io::Write,
-                         __settings: &protocol::Settings)
-                    -> Result<(), protocol::Error> {
-                    #( protocol::Parcel::write(&self. #field_numbers, write, __settings )?; )*
-                    Ok(())
-                }
-            }
-        },
-        syn::Fields::Unit => {
-            quote! {
-                const TYPE_NAME: &'static str = stringify!(#strukt_name);
-
-                fn read(_: &mut io::Read,
-                        _: &protocol::Settings,
-                        _: &mut protocol::hint::Hints) -> Result<Self, protocol::Error> {
-                    Ok(#strukt_name)
-                }
-
-                fn write(&self, _: &mut io::Write, _: &protocol::Settings)
-                    -> Result<(), protocol::Error> {
-                    Ok(())
-                }
-            }
-        },
+        #[allow(unused_variables)]
+        fn write(&self, __io_writer: &mut io::Write,
+                 __settings: &protocol::Settings)
+            -> Result<(), protocol::Error> {
+            #write_fields
+            Ok(())
+        }
     })
 }
 
@@ -176,102 +105,11 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 fn impl_parcel_for_enum(plan: &plan::Enum,
                         ast: &syn::DeriveInput)
     -> proc_macro2::TokenStream {
+
     let enum_name = &plan.ident;
-    let discriminator_ty = plan.discriminant();
+    let read_variant = codegen::enums::read_variant(plan);
+    let write_variant = codegen::enums::write_variant(plan);
 
-    let discriminator_var = syn::Ident::new("discriminator", Span::call_site());
-
-    let variant_writers = plan.variants.iter().map(|variant| {
-        let variant_name = &variant.ident;
-        let discriminator_ref_expr = variant.discriminator_ref_expr();
-
-        let write_discriminator = quote! { <#discriminator_ty as protocol::Parcel>::write(#discriminator_ref_expr, __io_writer, __settings)?; };
-
-        match variant.fields {
-            syn::Fields::Named(ref fields_named) => {
-                let field_names = fields_named.named.iter().map(|f| &f.ident);
-                let field_name_refs = fields_named.named.iter().map(|f| &f.ident).map(|n| quote! { ref #n });
-
-                quote! {
-                    #enum_name :: #variant_name { #( #field_name_refs ),* } => {
-                        #write_discriminator
-
-                        #( protocol::Parcel::write(#field_names, __io_writer, __settings)?; )*
-                    }
-                }
-            },
-            syn::Fields::Unnamed(ref fields_unnamed) => {
-                let binding_names: Vec<_> = (0..fields_unnamed.unnamed.len()).into_iter()
-                    .map(|i| syn::Ident::new(&format!("field_{}", i), proc_macro2::Span::call_site()))
-                    .collect();
-
-                let field_refs: Vec<_> = binding_names.iter().map(|i| quote! { ref #i }).collect();
-
-                quote! {
-                    #enum_name :: #variant_name ( #( #field_refs ),* ) => {
-                        #write_discriminator
-                        #( protocol::Parcel::write(#binding_names, __io_writer, __settings)?; )*
-                    }
-                }
-            },
-            syn::Fields::Unit => {
-                quote!{
-                    #enum_name :: #variant_name => {
-                        #write_discriminator;
-                    }
-                }
-            },
-        }
-    });
-
-    let variant_readers = plan.variants.iter().map(|ref variant| {
-        let variant_name = &variant.ident;
-        let discriminator_literal = variant.discriminator_literal();
-
-        match variant.fields {
-            syn::Fields::Named(ref fields_named) => {
-                let field_names = fields_named.named.iter().map(|f| &f.ident);
-
-                quote! {
-                    #discriminator_literal => Ok(#enum_name :: #variant_name {
-                        #( #field_names : {
-                            let res = protocol::Parcel::read(__io_reader, __settings, &mut __hints);
-                            __hints.next_field();
-                            res?
-                        }),*
-                    })
-                }
-            },
-            syn::Fields::Unnamed(ref fields_unnamed) => {
-                let binding_names: Vec<_> = (0..fields_unnamed.unnamed.len()).into_iter()
-                    .map(|i| syn::Ident::new(&format!("field_{}", i), proc_macro2::Span::call_site()))
-                    .collect();
-
-                let field_readers = binding_names.iter().map(|_| {
-                    quote! {
-                        {
-                            let res = protocol::Parcel::read(__io_reader, __settings, &mut __hints);
-                            __hints.next_field();
-                            res?
-                        }
-                    }
-                });
-
-                quote! {
-                    #discriminator_literal => Ok(#enum_name :: #variant_name (
-                        #(#field_readers),*
-                    ))
-                }
-            },
-            syn::Fields::Unit => {
-                quote! {
-                    #discriminator_literal => Ok(#enum_name :: #variant_name)
-                }
-            },
-        }
-    });
-
-    let discriminator_for_pattern_matching = plan.matchable_discriminator_expr(discriminator_var.clone());
     impl_trait_for(ast, quote!(protocol::Parcel), quote! {
         const TYPE_NAME: &'static str = stringify!(#enum_name);
 
@@ -284,20 +122,14 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
             let mut __hints = protocol::hint::Hints::default();
             __hints.begin_fields();
 
-            let discriminator: #discriminator_ty = protocol::Parcel::read(__io_reader, __settings, &mut __hints)?;
-            match #discriminator_for_pattern_matching {
-                #(#variant_readers,)*
-                _ => panic!("unknown discriminator"),
-            }
+            Ok(#read_variant)
         }
 
         #[allow(unused_variables)]
         fn write(&self, __io_writer: &mut io::Write,
                  __settings: &protocol::Settings)
             -> Result<(), protocol::Error> {
-            match *self {
-                #(#variant_writers),*
-            }
+            #write_variant
 
             Ok(())
         }
