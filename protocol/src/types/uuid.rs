@@ -1,12 +1,15 @@
 use {Parcel, Error, Settings};
+use hint;
 use std::io::prelude::*;
 
 use uuid::Uuid;
 
 impl Parcel for Uuid
 {
+    const TYPE_NAME: &'static str = "Uuid";
+
     fn read(read: &mut Read,
-            settings: &Settings,
+            _: &Settings,
             _: &mut hint::Hints)
         -> Result<Self, Error> {
         let bytes: Result<Vec<u8>, _> = read.bytes().take(16).collect();
@@ -15,7 +18,8 @@ impl Parcel for Uuid
         Ok(Uuid::from_bytes(&bytes)?)
     }
 
-    fn write(&self, write: &mut Write) -> Result<(), Error> {
+    fn write(&self, write: &mut Write,
+             _: &Settings) -> Result<(), Error> {
         write.write(self.as_bytes())?;
         Ok(())
     }
