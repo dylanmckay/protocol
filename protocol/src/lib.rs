@@ -163,6 +163,7 @@
 pub use self::enum_ty::Enum;
 pub use self::parcel::Parcel;
 pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromIntError};
+pub use self::high_level::HighLevel;
 pub use self::settings::*;
 
 mod settings;
@@ -174,6 +175,7 @@ pub mod wire;
 pub mod attributes;
 mod enum_ty;
 mod errors;
+mod high_level;
 pub mod hint;
 pub mod logic;
 mod parcel;
