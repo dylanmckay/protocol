@@ -51,9 +51,13 @@ pub struct Ping {
     data: Vec<u8>
 }
 
-define_packet_kind!(Packet: u8 {
-    0x00 => Ping
-});
+#[derive(Protocol, Clone, Debug, PartialEq)]
+#[protocol(discriminant = "integer")]
+#[protocol(discriminator(u8))]
+pub enum Packet {
+    #[protocol(discriminator(0))]
+    Ping(Ping),
+}
 
 fn main() {
     use std::net::TcpStream;

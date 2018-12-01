@@ -2,6 +2,6 @@
 members = [
   "protocol",
   "protocol-derive",
-  "protocol-derive-tests",
+  "tests",
 ]
 

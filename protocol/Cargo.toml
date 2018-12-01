@@ -20,6 +20,9 @@ uuid = { version = "0.6", optional = true }
 error-chain = "0.11"
 num-traits = "0.2"
 
+[test-dependencies]
+protocol-derive = { path = "../protocol-derive", version = "0.5.13" }
+
 [dev-dependencies]
 # Used in examples
 protocol-derive = { path = "../protocol-derive", version = "0.5.13" }

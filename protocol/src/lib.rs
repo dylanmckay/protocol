@@ -165,9 +165,10 @@ pub use self::parcel::Parcel;
 pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromIntError};
 pub use self::settings::*;
 
-// Must go first because it defines common macros.
+/// Use protocol_derive in tests.
+#[cfg(test)]
 #[macro_use]
-mod packet;
+extern crate protocol_derive;
 
 mod settings;
 #[macro_use]

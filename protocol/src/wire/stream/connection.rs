@@ -73,13 +73,17 @@ mod test
 
     pub use std::io::Cursor;
 
-    define_packet!(Ping {
+    #[derive(Protocol, Clone, Debug, PartialEq, Eq)]
+    pub struct Ping {
         data: Vec<u8>
-    });
+    }
 
-    define_packet_kind!(PacketKind : u8 {
-        0x00 => Ping
-    });
+    #[derive(Protocol, Clone, Debug, PartialEq, Eq)]
+    #[protocol(discriminant(u8))]
+    pub enum PacketKind {
+        #[protocol(discriminator(0x00))]
+        Ping(Ping),
+    }
 
     #[test]
     fn can_write_and_read_back_data() {
