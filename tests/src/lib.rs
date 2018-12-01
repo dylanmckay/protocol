@@ -56,3 +56,4 @@ macro_rules! verify_read_back {
 #[cfg(test)] mod hints;
 #[cfg(test)] mod length_prefix;
 #[cfg(test)] mod structs;
+#[cfg(test)] mod wire;

@@ -1,5 +1,5 @@
+extern crate protocol;
 #[macro_use] extern crate protocol_derive;
-#[macro_use] extern crate protocol;
 
 #[derive(Protocol, Clone, Debug, PartialEq)]
 pub struct Handshake;
@@ -23,11 +23,16 @@ pub struct Node {
 }
 
 // Defines a packet kind enum.
-define_packet_kind!(Packet: u32 {
-    0x00 => Handshake,
-    0x01 => Hello,
-    0x02 => Goodbye
-});
+#[derive(Protocol, Clone, Debug, PartialEq)]
+#[protocol(discriminant = "integer")]
+pub enum Packet {
+    #[protocol(discriminator(0x00))]
+    Handshake(Handshake),
+    #[protocol(discriminator(0x01))]
+    Hello(Hello),
+    #[protocol(discriminator(0x02))]
+    Goodbye(Goodbye),
+}
 
 fn main() {
     use std::net::TcpStream;

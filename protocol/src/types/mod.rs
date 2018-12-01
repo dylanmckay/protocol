@@ -10,8 +10,6 @@ mod array;
 mod char;
 /// Definitions for the `std::collections` module.
 mod collections;
-#[macro_use]
-mod composite;
 mod marker;
 mod numerics;
 mod option;
