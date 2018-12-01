@@ -1,6 +1,6 @@
 [package]
 name = "protocol-derive"
-version = "0.5.13"
+version = "0.6.0"
 authors = ["Dylan McKay <me@dylanmckay.io>"]
 
 description = "Easy protocol definitions"
