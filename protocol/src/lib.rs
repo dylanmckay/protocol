@@ -165,11 +165,6 @@ pub use self::parcel::Parcel;
 pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromIntError};
 pub use self::settings::*;
 
-/// Use protocol_derive in tests.
-#[cfg(test)]
-#[macro_use]
-extern crate protocol_derive;
-
 mod settings;
 #[macro_use]
 pub mod types;
