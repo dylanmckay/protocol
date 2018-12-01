@@ -19,7 +19,8 @@ impl Parcel for Uuid
     }
 
     fn write(&self, write: &mut Write,
-             _: &Settings) -> Result<(), Error> {
+             _: &Settings,
+             _: &mut hint::Hints) -> Result<(), Error> {
         write.write(self.as_bytes())?;
         Ok(())
     }

@@ -32,8 +32,9 @@ impl<S: types::Integer, T: Parcel> Parcel for Vec<S, T>
     }
 
     fn write(&self, write: &mut Write,
-             settings: &Settings) -> Result<(), Error> {
-        util::write_list_ext::<S,T,_>(write, self.elements.iter(), settings)
+             settings: &Settings,
+             hints: &mut hint::Hints) -> Result<(), Error> {
+        util::write_list_ext::<S,T,_>(write, self.elements.iter(), settings, hints)
     }
 }
 
@@ -54,8 +55,9 @@ mod std_vec {
         }
 
         fn write(&self, write: &mut Write,
-                 settings: &Settings) -> Result<(), Error> {
-            util::write_list(write, self.iter(), settings)
+                 settings: &Settings,
+                 hints: &mut hint::Hints) -> Result<(), Error> {
+            util::write_list(write, self.iter(), settings, hints)
         }
     }
 }

@@ -45,7 +45,7 @@ pub fn write_items<'a,T>(write: &mut Write,
     -> Result<(), Error>
     where T: Parcel + 'a {
     for item in items.into_iter() {
-        item.write(write, settings)?;
+        item.write(write, settings, &mut hint::Hints::default())?;
     }
     Ok(())
 
@@ -63,11 +63,12 @@ pub fn read_list<T>(read: &mut Read,
 /// Writes a length-prefixed list to a stream.
 pub fn write_list<'a,T,I>(write: &mut Write,
                           elements: I,
-                          settings: &Settings)
+                          settings: &Settings,
+                          hints: &mut hint::Hints)
     -> Result<(), Error>
     where T: Parcel+'a,
           I: IntoIterator<Item=&'a T> {
-    self::write_list_ext::<SizeType, T, I>(write, elements, settings)
+    self::write_list_ext::<SizeType, T, I>(write, elements, settings, hints)
 }
 
 /// Reads a length-prefixed list from a stream.
@@ -120,15 +121,26 @@ pub fn read_list_ext<S,T>(read: &mut Read,
 /// Writes a length-prefixed list to a stream.
 pub fn write_list_ext<'a,S,T,I>(write: &mut Write,
                                 elements: I,
-                                settings: &Settings)
+                                settings: &Settings,
+                                hints: &mut hint::Hints)
     -> Result<(), Error>
     where S: Integer,
           T: Parcel+'a,
           I: IntoIterator<Item=&'a T> {
     let elements: Vec<_> = elements.into_iter().collect();
-    let length = S::from_usize(elements.len()).ok_or(TryFromIntError{ })?;
-    length.write(write, settings)?;
 
+    match hints.current_field_length() {
+        // If there is an existing length prefix, don't bother sending another.
+        Some(_length) => {
+            ()
+        },
+        // The length is not known, send a prefix.
+        _ => {
+            let length = S::from_usize(elements.len()).ok_or(TryFromIntError{ })?;
+            length.write(write, settings, &mut hint::Hints::default())?;
+
+        },
+    }
     write_items(write, elements.into_iter(), settings)?;
 
     Ok(())

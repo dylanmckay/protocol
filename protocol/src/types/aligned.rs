@@ -45,8 +45,9 @@ impl<ToSizeOf, T> Parcel for Aligned<ToSizeOf, T>
     }
 
     fn write(&self, write: &mut Write,
-             settings: &Settings) -> Result<(), Error> {
-        let unaligned_bytes = self.inner.raw_bytes(settings)?;
+             settings: &Settings,
+             hints: &mut hint::Hints) -> Result<(), Error> {
+        let unaligned_bytes = self.inner.raw_bytes_ext(settings, hints)?;
         let aligned_bytes = util::align_bytes(Self::alignment_bytes(), unaligned_bytes);
 
         // Write aligned bytes to the stream.

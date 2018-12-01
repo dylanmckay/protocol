@@ -93,8 +93,13 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
 
         #[allow(unused_variables)]
         fn write(&self, __io_writer: &mut io::Write,
-                 __settings: &protocol::Settings)
+                 __settings: &protocol::Settings,
+                 _: &mut protocol::hint::Hints)
             -> Result<(), protocol::Error> {
+            // Each type gets its own hints.
+            let mut __hints = protocol::hint::Hints::default();
+            __hints.begin_fields();
+
             #write_fields
             Ok(())
         }
@@ -127,8 +132,13 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
 
         #[allow(unused_variables)]
         fn write(&self, __io_writer: &mut io::Write,
-                 __settings: &protocol::Settings)
+                 __settings: &protocol::Settings,
+                 _: &mut protocol::hint::Hints)
             -> Result<(), protocol::Error> {
+            // Each type gets its own hints.
+            let mut __hints = protocol::hint::Hints::default();
+            __hints.begin_fields();
+
             #write_variant
 
             Ok(())

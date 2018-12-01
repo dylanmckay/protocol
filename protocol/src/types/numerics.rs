@@ -20,7 +20,8 @@ impl Parcel for bool
     }
 
     fn write(&self, write: &mut Write,
-             _: &Settings) -> Result<(), Error> {
+             _: &Settings,
+             _: &mut hint::Hints) -> Result<(), Error> {
         write.write_u8(if *self { 1 } else { 0 })?;
         Ok(())
     }
@@ -34,7 +35,9 @@ impl Parcel for u8
             _: &Settings,
             _: &mut hint::Hints) -> Result<Self, Error> { Ok(read.read_u8()?) }
     fn write(&self, write: &mut Write,
-             _: &Settings) -> Result<(), Error> { write.write_u8(*self)?; Ok(()) }
+             _: &Settings,
+             _: &mut hint::Hints)
+        -> Result<(), Error> { write.write_u8(*self)?; Ok(()) }
 }
 
 impl Parcel for i8
@@ -45,7 +48,9 @@ impl Parcel for i8
             _: &Settings,
             _: &mut hint::Hints) -> Result<Self, Error> { Ok(read.read_i8()?) }
     fn write(&self, write: &mut Write,
-             _: &Settings) -> Result<(), Error> { write.write_i8(*self)?; Ok(()) }
+             _: &Settings,
+             _: &mut hint::Hints)
+        -> Result<(), Error> { write.write_i8(*self)?; Ok(()) }
 }
 
 macro_rules! impl_parcel_for_numeric {
@@ -60,7 +65,8 @@ macro_rules! impl_parcel_for_numeric {
             }
 
             fn write(&self, write: &mut Write,
-                     settings: &Settings) -> Result<(), Error> {
+                     settings: &Settings,
+                     _: &mut hint::Hints) -> Result<(), Error> {
                 settings.byte_order.$write_fn(*self, write)?; Ok(())
             }
         }

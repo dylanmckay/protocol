@@ -16,9 +16,10 @@ impl Parcel for std::string::String
     }
 
     fn write(&self, write: &mut Write,
-             settings: &Settings) -> Result<(), Error> {
+             settings: &Settings,
+             hints: &mut hint::Hints) -> Result<(), Error> {
         let bytes: Vec<u8> = self.bytes().collect();
-        util::write_list(write, &bytes, settings)
+        util::write_list(write, &bytes, settings, hints)
     }
 }
 
@@ -54,9 +55,10 @@ impl<S: types::Integer> Parcel for String<S>
     }
 
     fn write(&self, write: &mut Write,
-             settings: &Settings) -> Result<(), Error> {
+             settings: &Settings,
+             hints: &mut hint::Hints) -> Result<(), Error> {
         let array: types::Vec<S, u8> = types::Vec::new(self.value.bytes().collect());
-        array.write(write, settings)
+        array.write(write, settings, hints)
     }
 }
 

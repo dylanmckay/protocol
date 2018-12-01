@@ -13,9 +13,10 @@ macro_rules! impl_list_type {
             }
 
             fn write(&self, write: &mut ::std::io::Write,
-                     settings: &::Settings)
+                     settings: &::Settings,
+                     hints: &mut ::hint::Hints)
                 -> Result<(), $crate::Error> {
-                ::util::write_list(write, self.iter(), settings)
+                ::util::write_list(write, self.iter(), settings, hints)
             }
         }
 

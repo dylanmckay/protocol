@@ -63,6 +63,23 @@ fn update_hints_after_read<'a>(field: &'a syn::Field,
     }
 }
 
+fn update_hints_after_write<'a>(field: &'a syn::Field,
+                                fields: impl IntoIterator<Item=&'a syn::Field> + Clone)
+    -> TokenStream {
+    if let Some((length_prefix_of, kind)) = length_prefix_of(field, fields.clone()) {
+        let field_name = &field.ident;
+        let kind = kind.path_expr();
+
+        quote! {
+            if let Ok(()) = res {
+                __hints.set_field_length(#length_prefix_of, self.#field_name as usize, #kind);
+            }
+        }
+    } else {
+        quote! { }
+    }
+}
+
 /// If the given field is a length prefix of another field, that other field
 /// returned here.
 ///
@@ -102,10 +119,15 @@ fn write_named_fields(fields_named: &syn::FieldsNamed)
     -> TokenStream {
     let field_writers: Vec<_> = fields_named.named.iter().map(|field| {
         let field_name = &field.ident;
+        // This field may store the length prefix of another field.
+        let update_hints = update_hints_after_write(field, &fields_named.named);
 
         quote! {
             {
-                protocol::Parcel::write(&self. #field_name, __io_writer, __settings )?;
+                let res = protocol::Parcel::write(&self. #field_name, __io_writer, __settings, &mut __hints);
+                #update_hints
+                __hints.next_field();
+                res?
             }
         }
     }).collect();
@@ -135,7 +157,9 @@ fn write_unnamed_fields(fields_unnamed: &syn::FieldsUnnamed)
     let field_writers: Vec<_> = field_indices.map(|field_index| {
         quote! {
             {
-                protocol::Parcel::write(&self. #field_index, __io_writer, __settings )?;
+                let res = protocol::Parcel::write(&self. #field_index, __io_writer, __settings, &mut __hints);
+                __hints.next_field();
+                res?
             }
         }
     }).collect();

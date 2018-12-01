@@ -18,14 +18,14 @@ macro_rules! impl_map_type {
 
             fn read(read: &mut Read,
                     settings: &Settings,
-                    hints: &mut hint::Hints) -> Result<Self, Error> {
+                    _: &mut hint::Hints) -> Result<Self, Error> {
                 let mut map = $ty::new();
 
-                let length = SizeType::read(read, settings, hints)?;
+                let length = SizeType::read(read, settings, &mut hint::Hints::default())?;
 
                 for _ in 0..length {
-                    let key = K::read(read, settings, hints)?;
-                    let value = V::read(read, settings, hints)?;
+                    let key = K::read(read, settings, &mut hint::Hints::default())?;
+                    let value = V::read(read, settings, &mut hint::Hints::default())?;
 
                     map.insert(key, value);
                 }
@@ -34,12 +34,13 @@ macro_rules! impl_map_type {
             }
 
             fn write(&self, write: &mut Write,
-                     settings: &Settings) -> Result<(), Error> {
-                (self.len() as SizeType).write(write, settings)?;
+                     settings: &Settings,
+                     _: &mut hint::Hints) -> Result<(), Error> {
+                (self.len() as SizeType).write(write, settings, &mut hint::Hints::default())?;
 
                 for (key, value) in self.iter() {
-                    key.write(write, settings)?;
-                    value.write(write, settings)?;
+                    key.write(write, settings, &mut hint::Hints::default())?;
+                    value.write(write, settings, &mut hint::Hints::default())?;
                 }
 
                 Ok(())

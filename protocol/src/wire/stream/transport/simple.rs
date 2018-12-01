@@ -135,7 +135,7 @@ impl Transport for Simple
                        packet: &[u8],
                        settings: &Settings) -> Result<(), Error> {
         // Prefix the packet size.
-        (packet.len() as PacketSize).write(write, settings)?;
+        (packet.len() as PacketSize).write(write, settings, &mut hint::Hints::default())?;
         // Write the packet data.
         write.write(&packet)?;
 

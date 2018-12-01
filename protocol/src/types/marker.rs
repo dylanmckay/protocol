@@ -15,7 +15,8 @@ impl<T> Parcel for PhantomData<T>
     }
 
     fn write(&self, _: &mut Write,
-             _: &Settings) -> Result<(), Error> {
+             _: &Settings,
+             _: &mut hint::Hints) -> Result<(), Error> {
         Ok(())
     }
 }

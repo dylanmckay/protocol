@@ -20,8 +20,9 @@ macro_rules! impl_smart_ptr_type {
             }
 
             fn write(&self, write: &mut Write,
-                     settings: &Settings) -> Result<(), Error> {
-                self.deref().write(write, settings)
+                     settings: &Settings,
+                     hints: &mut hint::Hints) -> Result<(), Error> {
+                self.deref().write(write, settings, hints)
             }
         }
     }

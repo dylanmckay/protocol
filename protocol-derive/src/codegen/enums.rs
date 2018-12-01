@@ -14,7 +14,7 @@ pub fn write_variant(plan: &plan::Enum)
         let variant_name = &variant.ident;
         let discriminator_ref_expr = variant.discriminator_ref_expr();
 
-        let write_discriminator_stmt = quote! { <#discriminator_ty as protocol::Parcel>::write(#discriminator_ref_expr, __io_writer, __settings)?; };
+        let write_discriminator_stmt = quote! { <#discriminator_ty as protocol::Parcel>::write(#discriminator_ref_expr, __io_writer, __settings, &mut protocol::hint::Hints::default())?; };
 
         let (binding_names, fields_pattern) = bind_fields_pattern(variant_name, &variant.fields);
 
@@ -22,7 +22,7 @@ pub fn write_variant(plan: &plan::Enum)
             #write_discriminator_stmt
 
             #(
-                protocol::Parcel::write(#binding_names, __io_writer, __settings)?;
+                protocol::Parcel::write(#binding_names, __io_writer, __settings, &mut __hints)?;
             )*
         })
     }).collect();

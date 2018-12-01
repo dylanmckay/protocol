@@ -21,7 +21,8 @@ macro_rules! impl_parcel_for_array {
             }
 
             fn write(&self, write: &mut Write,
-                     settings: &Settings) -> Result<(), Error> {
+                     settings: &Settings,
+                     _: &mut hint::Hints) -> Result<(), Error> {
                 util::write_items(write, self.iter(), settings)
             }
         }
@@ -78,6 +79,7 @@ impl_parcel_for_array!(0xffff);
 #[cfg(test)]
 mod test {
     use {Parcel, Settings};
+    use hint;
     use std::io::Cursor;
 
     #[test]
@@ -91,7 +93,7 @@ mod test {
     fn can_write_array() {
         let mut buffer = Cursor::new(Vec::new());
 
-        [5u8, 7, 9, 11].write(&mut buffer, &Settings::default()).unwrap();
+        [5u8, 7, 9, 11].write(&mut buffer, &Settings::default(), &mut hint::Hints::default()).unwrap();
         assert_eq!(buffer.into_inner(), vec![5, 7, 9, 11]);
     }
 }

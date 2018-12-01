@@ -15,8 +15,9 @@ impl Parcel for char
     }
 
     fn write(&self, write: &mut Write,
-             settings: &Settings) -> Result<(), Error> {
-        (*self as u32).write(write, settings)
+             settings: &Settings,
+             hints: &mut hint::Hints) -> Result<(), Error> {
+        (*self as u32).write(write, settings, hints)
     }
 }
 
