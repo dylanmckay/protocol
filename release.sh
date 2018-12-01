@@ -17,6 +17,8 @@ function update_manifest_version {
   git commit -am "Bump version to $NEW_VERSION"
 }
 
+cargo test --all
+
 if [ "$PREVIOUS_VERSION" != "$NEW_VERSION" ]; then
   update_manifest_version $1
 fi
