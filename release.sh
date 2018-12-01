@@ -17,7 +17,9 @@ function update_manifest_version {
   git commit -am "Bump version to $NEW_VERSION"
 }
 
-update_manifest_version $1
+if [ "$PREVIOUS_VERSION" != "$NEW_VERSION" ]; then
+  update_manifest_version $1
+fi
 
 cd protocol-derive
 cargo publish
