@@ -32,8 +32,9 @@ impl<T> Parcel for SaveHints<T>
     }
 
     fn write(&self, write: &mut io::Write,
-             settings: &Settings) -> Result<(), Error> {
-        self.inner.write(write, settings)
+             settings: &Settings,
+             hints: &mut hint::Hints) -> Result<(), Error> {
+        self.inner.write(write, settings, hints)
     }
 }
 
