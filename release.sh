@@ -17,6 +17,18 @@ function update_manifest_version {
   git commit -am "Bump version to $NEW_VERSION"
 }
 
+function warn_if_major_minor_differs {
+  new_major_minor=$(echo $NEW_VERSION | cut -d. -f-2)
+  readme_version=$(cat $DIR/README.md | sed -E "s/protocol = \"(.*)\"/\1/;t;d")
+
+  case $readme_version in
+    $new_major_minor*) echo "note: major/minor version is consistent with the README" ;;
+    *) echo "error: major or minor version changed, please update the crate version in the README" && exit 1;;
+  esac
+}
+
+warn_if_major_minor_differs
+
 cargo test --all
 
 if [ "$PREVIOUS_VERSION" != "$NEW_VERSION" ]; then
