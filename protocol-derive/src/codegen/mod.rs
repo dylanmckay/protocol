@@ -31,12 +31,13 @@ fn read_named_fields(fields_named: &syn::FieldsNamed)
     -> TokenStream {
     let field_initializers: Vec<_> = fields_named.named.iter().map(|field| {
         let field_name = &field.ident;
+        let field_ty = &field.ty;
         // This field may store the length prefix of another field.
         let update_hints = update_hints_after_read(field, &fields_named.named);
 
         quote! {
             #field_name : {
-                let res = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints);
+                let res: Result<#field_ty, _> = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints);
                 #update_hints
                 __hints.next_field();
                 res?
@@ -50,12 +51,14 @@ fn read_named_fields(fields_named: &syn::FieldsNamed)
 fn update_hints_after_read<'a>(field: &'a syn::Field,
                                fields: impl IntoIterator<Item=&'a syn::Field> + Clone)
     -> TokenStream {
-    if let Some((length_prefix_of, kind)) = length_prefix_of(field, fields.clone()) {
+    if let Some((length_prefix_of, kind, prefix_subfield_names)) = length_prefix_of(field, fields.clone()) {
         let kind = kind.path_expr();
 
         quote! {
-            if let Ok(parcel) = res {
-                __hints.set_field_length(#length_prefix_of, parcel as usize, #kind);
+            if let Ok(parcel) = res.as_ref() {
+                __hints.set_field_length(#length_prefix_of,
+                                         (parcel #(.#prefix_subfield_names)* ).clone() as usize,
+                                         #kind);
             }
         }
     } else {
@@ -66,13 +69,15 @@ fn update_hints_after_read<'a>(field: &'a syn::Field,
 fn update_hints_after_write<'a>(field: &'a syn::Field,
                                 fields: impl IntoIterator<Item=&'a syn::Field> + Clone)
     -> TokenStream {
-    if let Some((length_prefix_of, kind)) = length_prefix_of(field, fields.clone()) {
+    if let Some((length_prefix_of, kind, prefix_subfield_names)) = length_prefix_of(field, fields.clone()) {
         let field_name = &field.ident;
         let kind = kind.path_expr();
 
         quote! {
             if let Ok(()) = res {
-                __hints.set_field_length(#length_prefix_of, self.#field_name as usize, #kind);
+                __hints.set_field_length(#length_prefix_of,
+                                         (self.#field_name #(.#prefix_subfield_names)* ).clone() as usize,
+                                         #kind);
             }
         }
     } else {
@@ -88,7 +93,7 @@ fn update_hints_after_write<'a>(field: &'a syn::Field,
 /// Returns the field index of the field whose length is specified.
 fn length_prefix_of<'a>(field: &'a syn::Field,
                         fields: impl IntoIterator<Item=&'a syn::Field> + Clone)
-    -> Option<(usize, attr::LengthPrefixKind)> {
+    -> Option<(usize, attr::LengthPrefixKind, Vec<syn::Ident>)> {
     let potential_prefix = field.ident.as_ref();
 
     let prefix_of = fields.clone().into_iter().find(|potential_prefix_of| {
@@ -107,7 +112,9 @@ fn length_prefix_of<'a>(field: &'a syn::Field,
     if let Some(prefix_of) = prefix_of {
         let prefix_of_index = fields.clone().into_iter().position(|f| f == prefix_of).unwrap();
         match attr::protocol(&prefix_of.attrs).unwrap() {
-            attr::Protocol::LengthPrefix { kind, .. } => Some((prefix_of_index, kind.clone())),
+            attr::Protocol::LengthPrefix { kind, prefix_subfield_names, .. } => {
+                Some((prefix_of_index, kind.clone(), prefix_subfield_names))
+            },
             _ => unreachable!(),
         }
     } else {
@@ -119,6 +126,7 @@ fn write_named_fields(fields_named: &syn::FieldsNamed)
     -> TokenStream {
     let field_writers: Vec<_> = fields_named.named.iter().map(|field| {
         let field_name = &field.ident;
+        let field_ty = &field.ty;
         // This field may store the length prefix of another field.
         let update_hints = update_hints_after_write(field, &fields_named.named);
 
@@ -137,10 +145,12 @@ fn write_named_fields(fields_named: &syn::FieldsNamed)
 
 fn read_unnamed_fields(fields_unnamed: &syn::FieldsUnnamed)
     -> TokenStream {
-    let field_initializers: Vec<_> = fields_unnamed.unnamed.iter().map(|_| {
+    let field_initializers: Vec<_> = fields_unnamed.unnamed.iter().map(|field| {
+        let field_ty = &field.ty;
+
         quote! {
             {
-                let res = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints);
+                let res: Result<#field_ty, _> = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints);
                 __hints.next_field();
                 res?
             }

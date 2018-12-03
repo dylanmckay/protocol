@@ -1,11 +1,24 @@
 use protocol::{Parcel, Settings};
 
+
+#[derive(Protocol, Debug, PartialEq, Eq)]
+struct WithLengthPrefixSeparateType {
+    pub prefix: Prefix,
+    #[protocol(length_prefix(bytes("prefix.reason_length")))]
+    pub reason: String,
+}
+
 #[derive(Protocol, Debug, PartialEq, Eq)]
 struct Foo<L: Parcel> {
     pub reason_length: u16,
     pub other: u8,
     #[protocol(length_prefix(bytes(reason_length)))]
     pub reason: L,
+}
+
+#[derive(Protocol, Debug, PartialEq, Eq)]
+pub struct Prefix {
+    pub reason_length: u8,
 }
 
 #[test]

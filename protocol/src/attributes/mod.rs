@@ -53,4 +53,35 @@
 //! `struct Hello(u32)` cannot be supported. This is because the length prefix
 //! field must be specified by a name, and therefore only items with named fields
 //! can ever have length prefixes.
+//!
+//! ## Length prefixes placed different structs
+//!
+//! It is possible for a field one one struct to specify the length of a field
+//! in another struct, so long as both structs are fields within a parent struct
+//! and the struct defining the length appears earlier than the one whose length
+//! is being described.
+//!
+//! In this case, the length prefix field must be double quoted.
+//!
+//! `#[protocol(length_prefix(bytes("sibling_field.nested_field.value")))]`
+//!
+//! Example:
+//!
+//! ```
+//! #[macro_use] extern crate protocol_derive;
+//!
+//! #[derive(Protocol)]
+//! struct Packet {
+//!     /// The length of the adjacent 'reason' field is nested under this field.
+//!     pub packet_header: PacketHeader,
+//!     /// The length of this field is specified by the packet header.
+//!     #[protocol(length_prefix(bytes("packet_header.reason_length")))]
+//!     pub reason: String,
+//! }
+//!
+//! #[derive(Protocol)]
+//! pub struct PacketHeader {
+//!     pub reason_length: u16,
+//! }
+//! ```
 

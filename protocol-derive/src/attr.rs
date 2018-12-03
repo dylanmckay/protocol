@@ -1,7 +1,7 @@
 use format;
 use format::Format;
 
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use syn;
 
 #[derive(Debug)]
@@ -11,6 +11,7 @@ pub enum Protocol {
     LengthPrefix {
         kind: LengthPrefixKind,
         prefix_field_name: syn::Ident,
+        prefix_subfield_names: Vec<syn::Ident>,
     },
 }
 
@@ -62,9 +63,28 @@ pub fn protocol(attrs: &[syn::Attribute])
                         invalid_prefix => panic!("invalid length prefix type: '{}'", invalid_prefix),
                     };
 
-                    let prefix_field_name = expect::meta_list::single_word(nested_list).unwrap(); // FIXME: better error
+                    let length_prefix_expr = expect::meta_list::single_element(nested_list).unwrap();
+                    let (prefix_field_name, prefix_subfield_names) = match length_prefix_expr {
+                        syn::NestedMeta::Literal(syn::Lit::Str(s)) => {
+                            let mut parts: Vec<_> = s.value()
+                                                     .split(".")
+                                                     .map(|s| syn::Ident::new(s, Span::call_site()))
+                                                     .collect();
 
-                    Some(Protocol::LengthPrefix { kind: prefix_kind, prefix_field_name })
+                            if parts.len() < 1 {
+                                panic!("there must be at least one field mentioned");
+                            }
+
+                            let field_ident = parts.remove(0);
+                            let subfield_idents = parts.into_iter().collect();
+
+                            (field_ident, subfield_idents)
+                        },
+                        syn::NestedMeta::Meta(syn::Meta::Word(field_ident)) => (field_ident, Vec::new()),
+                        _ => panic!("unexpected format for length prefix attribute"),
+                    };
+
+                    Some(Protocol::LengthPrefix { kind: prefix_kind, prefix_field_name, prefix_subfield_names })
                 },
                 "discriminator" => {
                     let literal = expect::meta_list::single_literal(nested_list)
@@ -106,26 +126,29 @@ mod expect {
             }
         }
 
+        /// Expects a list with a single element.
+        pub fn single_element(list: syn::MetaList)
+            -> Result<syn::NestedMeta, ()> {
+            assert!(list.nested.len() == 1, "list should only have one item");
+            Ok(list.nested.into_iter().next().unwrap())
+        }
+
         /// A single word `name(word)`.
         pub fn single_word(list: syn::MetaList)
             -> Result<syn::Ident, ()> {
-            assert!(list.nested.len() == 1, "list should only have one item");
-
-            match list.nested.into_iter().next().unwrap() {
+            single_element(list).and_then(|nested| match nested {
                 syn::NestedMeta::Meta(syn::Meta::Word(ident)) => Ok(ident),
                 _ => Err(()),
-            }
+            })
         }
 
         /// A single word `name(literal)`.
         pub fn single_literal(list: syn::MetaList)
             -> Result<syn::Lit, ()> {
-            assert!(list.nested.len() == 1, "list should only have one item");
-
-            match list.nested.into_iter().next().unwrap() {
+            single_element(list).and_then(|nested| match nested {
                 syn::NestedMeta::Literal(lit) => Ok(lit),
                 _ => Err(()),
-            }
+            })
         }
     }
 }
