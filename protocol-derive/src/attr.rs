@@ -133,15 +133,6 @@ mod expect {
             Ok(list.nested.into_iter().next().unwrap())
         }
 
-        /// A single word `name(word)`.
-        pub fn single_word(list: syn::MetaList)
-            -> Result<syn::Ident, ()> {
-            single_element(list).and_then(|nested| match nested {
-                syn::NestedMeta::Meta(syn::Meta::Word(ident)) => Ok(ident),
-                _ => Err(()),
-            })
-        }
-
         /// A single word `name(literal)`.
         pub fn single_literal(list: syn::MetaList)
             -> Result<syn::Lit, ()> {

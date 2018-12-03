@@ -126,7 +126,6 @@ fn write_named_fields(fields_named: &syn::FieldsNamed)
     -> TokenStream {
     let field_writers: Vec<_> = fields_named.named.iter().map(|field| {
         let field_name = &field.ident;
-        let field_ty = &field.ty;
         // This field may store the length prefix of another field.
         let update_hints = update_hints_after_write(field, &fields_named.named);
 
