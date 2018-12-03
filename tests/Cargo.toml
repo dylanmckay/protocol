@@ -1,6 +1,6 @@
 [package]
 name = "protocol-tests"
-version = "1.0.2" # do not change this, no point, it never gets published.
+version = "0.0.0" # do not change this, no point, it never gets published.
 authors = ["Dylan McKay <me@dylanmckay.io>"]
 
 publish = false
