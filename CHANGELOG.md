@@ -1,3 +1,12 @@
+# 1.0
+
+  * Remove the `define_composite_type!` and `define_packet_kind!` macros
+    * Deprecated in favor of the #[derive] macro
+  * Rename `Parcel::read` and `Parcel::write` to `read_field` and `write_field`
+    * Aliases have been added for the `read` and `write` methods
+  * Add a `hint::Hints` parameter to `Parcel`
+
+
 # 0.5
 
   * All enums now default to `#[protocol(discriminant = "string")]`
