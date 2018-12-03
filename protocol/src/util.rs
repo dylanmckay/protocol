@@ -13,24 +13,22 @@ pub type SizeType = u32;
 /// Reads a string of specified length from a stream.
 pub fn read_string(byte_count: usize,
                    read: &mut Read,
-                   settings: &Settings,
-                   hints: &mut hint::Hints)
+                   settings: &Settings)
     -> Result<String, Error> {
-    let bytes: Vec<u8> = read_items(byte_count, read, settings, hints)?.collect();
+    let bytes: Vec<u8> = read_items(byte_count, read, settings)?.collect();
     String::from_utf8(bytes).map_err(Into::into)
 }
 
 /// Reads a specified number of items from a stream.
 pub fn read_items<T>(item_count: usize,
                      read: &mut Read,
-                     settings: &Settings,
-                     hints: &mut hint::Hints)
+                     settings: &Settings)
     -> Result<impl Iterator<Item=T>, Error>
     where T: Parcel {
     let mut elements = Vec::with_capacity(item_count);
 
     for _ in 0..item_count {
-        let element = T::read(read, settings, hints)?;
+        let element = T::read(read, settings)?;
         elements.push(element);
     }
     Ok(elements.into_iter())
@@ -45,7 +43,7 @@ pub fn write_items<'a,T>(write: &mut Write,
     -> Result<(), Error>
     where T: Parcel + 'a {
     for item in items.into_iter() {
-        item.write(write, settings, &mut hint::Hints::default())?;
+        item.write(write, settings)?;
     }
     Ok(())
 
@@ -85,14 +83,14 @@ pub fn read_list_ext<S,T>(read: &mut Read,
                     let byte_count = length.length;
 
                     // First, read all bytes of the list without processing them.
-                    let bytes: Vec<u8> = read_items(byte_count, read, settings, hints)?.collect();
+                    let bytes: Vec<u8> = read_items(byte_count, read, settings)?.collect();
                     let mut read_back_bytes = io::Cursor::new(bytes);
 
                     // Then, parse the items until we reach the end of the buffer stream.
                     let mut items = Vec::new();
                     // FIXME: potential DoS vector, should timeout.
                     while read_back_bytes.position() < byte_count as u64 {
-                        let item = match T::read(&mut read_back_bytes, settings, hints).map_err(|e| e.0) {
+                        let item = match T::read(&mut read_back_bytes, settings).map_err(|e| e.0) {
                             Ok(item) => item,
                             Err(ErrorKind::Io(ref io)) if io.kind() == io::ErrorKind::UnexpectedEof => {
                                 // FIXME: make this a client error.
@@ -110,10 +108,10 @@ pub fn read_list_ext<S,T>(read: &mut Read,
         None => {
             // We do not know the length in the field in advance, therefore there
             // the length prefix is not disjoint.
-            let size = S::read(read, settings, hints)?;
+            let size = S::read(read, settings)?;
             let size: usize = size.to_usize().ok_or(TryFromIntError{ })?;
 
-            read_items(size, read, settings, hints).map(|i| i.collect())
+            read_items(size, read, settings).map(|i| i.collect())
         },
     }
 }
@@ -137,7 +135,7 @@ pub fn write_list_ext<'a,S,T,I>(write: &mut Write,
         // The length is not known, send a prefix.
         _ => {
             let length = S::from_usize(elements.len()).ok_or(TryFromIntError{ })?;
-            length.write(write, settings, &mut hint::Hints::default())?;
+            length.write(write, settings)?;
 
         },
     }

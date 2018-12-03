@@ -12,17 +12,17 @@ macro_rules! impl_smart_ptr_type {
         {
             const TYPE_NAME: &'static str = stringify!($ty<T>);
 
-            fn read(read: &mut Read,
-                    settings: &Settings,
-                    hints: &mut hint::Hints) -> Result<Self, Error> {
-                let value = T::read(read, settings, hints)?;
+            fn read_field(read: &mut Read,
+                          settings: &Settings,
+                          _: &mut hint::Hints) -> Result<Self, Error> {
+                let value = T::read(read, settings)?;
                 Ok($ty::new(value))
             }
 
-            fn write(&self, write: &mut Write,
-                     settings: &Settings,
-                     hints: &mut hint::Hints) -> Result<(), Error> {
-                self.deref().write(write, settings, hints)
+            fn write_field(&self, write: &mut Write,
+                           settings: &Settings,
+                           _: &mut hint::Hints) -> Result<(), Error> {
+                self.deref().write(write, settings)
             }
         }
     }

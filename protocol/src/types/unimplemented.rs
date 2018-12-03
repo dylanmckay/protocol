@@ -22,15 +22,16 @@ impl Parcel for Unimplemented
 {
     const TYPE_NAME: &'static str = "Unimplemented";
 
-    fn read(_: &mut Read,
-            _: &Settings,
-            _: &mut hint::Hints) -> Result<Self, Error> {
+    fn read_field(_: &mut Read,
+                  _: &Settings,
+                  _: &mut hint::Hints) -> Result<Self, Error> {
         Err(ErrorKind::UnimplementedParcel(Self::TYPE_NAME).into())
     }
 
-    fn write(&self, _: &mut Write,
-             _: &Settings,
-             _: &mut hint::Hints) -> Result<(), Error> {
+    fn write_field(&self,
+                   _: &mut Write,
+                   _: &Settings,
+                   _: &mut hint::Hints) -> Result<(), Error> {
         unimplemented!();
     }
 }

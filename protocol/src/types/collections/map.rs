@@ -16,16 +16,16 @@ macro_rules! impl_map_type {
         {
             const TYPE_NAME: &'static str = stringify!($ty<K,V>);
 
-            fn read(read: &mut Read,
-                    settings: &Settings,
-                    _: &mut hint::Hints) -> Result<Self, Error> {
+            fn read_field(read: &mut Read,
+                          settings: &Settings,
+                          _: &mut hint::Hints) -> Result<Self, Error> {
                 let mut map = $ty::new();
 
-                let length = SizeType::read(read, settings, &mut hint::Hints::default())?;
+                let length = SizeType::read(read, settings)?;
 
                 for _ in 0..length {
-                    let key = K::read(read, settings, &mut hint::Hints::default())?;
-                    let value = V::read(read, settings, &mut hint::Hints::default())?;
+                    let key = K::read(read, settings)?;
+                    let value = V::read(read, settings)?;
 
                     map.insert(key, value);
                 }
@@ -33,14 +33,14 @@ macro_rules! impl_map_type {
                 Ok(map)
             }
 
-            fn write(&self, write: &mut Write,
-                     settings: &Settings,
-                     _: &mut hint::Hints) -> Result<(), Error> {
-                (self.len() as SizeType).write(write, settings, &mut hint::Hints::default())?;
+            fn write_field(&self, write: &mut Write,
+                           settings: &Settings,
+                           _: &mut hint::Hints) -> Result<(), Error> {
+                (self.len() as SizeType).write(write, settings)?;
 
                 for (key, value) in self.iter() {
-                    key.write(write, settings, &mut hint::Hints::default())?;
-                    value.write(write, settings, &mut hint::Hints::default())?;
+                    key.write(write, settings)?;
+                    value.write(write, settings)?;
                 }
 
                 Ok(())

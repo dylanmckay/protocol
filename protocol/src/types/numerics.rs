@@ -13,15 +13,15 @@ impl Parcel for bool
 {
     const TYPE_NAME: &'static str = "bool";
 
-    fn read(read: &mut Read,
-            _: &Settings,
-            _: &mut hint::Hints) -> Result<Self, Error> {
+    fn read_field(read: &mut Read,
+                  _: &Settings,
+                  _: &mut hint::Hints) -> Result<Self, Error> {
         if read.read_u8()? == 0 { Ok(false) } else { Ok(true) }
     }
 
-    fn write(&self, write: &mut Write,
-             _: &Settings,
-             _: &mut hint::Hints) -> Result<(), Error> {
+    fn write_field(&self, write: &mut Write,
+                   _: &Settings,
+                   _: &mut hint::Hints) -> Result<(), Error> {
         write.write_u8(if *self { 1 } else { 0 })?;
         Ok(())
     }
@@ -31,12 +31,12 @@ impl Parcel for u8
 {
     const TYPE_NAME: &'static str = "u8";
 
-    fn read(read: &mut Read,
-            _: &Settings,
-            _: &mut hint::Hints) -> Result<Self, Error> { Ok(read.read_u8()?) }
-    fn write(&self, write: &mut Write,
-             _: &Settings,
-             _: &mut hint::Hints)
+    fn read_field(read: &mut Read,
+                  _: &Settings,
+                  _: &mut hint::Hints) -> Result<Self, Error> { Ok(read.read_u8()?) }
+    fn write_field(&self, write: &mut Write,
+                   _: &Settings,
+                   _: &mut hint::Hints)
         -> Result<(), Error> { write.write_u8(*self)?; Ok(()) }
 }
 
@@ -44,12 +44,12 @@ impl Parcel for i8
 {
     const TYPE_NAME: &'static str = "i8";
 
-    fn read(read: &mut Read,
-            _: &Settings,
-            _: &mut hint::Hints) -> Result<Self, Error> { Ok(read.read_i8()?) }
-    fn write(&self, write: &mut Write,
-             _: &Settings,
-             _: &mut hint::Hints)
+    fn read_field(read: &mut Read,
+                  _: &Settings,
+                  _: &mut hint::Hints) -> Result<Self, Error> { Ok(read.read_i8()?) }
+    fn write_field(&self, write: &mut Write,
+                   _: &Settings,
+                   _: &mut hint::Hints)
         -> Result<(), Error> { write.write_i8(*self)?; Ok(()) }
 }
 
@@ -58,15 +58,15 @@ macro_rules! impl_parcel_for_numeric {
         impl Parcel for $ty {
             const TYPE_NAME: &'static str = stringify!($ty);
 
-            fn read(read: &mut Read,
-                    settings: &Settings,
-                    _: &mut hint::Hints) -> Result<Self, Error> {
+            fn read_field(read: &mut Read,
+                          settings: &Settings,
+                          _: &mut hint::Hints) -> Result<Self, Error> {
                 Ok(settings.byte_order.$read_fn(read)?)
             }
 
-            fn write(&self, write: &mut Write,
-                     settings: &Settings,
-                     _: &mut hint::Hints) -> Result<(), Error> {
+            fn write_field(&self, write: &mut Write,
+                           settings: &Settings,
+                           _: &mut hint::Hints) -> Result<(), Error> {
                 settings.byte_order.$write_fn(*self, write)?; Ok(())
             }
         }

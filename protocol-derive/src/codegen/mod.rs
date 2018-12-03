@@ -36,7 +36,7 @@ fn read_named_fields(fields_named: &syn::FieldsNamed)
 
         quote! {
             #field_name : {
-                let res = protocol::Parcel::read(__io_reader, __settings, &mut __hints);
+                let res = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints);
                 #update_hints
                 __hints.next_field();
                 res?
@@ -124,7 +124,7 @@ fn write_named_fields(fields_named: &syn::FieldsNamed)
 
         quote! {
             {
-                let res = protocol::Parcel::write(&self. #field_name, __io_writer, __settings, &mut __hints);
+                let res = protocol::Parcel::write_field(&self. #field_name, __io_writer, __settings, &mut __hints);
                 #update_hints
                 __hints.next_field();
                 res?
@@ -140,7 +140,7 @@ fn read_unnamed_fields(fields_unnamed: &syn::FieldsUnnamed)
     let field_initializers: Vec<_> = fields_unnamed.unnamed.iter().map(|_| {
         quote! {
             {
-                let res = protocol::Parcel::read(__io_reader, __settings, &mut __hints);
+                let res = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints);
                 __hints.next_field();
                 res?
             }
@@ -157,7 +157,7 @@ fn write_unnamed_fields(fields_unnamed: &syn::FieldsUnnamed)
     let field_writers: Vec<_> = field_indices.map(|field_index| {
         quote! {
             {
-                let res = protocol::Parcel::write(&self. #field_index, __io_writer, __settings, &mut __hints);
+                let res = protocol::Parcel::write_field(&self. #field_index, __io_writer, __settings, &mut __hints);
                 __hints.next_field();
                 res?
             }

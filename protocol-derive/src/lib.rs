@@ -80,9 +80,9 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
         const TYPE_NAME: &'static str = stringify!(#strukt_name);
 
         #[allow(unused_variables)]
-        fn read(__io_reader: &mut io::Read,
-                __settings: &protocol::Settings,
-                _: &mut protocol::hint::Hints)
+        fn read_field(__io_reader: &mut io::Read,
+                      __settings: &protocol::Settings,
+                      _: &mut protocol::hint::Hints)
             -> Result<Self, protocol::Error> {
             // Each type gets its own hints.
             let mut __hints = protocol::hint::Hints::default();
@@ -92,9 +92,9 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
         }
 
         #[allow(unused_variables)]
-        fn write(&self, __io_writer: &mut io::Write,
-                 __settings: &protocol::Settings,
-                 _: &mut protocol::hint::Hints)
+        fn write_field(&self, __io_writer: &mut io::Write,
+                       __settings: &protocol::Settings,
+                       _: &mut protocol::hint::Hints)
             -> Result<(), protocol::Error> {
             // Each type gets its own hints.
             let mut __hints = protocol::hint::Hints::default();
@@ -119,9 +119,9 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
         const TYPE_NAME: &'static str = stringify!(#enum_name);
 
         #[allow(unused_variables)]
-        fn read(__io_reader: &mut io::Read,
-                __settings: &protocol::Settings,
-                _: &mut protocol::hint::Hints)
+        fn read_field(__io_reader: &mut io::Read,
+                      __settings: &protocol::Settings,
+                      _: &mut protocol::hint::Hints)
             -> Result<Self, protocol::Error> {
             // Each type gets its own hints.
             let mut __hints = protocol::hint::Hints::default();
@@ -131,9 +131,9 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
         }
 
         #[allow(unused_variables)]
-        fn write(&self, __io_writer: &mut io::Write,
-                 __settings: &protocol::Settings,
-                 _: &mut protocol::hint::Hints)
+        fn write_field(&self, __io_writer: &mut io::Write,
+                       __settings: &protocol::Settings,
+                       _: &mut protocol::hint::Hints)
             -> Result<(), protocol::Error> {
             // Each type gets its own hints.
             let mut __hints = protocol::hint::Hints::default();

@@ -36,7 +36,7 @@ mod named_fields {
         let settings = Settings::default();
 
         let test_struct = WithNamedFields::default();
-        let read_back = WithNamedFields::read_new(&mut test_struct.into_stream(&settings).unwrap(), &settings).unwrap();
+        let read_back = WithNamedFields::read(&mut test_struct.into_stream(&settings).unwrap(), &settings).unwrap();
 
         assert_eq!(Some(0), read_back.f0.hints().current_field_index);
         assert_eq!(Some(1), read_back.f1.hints().current_field_index);
@@ -56,7 +56,7 @@ mod unnamed_fields {
         let settings = Settings::default();
 
         let test_struct = WithUnnamedFields::default();
-        let read_back = WithUnnamedFields::read_new(&mut test_struct.into_stream(&settings).unwrap(), &settings).unwrap();
+        let read_back = WithUnnamedFields::read(&mut test_struct.into_stream(&settings).unwrap(), &settings).unwrap();
 
         let WithUnnamedFields(f0, f1, f2, f3, f4, f5) = read_back;
 

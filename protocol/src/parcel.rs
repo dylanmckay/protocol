@@ -47,9 +47,9 @@ pub trait Parcel : Sized
     /// Reads a new item with a fresh set of hints.
     ///
     /// Blocks until a value is received.
-    fn read_new(read: &mut Read,
-                settings: &Settings) -> Result<Self, Error> {
-        Self::read(read, settings, &mut hint::Hints::default())
+    fn read(read: &mut Read,
+            settings: &Settings) -> Result<Self, Error> {
+        Self::read_field(read, settings, &mut hint::Hints::default())
     }
 
     /// Reads a value from a stream.
@@ -60,12 +60,18 @@ pub trait Parcel : Sized
     ///   parcel chain only.
     ///
     /// Blocks until a value is received.
-    fn read(read: &mut Read,
-            settings: &Settings,
-            hints: &mut hint::Hints) -> Result<Self, Error>;
+    fn read_field(read: &mut Read,
+                  settings: &Settings,
+                  hints: &mut hint::Hints) -> Result<Self, Error>;
 
     /// Writes a value to a stream.
     fn write(&self, write: &mut Write,
+             settings: &Settings) -> Result<(), Error> {
+        self.write_field(write, settings, &mut hint::Hints::default())
+    }
+
+    /// Writes a value to a stream.
+    fn write_field(&self, write: &mut Write,
              settings: &Settings,
              hints: &mut hint::Hints) -> Result<(), Error>;
 
@@ -81,30 +87,31 @@ pub trait Parcel : Sized
     fn from_raw_bytes(bytes: &[u8],
                       settings: &Settings) -> Result<Self, Error> {
         let mut hints = hint::Hints::default();
-        Self::from_raw_bytes_ext(bytes, settings, &mut hints)
+        Self::field_from_raw_bytes(bytes, settings, &mut hints)
     }
 
     /// Parses a new value from its raw byte representation.
     ///
     /// Returns `Err` if the bytes represent an invalid value.
-    fn from_raw_bytes_ext(bytes: &[u8],
-                          settings: &Settings,
-                          hints: &mut hint::Hints) -> Result<Self, Error> {
+    fn field_from_raw_bytes(bytes: &[u8],
+                            settings: &Settings,
+                            hints: &mut hint::Hints) -> Result<Self, Error> {
         let mut buffer = ::std::io::Cursor::new(bytes);
-        Self::read(&mut buffer, settings, hints)
+        Self::read_field(&mut buffer, settings, hints)
     }
 
 
     /// Gets the raw byte representation of the value.
     fn raw_bytes(&self, settings: &Settings) -> Result<Vec<u8>, Error> {
-        self.raw_bytes_ext(settings, &mut hint::Hints::default())
+        self.raw_bytes_field(settings, &mut hint::Hints::default())
     }
 
-    fn raw_bytes_ext(&self,
-                     settings: &Settings,
-                     hints: &mut hint::Hints) -> Result<Vec<u8>, Error> {
+    /// Gets the raw bytes of this type as a field of a larger type.
+    fn raw_bytes_field(&self,
+                       settings: &Settings,
+                       hints: &mut hint::Hints) -> Result<Vec<u8>, Error> {
         let mut buffer = io::Cursor::new(Vec::new());
-        self.write(&mut buffer, settings, hints)?;
+        self.write_field(&mut buffer, settings, hints)?;
 
         Ok(buffer.into_inner())
     }

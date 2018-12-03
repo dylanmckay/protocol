@@ -24,17 +24,17 @@ impl<T> Parcel for SaveHints<T>
     where T: Parcel {
     const TYPE_NAME: &'static str = "SaveHints";
 
-    fn read(read: &mut io::Read, settings: &Settings,
-            hints: &mut hint::Hints) -> Result<Self, Error> {
+    fn read_field(read: &mut io::Read, settings: &Settings,
+                  hints: &mut hint::Hints) -> Result<Self, Error> {
         let saved_hints = Some(hints.clone());
-        let inner = T::read(read, settings, hints)?;
+        let inner = T::read_field(read, settings, hints)?;
         Ok(SaveHints { inner, saved_hints })
     }
 
-    fn write(&self, write: &mut io::Write,
-             settings: &Settings,
-             hints: &mut hint::Hints) -> Result<(), Error> {
-        self.inner.write(write, settings, hints)
+    fn write_field(&self, write: &mut io::Write,
+                   settings: &Settings,
+                   _: &mut hint::Hints) -> Result<(), Error> {
+        self.inner.write(write, settings)
     }
 }
 
@@ -58,7 +58,7 @@ fn get_hints_after_read<P>(mut input_hints: hint::Hints,
     -> hint::Hints
     where P: HasSavedHints + Default {
     let mut parcel_stream = input_value.into_stream(&Settings::default()).unwrap();
-    let v = P::read(&mut parcel_stream, &Settings::default(), &mut input_hints).unwrap();
+    let v = P::read_field(&mut parcel_stream, &Settings::default(), &mut input_hints).unwrap();
 
     v.saved_hints_after_reading().clone()
 }

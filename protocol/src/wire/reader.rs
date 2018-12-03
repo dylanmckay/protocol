@@ -74,7 +74,7 @@ impl Reader {
         where P: Parcel {
         let mut cursor = io::Cursor::new(self.receive_buffer.clone());
 
-        match Parcel::read_new(&mut cursor, settings) {
+        match Parcel::read(&mut cursor, settings) {
             Ok(value) => {
                 // Remove the interpreted bytes from the receive buffer.
                 let bytes_read = cursor.position() as usize;

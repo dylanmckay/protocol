@@ -8,9 +8,9 @@ impl Parcel for Uuid
 {
     const TYPE_NAME: &'static str = "Uuid";
 
-    fn read(read: &mut Read,
-            _: &Settings,
-            _: &mut hint::Hints)
+    fn read_field(read: &mut Read,
+                  _: &Settings,
+                  _: &mut hint::Hints)
         -> Result<Self, Error> {
         let bytes: Result<Vec<u8>, _> = read.bytes().take(16).collect();
         let bytes = bytes?;
@@ -18,9 +18,10 @@ impl Parcel for Uuid
         Ok(Uuid::from_bytes(&bytes)?)
     }
 
-    fn write(&self, write: &mut Write,
-             _: &Settings,
-             _: &mut hint::Hints) -> Result<(), Error> {
+    fn write_field(&self,
+                   write: &mut Write,
+                   _: &Settings,
+                   _: &mut hint::Hints) -> Result<(), Error> {
         write.write(self.as_bytes())?;
         Ok(())
     }

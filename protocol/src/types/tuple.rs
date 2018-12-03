@@ -8,19 +8,19 @@ impl<T0, T1> Parcel for (T0, T1)
 {
     const TYPE_NAME: &'static str = "(T0, T1)";
 
-    fn read(read: &mut Read,
-            settings: &Settings,
-            _: &mut hint::Hints) -> Result<Self, Error> {
-        let v0 = T0::read(read, settings, &mut hint::Hints::default())?;
-        let v1 = T1::read(read, settings, &mut hint::Hints::default())?;
+    fn read_field(read: &mut Read,
+                  settings: &Settings,
+                  _: &mut hint::Hints) -> Result<Self, Error> {
+        let v0 = T0::read(read, settings)?;
+        let v1 = T1::read(read, settings)?;
         Ok((v0, v1))
     }
 
-    fn write(&self, write: &mut Write,
-             settings: &Settings,
-             _: &mut hint::Hints) -> Result<(), Error> {
-        self.0.write(write, settings, &mut hint::Hints::default())?;
-        self.1.write(write, settings, &mut hint::Hints::default())?;
+    fn write_field(&self, write: &mut Write,
+                   settings: &Settings,
+                   _: &mut hint::Hints) -> Result<(), Error> {
+        self.0.write(write, settings)?;
+        self.1.write(write, settings)?;
 
         Ok(())
     }
@@ -31,21 +31,21 @@ impl<T0, T1, T2> Parcel for (T0, T1, T2)
 {
     const TYPE_NAME: &'static str = "(T0, T1, T2)";
 
-    fn read(read: &mut Read,
-            settings: &Settings,
-            _: &mut hint::Hints) -> Result<Self, Error> {
-        let v0 = T0::read(read, settings, &mut hint::Hints::default())?;
-        let v1 = T1::read(read, settings, &mut hint::Hints::default())?;
-        let v2 = T2::read(read, settings, &mut hint::Hints::default())?;
+    fn read_field(read: &mut Read,
+                  settings: &Settings,
+                  _: &mut hint::Hints) -> Result<Self, Error> {
+        let v0 = T0::read(read, settings)?;
+        let v1 = T1::read(read, settings)?;
+        let v2 = T2::read(read, settings)?;
         Ok((v0, v1, v2))
     }
 
-    fn write(&self, write: &mut Write,
-             settings: &Settings,
-             _: &mut hint::Hints) -> Result<(), Error> {
-        self.0.write(write, settings, &mut hint::Hints::default())?;
-        self.1.write(write, settings, &mut hint::Hints::default())?;
-        self.2.write(write, settings, &mut hint::Hints::default())?;
+    fn write_field(&self, write: &mut Write,
+                   settings: &Settings,
+                   _: &mut hint::Hints) -> Result<(), Error> {
+        self.0.write(write, settings)?;
+        self.1.write(write, settings)?;
+        self.2.write(write, settings)?;
 
         Ok(())
     }
@@ -56,23 +56,23 @@ impl<T0, T1, T2, T3> Parcel for (T0, T1, T2, T3)
 {
     const TYPE_NAME: &'static str = "(T0, T1, T2, T3)";
 
-    fn read(read: &mut Read,
-            settings: &Settings,
-            _: &mut hint::Hints) -> Result<Self, Error> {
-        let v0 = T0::read(read, settings, &mut hint::Hints::default())?;
-        let v1 = T1::read(read, settings, &mut hint::Hints::default())?;
-        let v2 = T2::read(read, settings, &mut hint::Hints::default())?;
-        let v3 = T3::read(read, settings, &mut hint::Hints::default())?;
+    fn read_field(read: &mut Read,
+                  settings: &Settings,
+                  _: &mut hint::Hints) -> Result<Self, Error> {
+        let v0 = T0::read(read, settings)?;
+        let v1 = T1::read(read, settings)?;
+        let v2 = T2::read(read, settings)?;
+        let v3 = T3::read(read, settings)?;
         Ok((v0, v1, v2, v3))
     }
 
-    fn write(&self, write: &mut Write,
-             settings: &Settings,
-             _: &mut hint::Hints) -> Result<(), Error> {
-        self.0.write(write, settings, &mut hint::Hints::default())?;
-        self.1.write(write, settings, &mut hint::Hints::default())?;
-        self.2.write(write, settings, &mut hint::Hints::default())?;
-        self.3.write(write, settings, &mut hint::Hints::default())?;
+    fn write_field(&self, write: &mut Write,
+                   settings: &Settings,
+                   _: &mut hint::Hints) -> Result<(), Error> {
+        self.0.write(write, settings)?;
+        self.1.write(write, settings)?;
+        self.2.write(write, settings)?;
+        self.3.write(write, settings)?;
 
         Ok(())
     }
@@ -83,25 +83,25 @@ impl<T0, T1, T2, T3, T4> Parcel for (T0, T1, T2, T3, T4)
 {
     const TYPE_NAME: &'static str = "(T0, T1, T2, T3, T4)";
 
-    fn read(read: &mut Read,
-            settings: &Settings,
-            _: &mut hint::Hints) -> Result<Self, Error> {
-        let v0 = T0::read(read, settings, &mut hint::Hints::default())?;
-        let v1 = T1::read(read, settings, &mut hint::Hints::default())?;
-        let v2 = T2::read(read, settings, &mut hint::Hints::default())?;
-        let v3 = T3::read(read, settings, &mut hint::Hints::default())?;
-        let v4 = T4::read(read, settings, &mut hint::Hints::default())?;
+    fn read_field(read: &mut Read,
+                  settings: &Settings,
+                  _: &mut hint::Hints) -> Result<Self, Error> {
+        let v0 = T0::read(read, settings)?;
+        let v1 = T1::read(read, settings)?;
+        let v2 = T2::read(read, settings)?;
+        let v3 = T3::read(read, settings)?;
+        let v4 = T4::read(read, settings)?;
         Ok((v0, v1, v2, v3, v4))
     }
 
-    fn write(&self, write: &mut Write,
-             settings: &Settings,
-             _: &mut hint::Hints) -> Result<(), Error> {
-        self.0.write(write, settings, &mut hint::Hints::default())?;
-        self.1.write(write, settings, &mut hint::Hints::default())?;
-        self.2.write(write, settings, &mut hint::Hints::default())?;
-        self.3.write(write, settings, &mut hint::Hints::default())?;
-        self.4.write(write, settings, &mut hint::Hints::default())?;
+    fn write_field(&self, write: &mut Write,
+                   settings: &Settings,
+                   _: &mut hint::Hints) -> Result<(), Error> {
+        self.0.write(write, settings)?;
+        self.1.write(write, settings)?;
+        self.2.write(write, settings)?;
+        self.3.write(write, settings)?;
+        self.4.write(write, settings)?;
 
         Ok(())
     }

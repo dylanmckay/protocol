@@ -7,12 +7,12 @@ macro_rules! impl_parcel_for_array {
         impl<T: Parcel> Parcel for [T; $n] where T: Copy {
             const TYPE_NAME: &'static str = stringify!([T; $n]);
 
-            fn read(read: &mut Read,
-                    settings: &Settings,
-                    hints: &mut hint::Hints) -> Result<Self, Error> {
+            fn read_field(read: &mut Read,
+                          settings: &Settings,
+                          _: &mut hint::Hints) -> Result<Self, Error> {
                 use std::mem;
 
-                let elements: Vec<_> = util::read_items($n, read, settings, hints)?.collect();
+                let elements: Vec<_> = util::read_items($n, read, settings)?.collect();
 
                 let mut array: [T; $n] = unsafe { mem::uninitialized() };
                 array.clone_from_slice(&elements[..]);
@@ -20,9 +20,9 @@ macro_rules! impl_parcel_for_array {
                 Ok(array)
             }
 
-            fn write(&self, write: &mut Write,
-                     settings: &Settings,
-                     _: &mut hint::Hints) -> Result<(), Error> {
+            fn write_field(&self, write: &mut Write,
+                           settings: &Settings,
+                           _: &mut hint::Hints) -> Result<(), Error> {
                 util::write_items(write, self.iter(), settings)
             }
         }
@@ -79,13 +79,12 @@ impl_parcel_for_array!(0xffff);
 #[cfg(test)]
 mod test {
     use {Parcel, Settings};
-    use hint;
     use std::io::Cursor;
 
     #[test]
     fn can_read_array() {
         let mut data = Cursor::new([0u8, 1, 2, 3]);
-        let read_back: [u8; 4] = Parcel::read_new(&mut data, &Settings::default()).unwrap();
+        let read_back: [u8; 4] = Parcel::read(&mut data, &Settings::default()).unwrap();
         assert_eq!(read_back, [0, 1, 2, 3]);
     }
 
@@ -93,7 +92,7 @@ mod test {
     fn can_write_array() {
         let mut buffer = Cursor::new(Vec::new());
 
-        [5u8, 7, 9, 11].write(&mut buffer, &Settings::default(), &mut hint::Hints::default()).unwrap();
+        [5u8, 7, 9, 11].write(&mut buffer, &Settings::default()).unwrap();
         assert_eq!(buffer.into_inner(), vec![5, 7, 9, 11]);
     }
 }

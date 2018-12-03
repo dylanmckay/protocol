@@ -7,17 +7,17 @@ impl Parcel for std::string::String
 {
     const TYPE_NAME: &'static str = "String";
 
-    fn read(read: &mut Read,
-            settings: &Settings,
-            hints: &mut hint::Hints) -> Result<Self, Error> {
+    fn read_field(read: &mut Read,
+                  settings: &Settings,
+                  hints: &mut hint::Hints) -> Result<Self, Error> {
         let bytes: Vec<u8> = util::read_list(read, settings, hints)?;
 
         Ok(std::string::String::from_utf8(bytes)?)
     }
 
-    fn write(&self, write: &mut Write,
-             settings: &Settings,
-             hints: &mut hint::Hints) -> Result<(), Error> {
+    fn write_field(&self, write: &mut Write,
+                   settings: &Settings,
+                   hints: &mut hint::Hints) -> Result<(), Error> {
         let bytes: Vec<u8> = self.bytes().collect();
         util::write_list(write, &bytes, settings, hints)
     }
@@ -46,19 +46,19 @@ impl<S: types::Integer> Parcel for String<S>
 {
     const TYPE_NAME: &'static str = "protocol::String<S>";
 
-    fn read(read: &mut Read,
+    fn read_field(read: &mut Read,
             settings: &Settings,
             hints: &mut hint::Hints) -> Result<Self, Error> {
-        let bytes = types::Vec::<S, u8>::read(read, settings, hints)?;
+        let bytes = types::Vec::<S, u8>::read_field(read, settings, hints)?;
 
         Ok(String::new(std::string::String::from_utf8(bytes.elements)?))
     }
 
-    fn write(&self, write: &mut Write,
-             settings: &Settings,
-             hints: &mut hint::Hints) -> Result<(), Error> {
+    fn write_field(&self, write: &mut Write,
+                   settings: &Settings,
+                   hints: &mut hint::Hints) -> Result<(), Error> {
         let array: types::Vec<S, u8> = types::Vec::new(self.value.bytes().collect());
-        array.write(write, settings, hints)
+        array.write_field(write, settings, hints)
     }
 }
 

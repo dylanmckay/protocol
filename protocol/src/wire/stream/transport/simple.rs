@@ -1,7 +1,6 @@
 use super::Transport;
 
 use {Error, Parcel, Settings};
-use hint;
 
 use std::collections::VecDeque;
 use std::io::prelude::*;
@@ -62,7 +61,7 @@ impl Simple
                     if size_bytes.len() == mem::size_of::<PacketSize>() {
                         let mut size_buffer = Cursor::new(size_bytes);
 
-                        let size = PacketSize::read(&mut size_buffer, settings, &mut hint::Hints::default()).unwrap();
+                        let size = PacketSize::read(&mut size_buffer, settings).unwrap();
 
                         // We are now ready to receive packet data.
                         self.state = State::AwaitingPacket { size: size, received_data: Vec::new() }
@@ -135,7 +134,7 @@ impl Transport for Simple
                        packet: &[u8],
                        settings: &Settings) -> Result<(), Error> {
         // Prefix the packet size.
-        (packet.len() as PacketSize).write(write, settings, &mut hint::Hints::default())?;
+        (packet.len() as PacketSize).write(write, settings)?;
         // Write the packet data.
         write.write(&packet)?;
 

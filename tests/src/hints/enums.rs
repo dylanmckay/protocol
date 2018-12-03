@@ -37,7 +37,7 @@ mod named_fields {
         let settings = Settings::default();
 
         let test_struct = WithNamedFields::default();
-        let read_back = WithNamedFields::read_new(&mut test_struct.into_stream(&settings).unwrap(), &settings).unwrap();
+        let read_back = WithNamedFields::read(&mut test_struct.into_stream(&settings).unwrap(), &settings).unwrap();
 
         match read_back {
             WithNamedFields::OnlyVariant { f0, f1, f2, f3, f4, f5 } => {
@@ -61,7 +61,7 @@ mod unnamed_fields {
         let settings = Settings::default();
 
         let test_struct = WithUnnamedFields::default();
-        let read_back = WithUnnamedFields::read_new(&mut test_struct.into_stream(&settings).unwrap(), &settings).unwrap();
+        let read_back = WithUnnamedFields::read(&mut test_struct.into_stream(&settings).unwrap(), &settings).unwrap();
 
         match read_back {
             WithUnnamedFields::OnlyVariant(f0, f1, f2, f3, f4, f5) => {
