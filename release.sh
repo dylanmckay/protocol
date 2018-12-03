@@ -46,5 +46,3 @@ echo tagging $NEW_VERSION
 git tag $NEW_VERSION
 git push origin master $NEW_VERSION
 
-echo "pls update the crate versions in the README if you changed the major or minor version"
-
