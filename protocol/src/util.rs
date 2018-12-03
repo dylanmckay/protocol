@@ -103,6 +103,9 @@ pub fn read_list_ext<S,T>(read: &mut Read,
 
                     Ok(items)
                 },
+                hint::LengthPrefixKind::Elements => {
+                    read_items(length.length, read, settings).map(|i| i.collect())
+                },
             }
         },
         None => {

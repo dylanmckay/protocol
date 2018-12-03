@@ -11,7 +11,6 @@
 //!     magic_number: u8,
 //!     payload: Vec<u8>,
 //! }
-//!
 //! ```
 //!
 //! # Attributes that apply to items
@@ -31,6 +30,9 @@
 //!
 //! #### `bytes`
 //!
+//! When the length prefix type is `bytes`, the length prefix
+//! represents the total number of bytes that make up a field.
+//!
 //! ```
 //! #[macro_use] extern crate protocol_derive;
 //!
@@ -48,6 +50,28 @@
 //!     pub reason: String,
 //! }
 //! ```
+//!
+//! #### `elements`
+//!
+//! When the length prefix type is 'elements', the length prefix
+//! represents the number of elements in a collection or list.
+//!
+//! ```
+//! #[macro_use] extern crate protocol_derive;
+//!
+//! #[derive(Protocol)]
+//! pub struct Bar {
+//!     /// This field specifes the number of elements in 'data'.
+//!     pub reason_length: u16,
+//!     pub other_stuff_inbetween: [u16; 16],
+//!     pub thingy: bool,
+//!     /// This field
+//!     #[protocol(length_prefix(elements(reason_length)))]
+//!     pub reason: Vec<(u32, u32)>,
+//! }
+//! ```
+//!
+//! # Notes
 //!
 //! This attribute can only be used with named fields. This means structs like
 //! `struct Hello(u32)` cannot be supported. This is because the length prefix

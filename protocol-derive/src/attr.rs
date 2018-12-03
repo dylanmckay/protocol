@@ -18,6 +18,7 @@ pub enum Protocol {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum LengthPrefixKind {
     Bytes,
+    Elements,
 }
 
 impl LengthPrefixKind {
@@ -25,6 +26,7 @@ impl LengthPrefixKind {
     pub fn path_expr(&self) -> TokenStream {
         match *self {
             LengthPrefixKind::Bytes => quote!(protocol::hint::LengthPrefixKind::Bytes),
+            LengthPrefixKind::Elements => quote!(protocol::hint::LengthPrefixKind::Elements),
         }
     }
 }
@@ -60,6 +62,7 @@ pub fn protocol(attrs: &[syn::Attribute])
                                             .expect("expected a nested list");
                     let prefix_kind = match &nested_list.ident.to_string()[..] {
                         "bytes" => LengthPrefixKind::Bytes,
+                        "elements" => LengthPrefixKind::Elements,
                         invalid_prefix => panic!("invalid length prefix type: '{}'", invalid_prefix),
                     };
 

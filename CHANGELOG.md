@@ -6,6 +6,8 @@
     * Aliases have been added for the `read` and `write` methods
   * Add a `hint::Hints` parameter to `Parcel`
   * Add a `logic::Aligned` type for automatic alignment
+  * Add a new length prefix type `elements`. Length prefixes of this
+    type specify the number of elements in a collection.
 
 
 # 0.5

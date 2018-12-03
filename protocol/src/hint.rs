@@ -23,6 +23,8 @@ pub struct FieldLength {
 pub enum LengthPrefixKind {
     /// The length prefix stores the total number of bytes making up another field.
     Bytes,
+    /// The length prefix stores the total number of elements inside another field.
+    Elements,
 }
 
 
