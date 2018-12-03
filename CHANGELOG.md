@@ -5,6 +5,7 @@
   * Rename `Parcel::read` and `Parcel::write` to `read_field` and `write_field`
     * Aliases have been added for the `read` and `write` methods
   * Add a `hint::Hints` parameter to `Parcel`
+  * Add a `logic::Aligned` type for automatic alignment
 
 
 # 0.5
