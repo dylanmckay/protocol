@@ -56,7 +56,10 @@ impl<P,S,M> Connection<P,S,M>
 
     /// Sends a packet.
     pub fn send_packet(&mut self, packet: &P) -> Result<(), Error> {
+        eprintln!("sending through middleware");
         let raw_packet = self.middleware.encode_data(packet.raw_bytes(&self.settings)?)?;
+        eprintln!("finished sending through middleware");
+        eprintln!("sending raw packet");
         self.transport.send_raw_packet(&mut self.stream, &raw_packet, &self.settings)
     }
 

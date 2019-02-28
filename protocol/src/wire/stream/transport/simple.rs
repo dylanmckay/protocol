@@ -133,10 +133,13 @@ impl Transport for Simple
                        write: &mut Write,
                        packet: &[u8],
                        settings: &Settings) -> Result<(), Error> {
+        eprintln!("writing the packet length");
         // Prefix the packet size.
         (packet.len() as PacketSize).write(write, settings)?;
+        eprintln!("writing the packet data: {:?}", packet);
         // Write the packet data.
         write.write(&packet)?;
+        eprintln!("finished writing packet data");
 
         Ok(())
     }
