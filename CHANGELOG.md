@@ -1,3 +1,7 @@
+# 2.0
+
+  * Add a `Read` parameter to `HighLevel::from_low_level`
+
 # 1.0
 
   * Remove the `define_composite_type!` and `define_packet_kind!` macros

@@ -30,8 +30,8 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-protocol = "1.0"
-protocol-derive = "1.0"
+protocol = "2.0"
+protocol-derive = "2.0"
 ```
 
 ## Under the hood
