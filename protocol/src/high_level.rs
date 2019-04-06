@@ -52,7 +52,10 @@ use std::fmt;
 ///         }
 ///     }
 ///
-///     fn from_low_level(low_level: RawPacket, _: &mut std::io::Read)
+///     fn from_low_level(low_level: RawPacket,
+///                       _: &mut std::io::Read,
+///                       _: &protocol::Settings,
+///                       _: &mut protocol::hint::Hints)
 ///         -> Result<Self, protocol::Error> {
 ///         match low_level.opcode {
 ///             0 => Ok(Login::Success { message: String::from_utf8(low_level.payload).unwrap() }),
@@ -84,7 +87,9 @@ pub trait HighLevel : Clone + fmt::Debug {
     /// The method has access to the reader post-parsing of the low level type.
     /// It is not necessary to use this if not needed.
     fn from_low_level(value: Self::LowLevel,
-                      subsequent_reader: &mut Read) -> Result<Self, Error>;
+                      subsequent_reader: &mut Read,
+                      settings: &Settings,
+                      hints: &mut hint::Hints) -> Result<Self, Error>;
 }
 
 impl<H> Parcel for H
@@ -95,7 +100,7 @@ impl<H> Parcel for H
                   settings: &Settings,
                   hints: &mut hint::Hints) -> Result<Self, Error> {
         let low_level = H::LowLevel::read_field(read, settings, hints)?;
-        H::from_low_level(low_level, read)
+        H::from_low_level(low_level, read, settings, hints)
     }
 
     fn write_field(&self,
