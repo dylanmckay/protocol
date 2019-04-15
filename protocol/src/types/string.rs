@@ -19,7 +19,7 @@ impl Parcel for std::string::String
                    settings: &Settings,
                    hints: &mut hint::Hints) -> Result<(), Error> {
         let bytes: Vec<u8> = self.bytes().collect();
-        util::write_list(write, &bytes, settings, hints)
+        util::write_list(&bytes, write, settings, hints)
     }
 }
 

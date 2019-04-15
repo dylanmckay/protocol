@@ -37,8 +37,8 @@ pub fn read_items<T>(item_count: usize,
 /// Writes an iterator of parcels to the stream.
 ///
 /// Does not include a length prefix.
-pub fn write_items<'a,T>(write: &mut Write,
-                         items: impl IntoIterator<Item=&'a T>,
+pub fn write_items<'a,T>(items: impl IntoIterator<Item=&'a T>,
+                         write: &mut Write,
                          settings: &Settings)
     -> Result<(), Error>
     where T: Parcel + 'a {
@@ -46,7 +46,6 @@ pub fn write_items<'a,T>(write: &mut Write,
         item.write(write, settings)?;
     }
     Ok(())
-
 }
 
 /// Reads a length-prefixed list from a stream.
@@ -59,14 +58,14 @@ pub fn read_list<T>(read: &mut Read,
 }
 
 /// Writes a length-prefixed list to a stream.
-pub fn write_list<'a,T,I>(write: &mut Write,
-                          elements: I,
+pub fn write_list<'a,T,I>(elements: I,
+                          write: &mut Write,
                           settings: &Settings,
                           hints: &mut hint::Hints)
     -> Result<(), Error>
     where T: Parcel+'a,
           I: IntoIterator<Item=&'a T> {
-    self::write_list_ext::<SizeType, T, I>(write, elements, settings, hints)
+    self::write_list_ext::<SizeType, T, I>(elements, write, settings, hints)
 }
 
 /// Reads a length-prefixed list from a stream.
@@ -120,8 +119,8 @@ pub fn read_list_ext<S,T>(read: &mut Read,
 }
 
 /// Writes a length-prefixed list to a stream.
-pub fn write_list_ext<'a,S,T,I>(write: &mut Write,
-                                elements: I,
+pub fn write_list_ext<'a,S,T,I>(elements: I,
+                                write: &mut Write,
                                 settings: &Settings,
                                 hints: &mut hint::Hints)
     -> Result<(), Error>
@@ -142,7 +141,7 @@ pub fn write_list_ext<'a,S,T,I>(write: &mut Write,
 
         },
     }
-    write_items(write, elements.into_iter(), settings)?;
+    write_items(elements.into_iter(), write, settings)?;
 
     Ok(())
 }

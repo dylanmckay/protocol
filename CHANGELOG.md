@@ -1,3 +1,8 @@
+# 3.0
+  * Change the order of parameters to the list writer methods in the 'util' module
+    ** The previous ordering was confusing, and also inconsistent with the ordering to `util::read_*`.
+
+
 # 2.0
 
   * Add a `Read` parameter to `HighLevel::from_low_level`

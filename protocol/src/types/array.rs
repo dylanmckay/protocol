@@ -23,7 +23,7 @@ macro_rules! impl_parcel_for_array {
             fn write_field(&self, write: &mut Write,
                            settings: &Settings,
                            _: &mut hint::Hints) -> Result<(), Error> {
-                util::write_items(write, self.iter(), settings)
+                util::write_items(self.iter(), write, settings)
             }
         }
     }

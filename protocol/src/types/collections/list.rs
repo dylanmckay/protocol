@@ -16,7 +16,7 @@ macro_rules! impl_list_type {
                            settings: &::Settings,
                            hints: &mut ::hint::Hints)
                 -> Result<(), $crate::Error> {
-                ::util::write_list(write, self.iter(), settings, hints)
+                ::util::write_list(self.iter(), write, settings, hints)
             }
         }
 
