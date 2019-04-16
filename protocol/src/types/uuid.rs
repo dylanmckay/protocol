@@ -9,13 +9,12 @@ impl Parcel for Uuid
     const TYPE_NAME: &'static str = "Uuid";
 
     fn read_field(read: &mut Read,
-                  _: &Settings,
+                  settings: &Settings,
                   _: &mut hint::Hints)
         -> Result<Self, Error> {
-        let bytes: Result<Vec<u8>, _> = read.bytes().take(16).collect();
-        let bytes = bytes?;
+        let bytes: [u8; 16] = Parcel::read(read, settings)?;
 
-        Ok(Uuid::from_bytes(&bytes)?)
+        Ok(Uuid::from_bytes(bytes))
     }
 
     fn write_field(&self,

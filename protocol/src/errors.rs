@@ -58,7 +58,7 @@ error_chain! {
         TryFromIntError(TryFromIntError);
         CharTryFromError(CharTryFromError);
 
-        UuidParseError(::uuid::ParseError) #[cfg(feature = "uuid")];
+        UuidParseError(::uuid::parser::ParseError) #[cfg(feature = "uuid")];
     }
 
     errors {
