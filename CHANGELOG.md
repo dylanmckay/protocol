@@ -1,3 +1,6 @@
+# 3.0.1
+  * Implement `Parcel` for tuple 5-tuples, 6-tuples, all the way to 10-tuples
+
 # 3.0
   * Change the order of parameters to the list writer methods in the 'util' module
     ** The previous ordering was confusing, and also inconsistent with the ordering to `util::read_*`.
