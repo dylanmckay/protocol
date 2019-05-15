@@ -15,7 +15,7 @@ proc-macro = true
 [dependencies]
 # N.B. protocol-derive should not depend on the protocol crate.
 # This causes releasing to be a pain - which one first - neither is possible!
-syn = { version = "0.15.22", features = ["default", "extra-traits"] }
-quote = "0.6.10"
+syn = { version = "0.15.34", features = ["default", "extra-traits"] }
+quote = "0.6.12"
 proc-macro2 = "0.4"
 
