@@ -1,5 +1,5 @@
-use {Error, Parcel, Settings};
-use hint;
+use crate::{Error, Parcel, Settings};
+use crate::hint;
 use std::io::prelude::*;
 use std::fmt;
 
@@ -58,10 +58,10 @@ use std::fmt;
 ///                       _: &mut protocol::hint::Hints)
 ///         -> Result<Self, protocol::Error> {
 ///         match low_level.opcode {
-///             0 => Ok(Login::Success { message: String::from_utf8(low_level.payload).unwrap() }),
+///             0 => Ok(Login::Success { message: String::from_utf8(low_level.payload)? }),
 ///             1 => Ok(Login::Failure {
 ///                 code: FailureCode::MyDogAteMyHomework,
-///                 response: String::from_utf8(low_level.payload[1..].to_owned()).unwrap() }),
+///                 response: String::from_utf8(low_level.payload[1..].to_owned())? }),
 ///             _ => unreachable!(),
 ///         }
 ///     }

@@ -1,5 +1,5 @@
-use {Parcel, Error, Settings};
-use hint;
+use crate::{Parcel, Error, Settings};
+use crate::hint;
 
 use std::collections::{HashMap, BTreeMap};
 use std::hash::Hash;

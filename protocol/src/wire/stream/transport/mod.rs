@@ -1,8 +1,8 @@
-pub use self::simple::Simple;
+pub use crate::wire::stream::transport::simple::Simple;
 
 pub mod simple;
 
-use {Error, Settings};
+use crate::{Error, Settings};
 use std::io::prelude::*;
 
 pub trait Transport

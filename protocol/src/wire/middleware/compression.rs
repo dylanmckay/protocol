@@ -1,7 +1,7 @@
 //! A middleware for compressing all transmitted data.
 
-use Error;
-use wire;
+use crate::Error;
+use crate::wire;
 use flate2;
 
 use std::io::prelude::*;

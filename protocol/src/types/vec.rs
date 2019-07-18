@@ -1,5 +1,5 @@
-use {Parcel, Error, Settings};
-use {hint, types, util};
+use crate::{Parcel, Error, Settings};
+use crate::{hint, types, util};
 use std::io::prelude::*;
 use std;
 
@@ -40,8 +40,8 @@ impl<S: types::Integer, T: Parcel> Parcel for Vec<S, T>
 
 /// Stuff relating to `std::vec::Vec<T>`.
 mod std_vec {
-    use {Error, Parcel, Settings};
-    use {hint, util};
+    use crate::{Error, Parcel, Settings};
+    use crate::{hint, util};
     use std::io::prelude::*;
 
     impl<T: Parcel> Parcel for Vec<T>

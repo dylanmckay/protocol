@@ -6,24 +6,24 @@ macro_rules! impl_list_type {
             const TYPE_NAME: &'static str = stringify!($ty<T>);
 
             fn read_field(read: &mut ::std::io::Read,
-                          settings: &::Settings,
-                          hints: &mut ::hint::Hints) -> Result<Self, $crate::Error> {
-                let elements = ::util::read_list(read, settings, hints)?;
+                          settings: &crate::Settings,
+                          hints: &mut crate::hint::Hints) -> Result<Self, $crate::Error> {
+                let elements = crate::util::read_list(read, settings, hints)?;
                 Ok(elements.into_iter().collect())
             }
 
             fn write_field(&self, write: &mut ::std::io::Write,
-                           settings: &::Settings,
-                           hints: &mut ::hint::Hints)
+                           settings: &crate::Settings,
+                           hints: &mut crate::hint::Hints)
                 -> Result<(), $crate::Error> {
-                ::util::write_list(self.iter(), write, settings, hints)
+                crate::util::write_list(self.iter(), write, settings, hints)
             }
         }
 
         #[cfg(test)]
         mod test
         {
-            pub use {Parcel, Settings};
+            pub use crate::{Parcel, Settings};
             pub use std::collections::$ty;
 
             #[test]

@@ -1,5 +1,5 @@
-pub use self::transport::Transport;
-pub use self::connection::Connection;
+pub use crate::wire::stream::transport::Transport;
+pub use crate::wire::stream::connection::Connection;
 
 mod transport;
 mod connection;

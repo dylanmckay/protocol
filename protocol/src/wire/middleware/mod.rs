@@ -1,13 +1,13 @@
 //! A type safe `Parcel` data transformation pipeline.
 
-pub use self::pipeline::Pipeline;
+pub use crate::wire::middleware::pipeline::Pipeline;
 
 #[macro_use]
 pub mod pipeline;
 pub mod compression;
 pub mod rotate_bytes;
 
-use Error;
+use crate::Error;
 use std;
 
 /// A hook that sits between reading and writing packets.

@@ -1,4 +1,4 @@
-use Parcel;
+use crate::Parcel;
 
 /// An `enum` type.
 pub trait Enum : Parcel {

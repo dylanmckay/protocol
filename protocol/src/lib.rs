@@ -160,11 +160,11 @@
 //!
 //! ```
 
-pub use self::enum_ty::Enum;
-pub use self::parcel::Parcel;
-pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromIntError};
-pub use self::high_level::HighLevel;
-pub use self::settings::*;
+pub use crate::enum_ty::Enum;
+pub use crate::parcel::Parcel;
+pub use crate::errors::{Error, CharTryFromError, TryFromIntError};
+pub use crate::high_level::HighLevel;
+pub use crate::settings::*;
 
 mod settings;
 #[macro_use]
@@ -181,15 +181,9 @@ pub mod logic;
 mod parcel;
 pub mod util;
 
-
-extern crate byteorder;
-extern crate flate2;
-#[macro_use]
-extern crate error_chain;
-
 #[cfg(feature = "uuid")]
 extern crate uuid;
-extern crate num_traits;
+
 
 /// The default byte ordering.
 pub type DefaultByteOrder = ::byteorder::BigEndian;

@@ -3,8 +3,8 @@
 //! Also includes other utilities useful for reading and writing
 //! parcels.
 
-pub use self::middleware::Middleware;
-pub use self::reader::Reader;
+pub use crate::wire::middleware::Middleware;
+pub use crate::wire::reader::Reader;
 
 /// Datagram-based over the wire communication.
 pub mod dgram;

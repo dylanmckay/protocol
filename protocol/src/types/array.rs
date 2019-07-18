@@ -1,5 +1,5 @@
-use {Parcel, Error, Settings};
-use {hint, util};
+use crate::{Parcel, Error, Settings};
+use crate::{hint, util};
 use std::io::prelude::*;
 
 macro_rules! impl_parcel_for_array {
@@ -78,7 +78,7 @@ impl_parcel_for_array!(0xffff);
 
 #[cfg(test)]
 mod test {
-    use {Parcel, Settings};
+    use crate::{Parcel, Settings};
     use std::io::Cursor;
 
     #[test]

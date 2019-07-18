@@ -1,5 +1,5 @@
-use {Parcel, Error, ErrorKind, Settings};
-use hint;
+use crate::{Parcel, Error, Settings};
+use crate::hint;
 
 use std::io::prelude::*;
 
@@ -25,7 +25,7 @@ impl Parcel for Unimplemented
     fn read_field(_: &mut Read,
                   _: &Settings,
                   _: &mut hint::Hints) -> Result<Self, Error> {
-        Err(ErrorKind::UnimplementedParcel(Self::TYPE_NAME).into())
+        Err(Error::UnimplementedParcel(Self::TYPE_NAME).into())
     }
 
     fn write_field(&self,

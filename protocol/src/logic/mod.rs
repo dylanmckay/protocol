@@ -1,6 +1,6 @@
 //! `Parcel` type wrappers that implement complex logic.
 
-pub use self::aligned::Aligned;
+pub use crate::logic::aligned::Aligned;
 
 mod aligned;
 

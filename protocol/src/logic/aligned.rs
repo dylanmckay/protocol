@@ -1,5 +1,5 @@
-use {Error, Parcel, Settings};
-use hint;
+use crate::{Error, Parcel, Settings};
+use crate::hint;
 use std::io::prelude::*;
 use std::{marker, mem};
 
@@ -87,7 +87,7 @@ impl<T, ToSizeOfType> Parcel for Aligned<T, ToSizeOfType>
                   settings: &Settings,
                   hints: &mut hint::Hints) -> Result<Self, Error> {
         let inner_value = T::read_field(read, settings, hints)?;
-        let value_size = inner_value.raw_bytes_field(settings, hints).unwrap().len();
+        let value_size = inner_value.raw_bytes_field(settings, hints)?.len();
         let padding_size = calculate_padding(Self::align_to_bytes(), value_size);
 
         for _ in 0..padding_size {
