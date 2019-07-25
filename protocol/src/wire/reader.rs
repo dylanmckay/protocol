@@ -1,4 +1,4 @@
-use {Error, ErrorKind, Parcel, Settings};
+use crate::{Error, Parcel, Settings};
 use std::io;
 use std::io::prelude::*;
 
@@ -82,15 +82,15 @@ impl Reader {
 
                 Ok(Some(value))
             },
-            Err(e) => match e.0 {
-                ErrorKind::Io(io) => {
+            Err(e) => match e {
+                Error::Io(io) => {
                     // Ignore errors caused by the receive buffer
                     // not having enough data yet.
                     if io.kind() == io::ErrorKind::UnexpectedEof {
                         Ok(None)
                     } else {
                         // An actual IO error.
-                        Err(ErrorKind::Io(io).into())
+                        Err(Error::Io(io).into())
                     }
                 },
                 _ => Err(e),

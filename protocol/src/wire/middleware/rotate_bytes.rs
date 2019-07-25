@@ -1,7 +1,7 @@
 //! A fixed-offset based caesar cipher middleware.
 
-use Error;
-use wire;
+use crate::Error;
+use crate::wire;
 
 use std::num::Wrapping;
 
@@ -34,7 +34,7 @@ impl wire::Middleware for RotateBytes {
 #[cfg(test)]
 mod test {
     use super::RotateBytes;
-    use wire::Middleware;
+    use crate::wire::Middleware;
 
     #[test]
     fn bytes_encoded_correctly() {

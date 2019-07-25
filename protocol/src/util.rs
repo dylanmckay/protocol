@@ -1,8 +1,8 @@
 //! Helper functions for dealing with sets or lists of parcels.
 
-use {Parcel, Error, ErrorKind, TryFromIntError, Settings};
-use hint;
-use types::Integer;
+use crate::{Parcel, Error, TryFromIntError, Settings};
+use crate::hint;
+use crate::types::Integer;
 
 use std::io::prelude::*;
 use std::io;
@@ -89,9 +89,9 @@ pub fn read_list_ext<S,T>(read: &mut Read,
                     let mut items = Vec::new();
                     // FIXME: potential DoS vector, should timeout.
                     while read_back_bytes.position() < byte_count as u64 {
-                        let item = match T::read(&mut read_back_bytes, settings).map_err(|e| e.0) {
+                        let item = match T::read(&mut read_back_bytes, settings) {
                             Ok(item) => item,
-                            Err(ErrorKind::Io(ref io)) if io.kind() == io::ErrorKind::UnexpectedEof => {
+                            Err(Error::Io(ref io)) if io.kind() == io::ErrorKind::UnexpectedEof => {
                                 // FIXME: make this a client error.
                                 panic!("length prefix in bytes does not match actual size");
                             },

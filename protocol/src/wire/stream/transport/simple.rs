@@ -1,6 +1,6 @@
-use super::Transport;
+use crate::wire::stream::transport::Transport;
 
-use {Error, Parcel, Settings};
+use crate::{Error, Parcel, Settings};
 
 use std::collections::VecDeque;
 use std::io::prelude::*;
@@ -61,7 +61,7 @@ impl Simple
                     if size_bytes.len() == mem::size_of::<PacketSize>() {
                         let mut size_buffer = Cursor::new(size_bytes);
 
-                        let size = PacketSize::read(&mut size_buffer, settings).unwrap();
+                        let size = PacketSize::read(&mut size_buffer, settings)?;
 
                         // We are now ready to receive packet data.
                         self.state = State::AwaitingPacket { size: size, received_data: Vec::new() }
@@ -113,7 +113,7 @@ impl Transport for Simple
         // Load the data into a temporary buffer before we process it.
         loop {
             let mut buffer = [0u8; BUFFER_SIZE];
-            let bytes_read = read.read(&mut buffer).unwrap();
+            let bytes_read = read.read(&mut buffer)?;
             let buffer = &buffer[0..bytes_read];
 
             if bytes_read == 0 {
@@ -149,10 +149,10 @@ impl Transport for Simple
 #[cfg(test)]
 mod test
 {
-    use Settings;
-    pub use super::Simple;
+    use crate::Settings;
+    pub use crate::wire::stream::transport::Simple;
     pub use std::io::Cursor;
-    pub use wire::stream::Transport;
+    pub use crate::wire::stream::Transport;
 
     #[test]
     fn serialises_the_data_with_32bit_length_prefix() {

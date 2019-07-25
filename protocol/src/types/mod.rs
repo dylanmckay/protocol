@@ -1,11 +1,9 @@
 //! Contains newtypes over the standard library types
 //! that support finer-grained serialization settings.
 
-pub use self::numerics::Integer;
-pub use self::string::String;
-pub use self::unimplemented::Unimplemented;
-pub use self::vec::Vec;
-
+pub use crate::types::{
+    numerics::Integer, string::String, unimplemented::Unimplemented, vec::Vec
+};
 mod array;
 mod char;
 /// Definitions for the `std::collections` module.

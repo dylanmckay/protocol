@@ -1,6 +1,6 @@
-use {Parcel, Error, Settings};
-use wire::stream::{Transport, transport};
-use wire::middleware;
+use crate::{Parcel, Error, Settings};
+use crate::wire::stream::{Transport, transport};
+use crate::wire::middleware;
 
 use std::io::prelude::*;
 use std::io::Cursor;

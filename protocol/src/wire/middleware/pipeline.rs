@@ -1,7 +1,7 @@
 //! An ordered list of middleware that performs tested transformations.
 
-use Error;
-use wire::middleware;
+use crate::Error;
+use crate::wire::middleware;
 use std;
 
 /// A middleware pipeline.
@@ -78,9 +78,8 @@ impl std::default::Default for Default
 #[cfg(test)]
 mod test
 {
-    use Error;
-    use wire::middleware::Pipeline;
-    use wire;
+    use crate::Error;
+    use crate::wire::{self, middleware::Pipeline};
 
     define_middleware_pipeline!(NullPipeline {
         encryption: NullMiddleware,
