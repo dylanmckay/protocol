@@ -12,7 +12,7 @@ pub type SizeType = u32;
 
 /// Reads a string of specified length from a stream.
 pub fn read_string(byte_count: usize,
-                   read: &mut Read,
+                   read: &mut dyn Read,
                    settings: &Settings)
     -> Result<String, Error> {
     let bytes: Vec<u8> = read_items(byte_count, read, settings)?.collect();
@@ -21,7 +21,7 @@ pub fn read_string(byte_count: usize,
 
 /// Reads a specified number of items from a stream.
 pub fn read_items<T>(item_count: usize,
-                     read: &mut Read,
+                     read: &mut dyn Read,
                      settings: &Settings)
     -> Result<impl Iterator<Item=T>, Error>
     where T: Parcel {
@@ -38,7 +38,7 @@ pub fn read_items<T>(item_count: usize,
 ///
 /// Does not include a length prefix.
 pub fn write_items<'a,T>(items: impl IntoIterator<Item=&'a T>,
-                         write: &mut Write,
+                         write: &mut dyn Write,
                          settings: &Settings)
     -> Result<(), Error>
     where T: Parcel + 'a {
@@ -49,7 +49,7 @@ pub fn write_items<'a,T>(items: impl IntoIterator<Item=&'a T>,
 }
 
 /// Reads a length-prefixed list from a stream.
-pub fn read_list<T>(read: &mut Read,
+pub fn read_list<T>(read: &mut dyn Read,
                     settings: &Settings,
                     hints: &mut hint::Hints)
     -> Result<Vec<T>, Error>
@@ -59,7 +59,7 @@ pub fn read_list<T>(read: &mut Read,
 
 /// Writes a length-prefixed list to a stream.
 pub fn write_list<'a,T,I>(elements: I,
-                          write: &mut Write,
+                          write: &mut dyn Write,
                           settings: &Settings,
                           hints: &mut hint::Hints)
     -> Result<(), Error>
@@ -69,7 +69,7 @@ pub fn write_list<'a,T,I>(elements: I,
 }
 
 /// Reads a length-prefixed list from a stream.
-pub fn read_list_ext<S,T>(read: &mut Read,
+pub fn read_list_ext<S,T>(read: &mut dyn Read,
                           settings: &Settings,
                           hints: &mut hint::Hints)
     -> Result<Vec<T>, Error>
@@ -120,7 +120,7 @@ pub fn read_list_ext<S,T>(read: &mut Read,
 
 /// Writes a length-prefixed list to a stream.
 pub fn write_list_ext<'a,S,T,I>(elements: I,
-                                write: &mut Write,
+                                write: &mut dyn Write,
                                 settings: &Settings,
                                 hints: &mut hint::Hints)
     -> Result<(), Error>

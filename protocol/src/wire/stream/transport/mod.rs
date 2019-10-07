@@ -8,7 +8,7 @@ use std::io::prelude::*;
 pub trait Transport
 {
     fn process_data(&mut self,
-                    read: &mut Read,
+                    read: &mut dyn Read,
                     settings: &Settings)
         -> Result<(), Error>;
 
@@ -16,7 +16,7 @@ pub trait Transport
         -> Result<Option<Vec<u8>>, Error>;
 
     fn send_raw_packet(&mut self,
-                       write: &mut Write,
+                       write: &mut dyn Write,
                        packet: &[u8],
                        settings: &Settings)
         -> Result<(), Error>;

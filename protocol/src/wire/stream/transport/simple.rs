@@ -108,7 +108,7 @@ const BUFFER_SIZE: usize = 10000;
 impl Transport for Simple
 {
     fn process_data(&mut self,
-                    read: &mut Read,
+                    read: &mut dyn Read,
                     settings: &Settings) -> Result<(), Error> {
         // Load the data into a temporary buffer before we process it.
         loop {
@@ -130,7 +130,7 @@ impl Transport for Simple
     }
 
     fn send_raw_packet(&mut self,
-                       write: &mut Write,
+                       write: &mut dyn Write,
                        packet: &[u8],
                        settings: &Settings) -> Result<(), Error> {
         // Prefix the packet size.

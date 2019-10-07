@@ -24,14 +24,14 @@ impl<T> Parcel for SaveHints<T>
     where T: Parcel {
     const TYPE_NAME: &'static str = "SaveHints";
 
-    fn read_field(read: &mut io::Read, settings: &Settings,
+    fn read_field(read: &mut dyn io::Read, settings: &Settings,
                   hints: &mut hint::Hints) -> Result<Self, Error> {
         let saved_hints = Some(hints.clone());
         let inner = T::read_field(read, settings, hints)?;
         Ok(SaveHints { inner, saved_hints })
     }
 
-    fn write_field(&self, write: &mut io::Write,
+    fn write_field(&self, write: &mut dyn io::Write,
                    settings: &Settings,
                    _: &mut hint::Hints) -> Result<(), Error> {
         self.inner.write(write, settings)

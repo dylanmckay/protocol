@@ -5,14 +5,14 @@ macro_rules! impl_list_type {
         {
             const TYPE_NAME: &'static str = stringify!($ty<T>);
 
-            fn read_field(read: &mut ::std::io::Read,
+            fn read_field(read: &mut dyn std::io::Read,
                           settings: &::Settings,
                           hints: &mut ::hint::Hints) -> Result<Self, $crate::Error> {
                 let elements = ::util::read_list(read, settings, hints)?;
                 Ok(elements.into_iter().collect())
             }
 
-            fn write_field(&self, write: &mut ::std::io::Write,
+            fn write_field(&self, write: &mut dyn std::io::Write,
                            settings: &::Settings,
                            hints: &mut ::hint::Hints)
                 -> Result<(), $crate::Error> {

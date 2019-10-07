@@ -83,7 +83,7 @@ impl<T, ToSizeOfType> Parcel for Aligned<T, ToSizeOfType>
           ToSizeOfType: Sized {
     const TYPE_NAME: &'static str = "Aligned";
 
-    fn read_field(read: &mut Read,
+    fn read_field(read: &mut dyn Read,
                   settings: &Settings,
                   hints: &mut hint::Hints) -> Result<Self, Error> {
         let inner_value = T::read_field(read, settings, hints)?;
@@ -101,7 +101,7 @@ impl<T, ToSizeOfType> Parcel for Aligned<T, ToSizeOfType>
     }
 
     fn write_field(&self,
-                   write: &mut Write,
+                   write: &mut dyn Write,
                    settings: &Settings,
                    hints: &mut hint::Hints) -> Result<(), Error> {
         let unaligned_bytes = self.value.raw_bytes_field(settings, hints)?;

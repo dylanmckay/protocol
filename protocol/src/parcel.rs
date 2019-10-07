@@ -47,7 +47,7 @@ pub trait Parcel : Sized
     /// Reads a new item with a fresh set of hints.
     ///
     /// Blocks until a value is received.
-    fn read(read: &mut Read,
+    fn read(read: &mut dyn Read,
             settings: &Settings) -> Result<Self, Error> {
         Self::read_field(read, settings, &mut hint::Hints::default())
     }
@@ -60,18 +60,18 @@ pub trait Parcel : Sized
     ///   parcel chain only.
     ///
     /// Blocks until a value is received.
-    fn read_field(read: &mut Read,
+    fn read_field(read: &mut dyn Read,
                   settings: &Settings,
                   hints: &mut hint::Hints) -> Result<Self, Error>;
 
     /// Writes a value to a stream.
-    fn write(&self, write: &mut Write,
+    fn write(&self, write: &mut dyn Write,
              settings: &Settings) -> Result<(), Error> {
         self.write_field(write, settings, &mut hint::Hints::default())
     }
 
     /// Writes a value to a stream.
-    fn write_field(&self, write: &mut Write,
+    fn write_field(&self, write: &mut dyn Write,
              settings: &Settings,
              hints: &mut hint::Hints) -> Result<(), Error>;
 

@@ -87,7 +87,7 @@ pub trait HighLevel : Clone + fmt::Debug {
     /// The method has access to the reader post-parsing of the low level type.
     /// It is not necessary to use this if not needed.
     fn from_low_level(value: Self::LowLevel,
-                      subsequent_reader: &mut Read,
+                      subsequent_reader: &mut dyn Read,
                       settings: &Settings,
                       hints: &mut hint::Hints) -> Result<Self, Error>;
 }
@@ -96,7 +96,7 @@ impl<H> Parcel for H
     where H: HighLevel {
     const TYPE_NAME: &'static str = "HighLevel";
 
-    fn read_field(read: &mut Read,
+    fn read_field(read: &mut dyn Read,
                   settings: &Settings,
                   hints: &mut hint::Hints) -> Result<Self, Error> {
         let low_level = H::LowLevel::read_field(read, settings, hints)?;
@@ -104,7 +104,7 @@ impl<H> Parcel for H
     }
 
     fn write_field(&self,
-                   write: &mut Write,
+                   write: &mut dyn Write,
                    settings: &Settings,
                    hints: &mut hint::Hints) -> Result<(), Error> {
         let low_level = self.clone().into_low_level();

@@ -7,7 +7,7 @@ macro_rules! impl_parcel_for_array {
         impl<T: Parcel> Parcel for [T; $n] where T: Copy {
             const TYPE_NAME: &'static str = stringify!([T; $n]);
 
-            fn read_field(read: &mut Read,
+            fn read_field(read: &mut dyn Read,
                           settings: &Settings,
                           _: &mut hint::Hints) -> Result<Self, Error> {
                 use std::mem;
@@ -20,7 +20,7 @@ macro_rules! impl_parcel_for_array {
                 Ok(array)
             }
 
-            fn write_field(&self, write: &mut Write,
+            fn write_field(&self, write: &mut dyn Write,
                            settings: &Settings,
                            _: &mut hint::Hints) -> Result<(), Error> {
                 util::write_items(self.iter(), write, settings)

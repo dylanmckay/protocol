@@ -8,14 +8,14 @@ impl<T> Parcel for PhantomData<T>
 {
     const TYPE_NAME: &'static str = "PhantomData<T>";
 
-    fn read_field(_: &mut Read,
+    fn read_field(_: &mut dyn Read,
                   _: &Settings,
                   _: &mut hint::Hints) -> Result<Self, Error> {
         Ok(PhantomData)
     }
 
     fn write_field(&self,
-                   _: &mut Write,
+                   _: &mut dyn Write,
                    _: &Settings,
                    _: &mut hint::Hints) -> Result<(), Error> {
         Ok(())

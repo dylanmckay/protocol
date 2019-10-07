@@ -13,13 +13,13 @@ impl Parcel for bool
 {
     const TYPE_NAME: &'static str = "bool";
 
-    fn read_field(read: &mut Read,
+    fn read_field(read: &mut dyn Read,
                   _: &Settings,
                   _: &mut hint::Hints) -> Result<Self, Error> {
         if read.read_u8()? == 0 { Ok(false) } else { Ok(true) }
     }
 
-    fn write_field(&self, write: &mut Write,
+    fn write_field(&self, write: &mut dyn Write,
                    _: &Settings,
                    _: &mut hint::Hints) -> Result<(), Error> {
         write.write_u8(if *self { 1 } else { 0 })?;
@@ -31,10 +31,10 @@ impl Parcel for u8
 {
     const TYPE_NAME: &'static str = "u8";
 
-    fn read_field(read: &mut Read,
+    fn read_field(read: &mut dyn Read,
                   _: &Settings,
                   _: &mut hint::Hints) -> Result<Self, Error> { Ok(read.read_u8()?) }
-    fn write_field(&self, write: &mut Write,
+    fn write_field(&self, write: &mut dyn Write,
                    _: &Settings,
                    _: &mut hint::Hints)
         -> Result<(), Error> { write.write_u8(*self)?; Ok(()) }
@@ -44,10 +44,10 @@ impl Parcel for i8
 {
     const TYPE_NAME: &'static str = "i8";
 
-    fn read_field(read: &mut Read,
+    fn read_field(read: &mut dyn Read,
                   _: &Settings,
                   _: &mut hint::Hints) -> Result<Self, Error> { Ok(read.read_i8()?) }
-    fn write_field(&self, write: &mut Write,
+    fn write_field(&self, write: &mut dyn Write,
                    _: &Settings,
                    _: &mut hint::Hints)
         -> Result<(), Error> { write.write_i8(*self)?; Ok(()) }
@@ -58,13 +58,13 @@ macro_rules! impl_parcel_for_numeric {
         impl Parcel for $ty {
             const TYPE_NAME: &'static str = stringify!($ty);
 
-            fn read_field(read: &mut Read,
+            fn read_field(read: &mut dyn Read,
                           settings: &Settings,
                           _: &mut hint::Hints) -> Result<Self, Error> {
                 Ok(settings.byte_order.$read_fn(read)?)
             }
 
-            fn write_field(&self, write: &mut Write,
+            fn write_field(&self, write: &mut dyn Write,
                            settings: &Settings,
                            _: &mut hint::Hints) -> Result<(), Error> {
                 settings.byte_order.$write_fn(*self, write)?; Ok(())

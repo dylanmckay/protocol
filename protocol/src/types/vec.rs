@@ -24,14 +24,14 @@ impl<S: types::Integer, T: Parcel> Parcel for Vec<S, T>
 {
     const TYPE_NAME: &'static str = "protocol::Vec<S,T>";
 
-    fn read_field(read: &mut Read,
+    fn read_field(read: &mut dyn Read,
                   settings: &Settings,
                   hints: &mut hint::Hints) -> Result<Self, Error> {
         let elements = util::read_list_ext::<S,T>(read, settings, hints)?;
         Ok(Self::new(elements))
     }
 
-    fn write_field(&self, write: &mut Write,
+    fn write_field(&self, write: &mut dyn Write,
                    settings: &Settings,
                    hints: &mut hint::Hints) -> Result<(), Error> {
         util::write_list_ext::<S,T,_>(self.elements.iter(), write, settings, hints)
@@ -48,14 +48,14 @@ mod std_vec {
     {
         const TYPE_NAME: &'static str = "Vec<T>";
 
-        fn read_field(read: &mut Read,
+        fn read_field(read: &mut dyn Read,
                       settings: &Settings,
                       hints: &mut hint::Hints) -> Result<Self, Error> {
             util::read_list(read, settings, hints)
         }
 
         fn write_field(&self,
-                       write: &mut Write,
+                       write: &mut dyn Write,
                        settings: &Settings,
                        hints: &mut hint::Hints) -> Result<(), Error> {
             util::write_list(self.iter(), write, settings, hints)

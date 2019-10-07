@@ -8,7 +8,7 @@ impl Parcel for Uuid
 {
     const TYPE_NAME: &'static str = "Uuid";
 
-    fn read_field(read: &mut Read,
+    fn read_field(read: &mut dyn Read,
                   settings: &Settings,
                   _: &mut hint::Hints)
         -> Result<Self, Error> {
@@ -18,7 +18,7 @@ impl Parcel for Uuid
     }
 
     fn write_field(&self,
-                   write: &mut Write,
+                   write: &mut dyn Write,
                    _: &Settings,
                    _: &mut hint::Hints) -> Result<(), Error> {
         write.write(self.as_bytes())?;

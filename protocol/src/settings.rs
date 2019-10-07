@@ -67,7 +67,7 @@ macro_rules! impl_byte_order_helpers {
     ( $( $ty:ty => [ $read_name:ident : $write_name:ident ] )* ) => {
         impl ByteOrder {
             $(
-                pub fn $read_name(&self, read: &mut Read) -> Result<$ty, ::Error> {
+                pub fn $read_name(&self, read: &mut dyn Read) -> Result<$ty, ::Error> {
                     use byteorder as bo;
 
                     Ok(match *self {
@@ -78,7 +78,7 @@ macro_rules! impl_byte_order_helpers {
                 }
 
                 pub fn $write_name(&self, value: $ty,
-                                   write: &mut Write) -> Result<(), ::Error> {
+                                   write: &mut dyn Write) -> Result<(), ::Error> {
                     use byteorder as bo;
 
                     Ok(match *self {

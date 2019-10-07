@@ -7,7 +7,7 @@ impl<T: Parcel> Parcel for Option<T>
 {
     const TYPE_NAME: &'static str = "Option<T>";
 
-    fn read_field(read: &mut Read,
+    fn read_field(read: &mut dyn Read,
                   settings: &Settings,
                   _: &mut hint::Hints) -> Result<Self, Error> {
         let is_some = bool::read(read, settings)?;
@@ -20,7 +20,7 @@ impl<T: Parcel> Parcel for Option<T>
         }
     }
 
-    fn write_field(&self, write: &mut Write,
+    fn write_field(&self, write: &mut dyn Write,
              settings: &Settings,
              _: &mut hint::Hints) -> Result<(), Error> {
         self.is_some().write(write, settings)?;

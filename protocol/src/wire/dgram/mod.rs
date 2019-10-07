@@ -27,7 +27,7 @@ impl<P,M> Pipeline<P,M>
     }
 
     /// Reads a packet from a buffer which contains a single packet.
-    pub fn receive_from(&mut self, buffer: &mut Read)
+    pub fn receive_from(&mut self, buffer: &mut dyn Read)
         -> Result<P, Error> {
         let raw_bytes: Result<Vec<u8>, _> = buffer.bytes().collect();
         let raw_bytes = raw_bytes?;
@@ -37,7 +37,7 @@ impl<P,M> Pipeline<P,M>
     }
 
     /// Writes a packet into a buffer.
-    pub fn send_to(&mut self, buffer: &mut Write, packet: &P)
+    pub fn send_to(&mut self, buffer: &mut dyn Write, packet: &P)
         -> Result<(), Error> {
         let bytes = self.middleware.encode_data(packet.raw_bytes(&self.settings)?)?;
         buffer.write(&bytes)?;
