@@ -1,6 +1,6 @@
 [package]
 name = "protocol"
-version = "3.1.2"
+version = "3.1.3"
 authors = ["Dylan McKay <me@dylanmckay.io>"]
 
 description = "Easy protocol definitions"
@@ -22,7 +22,7 @@ num-traits = "0.2"
 
 [dev-dependencies]
 # Used in examples
-protocol-derive = { path = "../protocol-derive", version = "3.1.2" }
+protocol-derive = { path = "../protocol-derive", version = "3.1.3" }
 
 [[example]]
 name = "basic"
