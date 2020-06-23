@@ -44,3 +44,6 @@ path = "../examples/packet_headers.rs"
 name = "udp"
 path = "../examples/udp.rs"
 
+[[example]]
+name = "get_enum_discriminant"
+path = "../examples/get_enum_discriminant.rs"
