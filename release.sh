@@ -38,7 +38,7 @@ fi
 cd protocol-derive
 cargo publish
 
-sleep 2 # give crates.io a sec to catch up
+sleep 15 # give crates.io a lot of secs to catch up
 
 cd ../protocol
 cargo publish
