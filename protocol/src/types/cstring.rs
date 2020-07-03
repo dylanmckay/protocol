@@ -1,6 +1,6 @@
 use std::ffi::CString;
 use std::io::prelude::{Read, Write};
-use {hint, Error, Parcel, Settings};
+use {hint, util, Error, Parcel, Settings};
 
 impl Parcel for CString {
     const TYPE_NAME: &'static str = "CString";
@@ -11,14 +11,16 @@ impl Parcel for CString {
         _hints: &mut hint::Hints,
     ) -> Result<Self, Error> {
         let mut result = Vec::new();
+        // this logic is susceptible to DoS attacks by never providing
+        //   a null character and will be fixed by
+        //   https://github.com/dylanmckay/protocol/issues/14
         loop {
             let c: u8 = Parcel::read(read, settings)?;
             if c == 0x00 {
-                break;
+                return Ok(CString::new(result)?);
             }
             result.push(c);
         }
-        Ok(CString::new(result)?)
     }
 
     fn write_field(
@@ -27,22 +29,15 @@ impl Parcel for CString {
         settings: &Settings,
         _hints: &mut hint::Hints,
     ) -> Result<(), Error> {
-        for c in self.clone().into_bytes() {
-            c.write(write, settings)?;
-            if c == 0x00 {
-                return Ok(());
-            }
-        }
-        0u8.write(write, settings)?;
-        Ok(())
+        util::write_items(self.clone().into_bytes_with_nul().iter(), write, settings)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use {Parcel, Settings};
-    use std::io::Cursor;
     use std::ffi::CString;
+    use std::io::Cursor;
+    use {Parcel, Settings};
 
     #[test]
     fn can_read_cstring() {
@@ -55,7 +50,10 @@ mod test {
     fn can_write_cstring() {
         let mut buffer = Cursor::new(Vec::new());
 
-        CString::new("ABC").unwrap().write(&mut buffer, &Settings::default()).unwrap();
+        CString::new("ABC")
+            .unwrap()
+            .write(&mut buffer, &Settings::default())
+            .unwrap();
         assert_eq!(buffer.into_inner(), vec![0x41, 0x42, 0x43, 0]);
     }
 }
