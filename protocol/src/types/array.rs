@@ -13,11 +13,18 @@ macro_rules! impl_parcel_for_array {
                 use std::mem;
 
                 let elements: Vec<_> = util::read_items($n, read, settings)?.collect();
+                assert_eq!(elements.len(), $n, "fixed size array did not read the expected number of elements");
 
-                let mut array: [T; $n] = unsafe { mem::uninitialized() };
-                array.clone_from_slice(&elements[..]);
+                // N.B. We could potentially leave this array uninitialized
+                // as an optimization.
+                let mut uninit_array: [mem::MaybeUninit<T>; $n] = unsafe { mem::MaybeUninit::uninit().assume_init() };
+                for (i, element) in elements.into_iter().enumerate() {
+                    uninit_array[i] = mem::MaybeUninit::new(element);
+                }
 
-                Ok(array)
+                let array: &[T; $n] = unsafe { mem::transmute(&uninit_array) };
+                mem::forget(uninit_array);
+                Ok(*array)
             }
 
             fn write_field(&self, write: &mut dyn Write,
