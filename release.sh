@@ -38,7 +38,7 @@ fi
 cd protocol-derive
 cargo publish
 
-echo "giving cargo some time to catch up... one moment caller..."
+echo "giving crates.io some time to catch up... one moment caller..."
 sleep 15 # give crates.io a lot of secs to catch up
 
 cd ../protocol
