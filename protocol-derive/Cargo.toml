@@ -12,10 +12,10 @@ keywords = ["protocol", "tcp", "udp", "connection", "encoding"]
 [lib]
 proc-macro = true
 
-[dependencies]
 # N.B. protocol-derive should not depend on the protocol crate.
 # This causes releasing to be a pain - which one first - neither is possible!
-syn = { version = "0.15.34", features = ["default", "extra-traits"] }
-quote = "0.6.12"
-proc-macro2 = "0.4"
+[dependencies]
+syn = { version = "1.0.60", features = ["default", "extra-traits"] }
+quote = "1.0.9"
+proc-macro2 = "1.0.24"
 

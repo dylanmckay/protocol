@@ -38,9 +38,9 @@ pub fn repr(attrs: &[syn::Attribute]) -> Option<syn::Ident> {
 
 pub fn protocol(attrs: &[syn::Attribute])
     -> Option<Protocol> {
-    let meta_list = attrs.iter().filter_map(|attr| match attr.interpret_meta() {
-        Some(syn::Meta::List(meta_list)) => {
-            if meta_list.ident == syn::Ident::new("protocol", proc_macro2::Span::call_site()) {
+    let meta_list = attrs.iter().filter_map(|attr| match attr.parse_meta() {
+        Ok(syn::Meta::List(meta_list)) => {
+            if meta_list.path.get_ident() == Some(&syn::Ident::new("protocol", proc_macro2::Span::call_site())) {
                 Some(meta_list)
             } else {
                 // Unrelated attribute.
@@ -55,12 +55,12 @@ pub fn protocol(attrs: &[syn::Attribute])
 
     match nested_metas.next() {
         Some(syn::NestedMeta::Meta(syn::Meta::List(nested_list))) => {
-            match &nested_list.ident.to_string()[..] {
+            match &nested_list.path.get_ident().expect("meta is not an ident").to_string()[..] {
                 // #[protocol(length_prefix(<kind>(<prefix field name>)))]
                 "length_prefix" => {
                     let nested_list = expect::meta_list::nested_list(nested_list)
                                             .expect("expected a nested list");
-                    let prefix_kind = match &nested_list.ident.to_string()[..] {
+                    let prefix_kind = match &nested_list.path.get_ident().expect("nested list is not an ident").to_string()[..] {
                         "bytes" => LengthPrefixKind::Bytes,
                         "elements" => LengthPrefixKind::Elements,
                         invalid_prefix => panic!("invalid length prefix type: '{}'", invalid_prefix),
@@ -68,7 +68,7 @@ pub fn protocol(attrs: &[syn::Attribute])
 
                     let length_prefix_expr = expect::meta_list::single_element(nested_list).unwrap();
                     let (prefix_field_name, prefix_subfield_names) = match length_prefix_expr {
-                        syn::NestedMeta::Literal(syn::Lit::Str(s)) => {
+                        syn::NestedMeta::Lit(syn::Lit::Str(s)) => {
                             let mut parts: Vec<_> = s.value()
                                                      .split(".")
                                                      .map(|s| syn::Ident::new(s, Span::call_site()))
@@ -83,7 +83,10 @@ pub fn protocol(attrs: &[syn::Attribute])
 
                             (field_ident, subfield_idents)
                         },
-                        syn::NestedMeta::Meta(syn::Meta::Word(field_ident)) => (field_ident, Vec::new()),
+                        syn::NestedMeta::Meta(syn::Meta::Path(path)) => match path.get_ident() {
+                            Some(field_ident) => (field_ident.clone(), Vec::new()),
+                            None => panic!("path is not an ident"),
+                        },
                         _ => panic!("unexpected format for length prefix attribute"),
                     };
 
@@ -98,20 +101,25 @@ pub fn protocol(attrs: &[syn::Attribute])
             }
         },
         Some(syn::NestedMeta::Meta(syn::Meta::NameValue(name_value))) => {
-            match &name_value.ident.to_string()[..] {
-                // #[protocol(discriminant = "<format_name>")]
-                "discriminant" => {
-                    let format_kind = match name_value.lit {
-                        syn::Lit::Str(s) => match format::Enum::from_str(&s.value()) {
-                            Ok(f) => f,
-                            Err(()) => panic!("invalid enum discriminant format: '{}", s.value()),
-                        },
-                        _ => panic!("discriminant format mut be string"),
-                    };
+            match name_value.path.get_ident() {
+                Some(ident) => {
+                    match &ident.to_string()[..] {
+                        // #[protocol(discriminant = "<format_name>")]
+                        "discriminant" => {
+                            let format_kind = match name_value.lit {
+                                syn::Lit::Str(s) => match format::Enum::from_str(&s.value()) {
+                                    Ok(f) => f,
+                                    Err(()) => panic!("invalid enum discriminant format: '{}", s.value()),
+                                },
+                                _ => panic!("discriminant format mut be string"),
+                            };
 
-                    Some(Protocol::DiscriminantFormat(format_kind))
+                            Some(Protocol::DiscriminantFormat(format_kind))
+                        },
+                        ident => panic!("expected 'discriminant' but got '{}", ident),
+                    }
                 },
-                ident => panic!("expected 'discriminant' but got '{}", ident),
+                None => panic!("expected 'discriminant' but the parsed string was not even an identifier"),
             }
         },
         _ => panic!("#[protocol(..)] attributes cannot be empty"),
@@ -140,7 +148,7 @@ mod expect {
         pub fn single_literal(list: syn::MetaList)
             -> Result<syn::Lit, ()> {
             single_element(list).and_then(|nested| match nested {
-                syn::NestedMeta::Literal(lit) => Ok(lit),
+                syn::NestedMeta::Lit(lit) => Ok(lit),
                 _ => Err(()),
             })
         }
@@ -149,9 +157,12 @@ mod expect {
 
 mod attribute {
     pub fn with_list(name: &str, attrs: &[syn::Attribute]) -> Option<Vec<syn::NestedMeta>> {
-        attrs.iter().filter_map(|attr| match attr.interpret_meta() {
-            Some(syn::Meta::List(list)) => {
-                if list.ident == name { Some(list.nested.into_iter().collect()) } else { None }
+        attrs.iter().filter_map(|attr| match attr.parse_meta() {
+            Ok(syn::Meta::List(list)) => {
+                match list.path.get_ident() {
+                    Some(ident) if ident == name => Some(list.nested.into_iter().collect()),
+                    _ => None,
+                }
             },
             _ => None,
         }).next()
@@ -166,7 +177,10 @@ mod attribute {
 
     pub fn with_ident(name: &str, attrs: &[syn::Attribute]) -> Option<syn::Ident> {
         with_unitary_list(name, attrs).map(|nested| match nested {
-            syn::NestedMeta::Meta(syn::Meta::Word(ident)) => ident,
+            syn::NestedMeta::Meta(syn::Meta::Path(path)) => match path.get_ident() {
+                Some(ident) => ident.clone(),
+                None => panic!("expected an ident"),
+            },
             _ => panic!("expected an ident"),
         })
     }

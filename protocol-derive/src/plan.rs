@@ -127,8 +127,7 @@ impl Enum {
                     format::Enum::IntegerDiscriminator => {
                         // By default, assign integer discriminators the value of the
                         // last discriminator plus one.
-                        syn::LitInt::new(current_default_int_discriminator as _,
-                                         syn::IntSuffix::None,
+                        syn::LitInt::new(&current_default_int_discriminator.to_string(),
                                          Span::call_site()).into()
                     },
                 },
@@ -136,7 +135,7 @@ impl Enum {
 
             // Change the default int discriminator value if relevant.
             if let syn::Lit::Int(ref discriminator_value) = actual_discriminator {
-                current_default_int_discriminator = discriminator_value.value() as usize + 1;
+                current_default_int_discriminator = discriminator_value.base10_parse::<usize>().unwrap() + 1;
             }
 
             // Store the actual discriminator in memory for later use.
