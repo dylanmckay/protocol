@@ -1,8 +1,7 @@
 //! Helper functions for dealing with sets or lists of parcels.
 
-use {Parcel, Error, ErrorKind, TryFromIntError, Settings};
-use hint;
-use types::Integer;
+use crate::{hint, Parcel, Error, ErrorKind, TryFromIntError, Settings};
+use crate::types::Integer;
 
 use std::io::prelude::*;
 use std::io;

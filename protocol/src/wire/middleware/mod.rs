@@ -7,7 +7,7 @@ pub mod pipeline;
 pub mod compression;
 pub mod rotate_bytes;
 
-use Error;
+use crate::Error;
 use std;
 
 /// A hook that sits between reading and writing packets.

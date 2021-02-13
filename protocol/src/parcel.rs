@@ -1,5 +1,4 @@
-use {Error, Settings};
-use hint;
+use crate::{hint, Error, Settings};
 use std::io::prelude::*;
 use std::io;
 

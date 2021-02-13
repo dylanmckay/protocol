@@ -2,6 +2,7 @@
 name = "protocol-tests"
 version = "0.0.0" # do not change this, no point, it never gets published.
 authors = ["Dylan McKay <me@dylanmckay.io>"]
+edition = "2018"
 
 publish = false
 

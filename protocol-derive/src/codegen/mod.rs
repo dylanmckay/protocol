@@ -1,6 +1,6 @@
 pub mod enums;
 
-use attr;
+use crate::attr;
 use proc_macro2::TokenStream;
 use syn;
 

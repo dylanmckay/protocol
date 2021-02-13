@@ -1,5 +1,4 @@
-use {Parcel, Error, Settings};
-use wire::middleware;
+use crate::{wire::middleware, Parcel, Error, Settings};
 
 use std::io::prelude::*;
 use std::io::Cursor;

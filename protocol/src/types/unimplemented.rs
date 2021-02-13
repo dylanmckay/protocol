@@ -1,6 +1,4 @@
-use {Parcel, Error, ErrorKind, Settings};
-use hint;
-
+use crate::{hint, Parcel, Error, ErrorKind, Settings};
 use std::io::prelude::*;
 
 /// A type that does not have any protocol serialization implemented.

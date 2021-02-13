@@ -1,6 +1,6 @@
+use crate::{hint, util, Error, Parcel, Settings};
 use std::ffi::CString;
 use std::io::prelude::{Read, Write};
-use {hint, util, Error, Parcel, Settings};
 
 impl Parcel for CString {
     const TYPE_NAME: &'static str = "CString";
@@ -35,9 +35,9 @@ impl Parcel for CString {
 
 #[cfg(test)]
 mod test {
+    use crate::{Parcel, Settings};
     use std::ffi::CString;
     use std::io::Cursor;
-    use {Parcel, Settings};
 
     #[test]
     fn can_read_cstring() {

@@ -1,7 +1,6 @@
 //! A fixed-offset based caesar cipher middleware.
 
-use Error;
-use wire;
+use crate::{wire, Error};
 
 use std::num::Wrapping;
 
@@ -34,23 +33,23 @@ impl wire::Middleware for RotateBytes {
 #[cfg(test)]
 mod test {
     use super::RotateBytes;
-    use wire::Middleware;
+    use crate::wire::Middleware;
 
     #[test]
     fn bytes_encoded_correctly() {
-        assert_eq!(RotateBytes::ROT13.encode_data(vec![0, 1, 2, 3, 4]).unwrap(),
+        assert_eq!(RotateBytes::ROT13.clone().encode_data(vec![0, 1, 2, 3, 4]).unwrap(),
                    vec![13, 14, 15, 16, 17]);
     }
 
     #[test]
     fn bytes_decoded_correctly() {
-        assert_eq!(RotateBytes::ROT13.decode_data(vec![13, 14, 15, 16, 17]).unwrap(),
+        assert_eq!(RotateBytes::ROT13.clone().decode_data(vec![13, 14, 15, 16, 17]).unwrap(),
                    vec![0, 1, 2, 3, 4]);
     }
 
     #[test]
     fn bytes_read_back_correctly() {
-        assert_eq!(RotateBytes::ROT13.encode_data(RotateBytes::ROT13.decode_data(vec![2, 4, 8, 32, 254]).unwrap()).unwrap(),
+        assert_eq!(RotateBytes::ROT13.clone().encode_data(RotateBytes::ROT13.clone().decode_data(vec![2, 4, 8, 32, 254]).unwrap()).unwrap(),
                    vec![2, 4, 8, 32, 254]);
     }
 }

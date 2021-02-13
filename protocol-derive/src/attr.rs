@@ -1,5 +1,4 @@
-use format;
-use format::Format;
+use crate::format::{self, Format};
 
 use proc_macro2::{Span, TokenStream};
 use syn;

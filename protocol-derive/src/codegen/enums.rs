@@ -1,4 +1,4 @@
-use {codegen, plan};
+use crate::{codegen, plan};
 use proc_macro2::{Span, TokenStream};
 use syn;
 

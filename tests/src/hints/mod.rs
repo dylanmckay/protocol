@@ -85,7 +85,7 @@ macro_rules! define_common_hint_invariant_tests {
     ($parcel_description:ident => $parcel_ty:ty : $parcel_value:expr) => {
         mod $parcel_description {
             use super::*;
-            use hints::*;
+            use crate::hints::*;
             use protocol::hint;
 
             const PRETTY_LARGE_NUMBER: usize = 10_000;

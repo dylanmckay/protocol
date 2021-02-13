@@ -1,6 +1,6 @@
 use super::Transport;
 
-use {Error, Parcel, Settings};
+use crate::{Error, Parcel, Settings};
 
 use std::collections::VecDeque;
 use std::io::prelude::*;
@@ -149,10 +149,10 @@ impl Transport for Simple
 #[cfg(test)]
 mod test
 {
-    use Settings;
+    use crate::Settings;
+    pub use crate::wire::stream::Transport;
     pub use super::Simple;
     pub use std::io::Cursor;
-    pub use wire::stream::Transport;
 
     #[test]
     fn serialises_the_data_with_32bit_length_prefix() {

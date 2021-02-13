@@ -1,5 +1,4 @@
-use {Error, Parcel, Settings};
-use hint;
+use crate::{hint, Error, Parcel, Settings};
 use std::io::prelude::*;
 use std::fmt;
 

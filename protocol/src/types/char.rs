@@ -1,5 +1,4 @@
-use {Parcel, Error, CharTryFromError, Settings};
-use hint;
+use crate::{hint, Parcel, Error, CharTryFromError, Settings};
 use std::char;
 use std::io::prelude::*;
 
