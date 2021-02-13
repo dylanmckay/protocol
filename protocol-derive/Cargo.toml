@@ -1,6 +1,6 @@
 [package]
 name = "protocol-derive"
-version = "3.1.8"
+version = "3.1.9"
 authors = ["Dylan McKay <me@dylanmckay.io>"]
 edition = "2018"
 
