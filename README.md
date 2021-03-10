@@ -41,10 +41,10 @@ The most interesting part here is the [`protocol::Parcel`](https://docs.rs/proto
 This crate becomes particularly useful when you define your own `Parcel` types. You can use `#[derive(Protocol)]` to do this. Note that in order for a type to implement `Parcel`, it must also implement `Clone`, `Debug`, and `PartialEq`.
 
 ```rust
-#[derive(Parcel, Clone, Debug, PartialEq]
+#[derive(Parcel, Clone, Debug, PartialEq)]
 pub struct Health(f32);
 
-#[derive(Parcel, Clone, Debug, PartialEq]
+#[derive(Parcel, Clone, Debug, PartialEq)]
 pub struct SetPlayerPosition {
     pub position: (f32, f32),
     pub health: Health,
