@@ -29,6 +29,13 @@ pub struct WithElementsLength {
     pub data: Vec<u32>,
 }
 
+#[derive(Protocol, Debug, PartialEq, Eq)]
+pub struct WithFixedLength {
+    #[protocol(fixed_length(3))]
+    pub data: Vec<u32>,
+}
+
+
 #[test]
 fn can_read_length_prefix_5_bytes_string() {
     assert_eq!(Foo {
@@ -61,5 +68,19 @@ fn can_read_length_prefix_3_elements() {
                              0, 0, 0, 2, // 2
                              0, 0, 0, 3], // 3
                              &Settings::default()).unwrap());
+}
+
+#[test]
+fn can_read_fixed_length_prefix() {
+
+    assert_eq!(WithFixedLength {
+        data: vec![1, 2, 3],
+    }, WithFixedLength::from_raw_bytes(
+        &[
+            0, 0, 0, 1, // 1
+            0, 0, 0, 2, // 2
+            0, 0, 0, 3
+        ], // 3
+        &Settings::default()).unwrap());
 }
 
