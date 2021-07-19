@@ -12,6 +12,7 @@ pub enum Protocol {
         prefix_field_name: syn::Ident,
         prefix_subfield_names: Vec<syn::Ident>,
     },
+    FixedLength(usize),
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -56,6 +57,18 @@ pub fn protocol(attrs: &[syn::Attribute])
         Some(syn::NestedMeta::Meta(syn::Meta::List(nested_list))) => {
             match &nested_list.path.get_ident().expect("meta is not an ident").to_string()[..] {
                 // #[protocol(length_prefix(<kind>(<prefix field name>)))]
+                "fixed_length" => {
+                    let nested_list = expect::meta_list::single_literal(nested_list)
+                        .expect("expected a nested list");
+
+                    match nested_list {
+                        syn::Lit::Int(len) => {
+                            let len = len.base10_parse::<usize>().expect("Invalid fixed length, expected usize");
+                            Some(Protocol::FixedLength(len))
+                        }
+                        _ => panic!("Invalid fixed length, expected usize")
+                    }
+                }
                 "length_prefix" => {
                     let nested_list = expect::meta_list::nested_list(nested_list)
                                             .expect("expected a nested list");
