@@ -55,6 +55,7 @@ macro_rules! verify_read_back {
 #[cfg(test)] mod enum_trait;
 #[cfg(test)] mod hints;
 #[cfg(test)] mod length_prefix;
+#[cfg(test)] mod skip_if;
 #[cfg(test)] mod logic;
 #[cfg(test)] mod structs;
 #[cfg(test)] mod wire;

@@ -1,15 +1,24 @@
 use proc_macro2::TokenStream;
 use syn;
-use syn::Field;
+use syn::{Field};
 
 use crate::attr;
 
 pub mod enums;
 
-pub fn read_fields(fields: &syn::Fields)
-                   -> TokenStream {
+pub fn read_struct_field(fields: &syn::Fields)
+                         -> TokenStream {
     match *fields {
-        syn::Fields::Named(ref fields_named) => read_named_fields(fields_named),
+        syn::Fields::Named(ref fields_named) => read_named_fields_struct(fields_named),
+        syn::Fields::Unnamed(ref fields_unnamed) => read_unnamed_fields(fields_unnamed),
+        syn::Fields::Unit => quote!(),
+    }
+}
+
+pub fn read_enum_fields(fields: &syn::Fields)
+                        -> TokenStream {
+    match *fields {
+        syn::Fields::Named(ref fields_named) => read_named_fields_enum(fields_named),
         syn::Fields::Unnamed(ref fields_unnamed) => read_unnamed_fields(fields_unnamed),
         syn::Fields::Unit => quote!(),
     }
@@ -24,13 +33,48 @@ pub fn write_fields(fields: &syn::Fields)
     }
 }
 
+pub fn named_fields_declarations(fields: &syn::Fields) -> TokenStream {
+    if let syn::Fields::Named(ref fields_named) = fields {
+        let fields_variables: Vec<TokenStream> = fields_named.named.iter().map(|field| {
+            let field_name = &field.ident;
+            let field_ty = &field.ty;
+            // This field may store the length prefix of one or more other field.
+            let update_hints = update_hints_after_read(field, &fields_named.named);
+            let update_hints_fixed = update_hint_fixed_length(field, &fields_named.named);
+
+            if let Some(skip_condition) = maybe_skip(field.clone()) {
+                quote! {
+                    #update_hints_fixed
+                    __hints.set_skip(#skip_condition);
+                    let #field_name: #field_ty = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints)?;
+                    #update_hints
+                    __hints.next_field();
+                }
+            } else {
+                quote! {
+                    #update_hints_fixed
+                    let #field_name: #field_ty = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints)?;
+                    #update_hints
+                    __hints.next_field();
+                }
+            }
+        }).collect();
+
+        quote! {
+            #( #fields_variables)*
+        }
+    } else {
+        quote!()
+    }
+}
+
 /// Generates code that builds a initializes
 /// an item with named fields by parsing
 /// each of the fields.
 ///
 /// Returns  `{ ..field initializers.. }`.
-fn read_named_fields(fields_named: &syn::FieldsNamed)
-                     -> TokenStream {
+fn read_named_fields_enum(fields_named: &syn::FieldsNamed)
+                          -> TokenStream {
     let field_initializers: Vec<_> = fields_named.named.iter().map(|field| {
         let field_name = &field.ident;
         let field_ty = &field.ty;
@@ -52,14 +96,30 @@ fn read_named_fields(fields_named: &syn::FieldsNamed)
     quote! { { #( #field_initializers ),* } }
 }
 
+/// Generates code that builds a initializes
+/// an item with named fields by parsing
+/// each of the fields.
+///
+/// Returns  `{ ..field initializers.. }`.
+fn read_named_fields_struct(fields_named: &syn::FieldsNamed)
+                            -> TokenStream {
+    let field_initializers: Vec<_> = fields_named.named.iter().map(|field| {
+        let field_name = &field.ident;
+        quote! { #field_name }
+    }).collect();
+
+    quote! { { #( #field_initializers ),* } }
+}
+
 fn update_hints_after_read<'a>(field: &'a syn::Field,
                                fields: impl IntoIterator<Item=&'a syn::Field> + Clone)
                                -> TokenStream {
     let hint_setters = length_prefix_of(field, fields.clone()).iter().map(|(length_prefix_of, kind, prefix_subfield_names)| {
         let kind = kind.path_expr();
+        let field_name = &field.ident;
         quote! {
             __hints.set_field_length(#length_prefix_of,
-                (parcel #(.#prefix_subfield_names)* ).clone() as usize,
+                (#field_name #(.#prefix_subfield_names)* ).clone() as usize,
                 #kind);
         }
     }).collect::<Vec<TokenStream>>();
@@ -68,9 +128,7 @@ fn update_hints_after_read<'a>(field: &'a syn::Field,
         quote! {}
     } else {
         quote! {
-            if let Ok(parcel) = res.as_ref() {
                 #(#hint_setters);*
-            }
         }
     }
 }
@@ -86,6 +144,14 @@ fn update_hint_fixed_length<'a>(field: &'a syn::Field,
         }
     } else {
         quote! { }
+    }
+}
+
+fn maybe_skip(field: syn::Field) -> Option<TokenStream> {
+    if let Some(attr::Protocol::SkipIf(expr)) = attr::protocol(&field.attrs) {
+        Some(expr.to_token_stream())
+    } else {
+        None
     }
 }
 
@@ -107,9 +173,7 @@ fn update_hints_after_write<'a>(field: &'a syn::Field,
         quote! {}
     } else {
         quote! {
-            if let Ok(()) = res {
-                #(#hint_setters);*
-            }
+            #(#hint_setters);*
         }
     }
 }

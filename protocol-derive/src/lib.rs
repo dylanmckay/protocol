@@ -73,8 +73,9 @@ fn build_generics(ast: &syn::DeriveInput) -> (Vec<proc_macro2::TokenStream>, Vec
 fn impl_parcel_for_struct(ast: &syn::DeriveInput,
                           strukt: &syn::DataStruct) -> proc_macro2::TokenStream {
     let strukt_name = &ast.ident;
-    let read_fields = codegen::read_fields(&strukt.fields);
+    let read_fields = codegen::read_struct_field(&strukt.fields);
     let write_fields = codegen::write_fields(&strukt.fields);
+    let named_field_variables = codegen::named_fields_declarations(&strukt.fields);
 
     impl_trait_for(ast, quote!(protocol::Parcel), quote! {
         const TYPE_NAME: &'static str = stringify!(#strukt_name);
@@ -87,7 +88,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
             // Each type gets its own hints.
             let mut __hints = protocol::hint::Hints::default();
             __hints.begin_fields();
-
+            #named_field_variables
             Ok(#strukt_name # read_fields)
         }
 

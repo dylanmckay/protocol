@@ -8,20 +8,28 @@ impl<T: Parcel> Parcel for Option<T>
 
     fn read_field(read: &mut dyn Read,
                   settings: &Settings,
-                  _: &mut hint::Hints) -> Result<Self, Error> {
-        let is_some = bool::read(read, settings)?;
-
-        if is_some {
-            let value = T::read(read, settings)?;
-            Ok(Some(value))
+                  hints: &mut hint::Hints) -> Result<Self, Error> {
+        if let Some(skip) = hints.skip_hint {
+            if skip {
+                Ok(None)
+            } else {
+                Ok(Some(T::read(read, settings)?))
+            }
         } else {
-            Ok(None)
+            let is_some = bool::read(read, settings)?;
+
+            if is_some {
+                let value = T::read(read, settings)?;
+                Ok(Some(value))
+            } else {
+                Ok(None)
+            }
         }
     }
 
     fn write_field(&self, write: &mut dyn Write,
-             settings: &Settings,
-             _: &mut hint::Hints) -> Result<(), Error> {
+                   settings: &Settings,
+                   _: &mut hint::Hints) -> Result<(), Error> {
         self.is_some().write(write, settings)?;
 
         if let Some(ref value) = *self {
