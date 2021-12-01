@@ -189,6 +189,16 @@ mod integer_discriminants {
     }
 
     #[test]
+    fn returns_error_on_unexpected_discriminator() {
+        let result = BoatKind::from_raw_bytes(&[99, 99, 88, 11, 13], &Settings::default());
+        match result.as_ref().map_err(|e| e.kind()) {
+            Err(&protocol::ErrorKind::UnknownEnumDiscriminator(..)) => (), // pass
+            Err(unexpected_error) => panic!("expected a different error but got: {}", unexpected_error),
+            Ok(res) => panic!("expected failure got: {:?}", res),
+        }
+    }
+
+    #[test]
     fn custom_int_discriminator_repr_is_respected() {
         assert_eq!(vec![1], WithCustomRepr::First.raw_bytes(&Settings::default()).unwrap());
     }

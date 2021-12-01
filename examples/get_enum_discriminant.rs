@@ -18,8 +18,8 @@ pub struct Goodbye {
     reason: String,
 }
 
-#[protocol(discriminant = "integer")]
 #[derive(Protocol, Clone, Debug, PartialEq)]
+#[protocol(discriminant = "integer")]
 #[repr(u16)]
 pub enum PacketKind {
     #[protocol(discriminator(0x00))]

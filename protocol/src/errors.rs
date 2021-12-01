@@ -68,10 +68,15 @@ error_chain! {
             display("unknown packet identifier")
         }
 
+        UnknownEnumDiscriminator(type_name: &'static str, discriminator: String) {
+            description("received unknown enum discriminator")
+            display("received unknown enum discriminator '{}' for type '{}'", discriminator, type_name)
+        }
+
         /// A parcel type was read that has not been implemented yet.
         UnimplementedParcel(type_name: &'static str) {
             description("unimplemented parcel")
-            display("unimplemented parcel type '{}", type_name)
+            display("unimplemented parcel type '{}'", type_name)
         }
     }
 }

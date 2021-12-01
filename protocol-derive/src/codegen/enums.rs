@@ -63,7 +63,11 @@ pub fn read_variant(plan: &plan::Enum)
 
             match #discriminator_for_pattern_matching {
                 #(#discriminator_match_branches,)*
-                _ => panic!("unknown discriminator"), // FIXME: this should not be a panic
+                unknown_discriminator => {
+                    return Err(protocol::ErrorKind::UnknownEnumDiscriminator(
+                        stringify!(#enum_name), format!("{:?}", unknown_discriminator),
+                    ).into());
+                },
             }
         }
     }
