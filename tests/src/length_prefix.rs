@@ -29,6 +29,33 @@ pub struct WithElementsLength {
     pub data: Vec<u32>,
 }
 
+#[derive(Protocol, Debug, PartialEq, Eq)]
+pub struct WithTwoPrefix {
+    pub count: u32,
+    pub count_2: u32,
+    pub foo: bool,
+    #[protocol(length_prefix(elements(count)))]
+    pub data: Vec<u32>,
+    #[protocol(length_prefix(elements(count_2)))]
+    pub data_2: Vec<u32>,
+}
+
+#[derive(Protocol, Debug, PartialEq, Eq)]
+pub struct WithElementsLengthUsedTwice {
+    pub count: u32,
+    pub foo: bool,
+    #[protocol(length_prefix(elements(count)))]
+    pub data_1: Vec<u32>,
+    #[protocol(length_prefix(elements(count)))]
+    pub data_2: Vec<u32>,
+}
+
+#[derive(Protocol, Debug, PartialEq, Eq)]
+pub struct WithFixedLength {
+    #[protocol(fixed_length(3))]
+    pub data: Vec<u32>,
+}
+
 #[test]
 fn can_read_length_prefix_5_bytes_string() {
     assert_eq!(Foo {
@@ -61,5 +88,62 @@ fn can_read_length_prefix_3_elements() {
                              0, 0, 0, 2, // 2
                              0, 0, 0, 3], // 3
                              &Settings::default()).unwrap());
+}
+
+#[test]
+fn can_read_twice_the_same_prefix_length() {
+    assert_eq!(WithElementsLengthUsedTwice {
+        count: 3,
+        foo: true,
+        data_1: vec![1, 2, 3],
+        data_2: vec![4, 5, 6],
+    }, WithElementsLengthUsedTwice::from_raw_bytes(
+        &[0, 0, 0, 3, // disjoint length prefix
+            1, // boolean true
+            0, 0, 0, 1, // 1
+            0, 0, 0, 2, // 2
+            0, 0, 0, 3, // 3
+            0, 0, 0, 4, // 4
+            0, 0, 0, 5, // 5
+            0, 0, 0, 6  // 6
+        ],
+        &Settings::default()).unwrap());
+}
+
+#[test]
+fn can_read_two_prefix_length() {
+    assert_eq!(WithTwoPrefix {
+        count: 3,
+        count_2: 3,
+        foo: true,
+        data: vec![1, 2, 3],
+        data_2: vec![4, 5, 6],
+    }, WithTwoPrefix::from_raw_bytes(
+        &[
+            0, 0, 0, 3, // disjoint length prefix
+            0, 0, 0, 3, // disjoint length prefix
+            1, // boolean true
+            0, 0, 0, 1, // 1
+            0, 0, 0, 2, // 2
+            0, 0, 0, 3, // 3
+            0, 0, 0, 4, // 4
+            0, 0, 0, 5, // 5
+            0, 0, 0, 6  // 6
+        ],
+        &Settings::default()).unwrap());
+}
+
+#[test]
+fn can_read_fixed_length_prefix() {
+
+    assert_eq!(WithFixedLength {
+        data: vec![1, 2, 3],
+    }, WithFixedLength::from_raw_bytes(
+        &[
+            0, 0, 0, 1, // 1
+            0, 0, 0, 2, // 2
+            0, 0, 0, 3
+        ], // 3
+        &Settings::default()).unwrap());
 }
 

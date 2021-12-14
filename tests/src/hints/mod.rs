@@ -74,7 +74,7 @@ macro_rules! force_contributor_to_acknowledge_new_hints {
             // This is here so new hints must have tests added due
             // to exhaustive pattern matching.
             #[allow(unused_variables)]
-            let hint::Hints { $( $field ),* } = hint::Hints::default();
+            let hint::Hints { $( $field ),*, skip_hint } = hint::Hints::default();
         }
     };
 }

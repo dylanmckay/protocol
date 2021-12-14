@@ -2,6 +2,8 @@ use crate::format::{self, Format};
 
 use proc_macro2::{Span, TokenStream};
 use syn;
+use syn::{ExprPath, ExprBinary, ExprUnary, Expr};
+use quote::ToTokens;
 
 #[derive(Debug)]
 pub enum Protocol {
@@ -12,6 +14,38 @@ pub enum Protocol {
         prefix_field_name: syn::Ident,
         prefix_subfield_names: Vec<syn::Ident>,
     },
+    FixedLength(usize),
+    SkipIf(SkipExpression),
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum SkipExpression {
+    PathExp(ExprPath),
+    BinaryExp(ExprBinary),
+    UnaryExp(ExprUnary),
+    Path(syn::Path),
+}
+
+impl SkipExpression {
+    pub fn parse_from(exp: &str) -> SkipExpression {
+        let expr = syn::parse_str::<Expr>(exp).unwrap();
+
+        match expr {
+            Expr::Binary(e) => SkipExpression::BinaryExp(e),
+            Expr::Unary(e) => SkipExpression::UnaryExp(e),
+            Expr::Path(e) => SkipExpression::PathExp(e),
+            _ => panic!("Unexpected skip expression")
+        }
+    }
+
+    pub fn to_token_stream(&self) -> TokenStream {
+        match self {
+            SkipExpression::PathExp(e) => e.to_token_stream(),
+            SkipExpression::BinaryExp(e) => e.to_token_stream(),
+            SkipExpression::UnaryExp(e) => e.to_token_stream(),
+            SkipExpression::Path(e) => e.to_token_stream(),
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -36,7 +70,7 @@ pub fn repr(attrs: &[syn::Attribute]) -> Option<syn::Ident> {
 }
 
 pub fn protocol(attrs: &[syn::Attribute])
-    -> Option<Protocol> {
+                -> Option<Protocol> {
     let meta_list = attrs.iter().filter_map(|attr| match attr.parse_meta() {
         Ok(syn::Meta::List(meta_list)) => {
             if meta_list.path.get_ident() == Some(&syn::Ident::new("protocol", proc_macro2::Span::call_site())) {
@@ -45,20 +79,46 @@ pub fn protocol(attrs: &[syn::Attribute])
                 // Unrelated attribute.
                 None
             }
-        },
+        }
         _ => None,
     }).next();
 
-    let meta_list: syn::MetaList = if let Some(meta_list) = meta_list { meta_list } else { return None };
+    let meta_list: syn::MetaList = if let Some(meta_list) = meta_list { meta_list } else { return None; };
     let mut nested_metas = meta_list.nested.into_iter();
 
     match nested_metas.next() {
         Some(syn::NestedMeta::Meta(syn::Meta::List(nested_list))) => {
             match &nested_list.path.get_ident().expect("meta is not an ident").to_string()[..] {
                 // #[protocol(length_prefix(<kind>(<prefix field name>)))]
+                "skip_if" => {
+                    let expression = expect::meta_list::single_element(nested_list).unwrap();
+                    let expression = match expression {
+                        syn::NestedMeta::Lit(syn::Lit::Str(s)) => {
+                            SkipExpression::parse_from(&s.value())
+                        }
+                        syn::NestedMeta::Meta(syn::Meta::Path(path)) => {
+                            SkipExpression::Path(path)
+                        }
+                        _ => panic!("Expected a path, binary or unary expression")
+                    };
+
+                    Some(Protocol::SkipIf(expression))
+                }
+                "fixed_length" => {
+                    let nested_list = expect::meta_list::single_literal(nested_list)
+                        .expect("expected a nested list");
+
+                    match nested_list {
+                        syn::Lit::Int(len) => {
+                            let len = len.base10_parse::<usize>().expect("Invalid fixed length, expected usize");
+                            Some(Protocol::FixedLength(len))
+                        }
+                        _ => panic!("Invalid fixed length, expected usize")
+                    }
+                }
                 "length_prefix" => {
                     let nested_list = expect::meta_list::nested_list(nested_list)
-                                            .expect("expected a nested list");
+                        .expect("expected a nested list");
                     let prefix_kind = match &nested_list.path.get_ident().expect("nested list is not an ident").to_string()[..] {
                         "bytes" => LengthPrefixKind::Bytes,
                         "elements" => LengthPrefixKind::Elements,
@@ -69,9 +129,9 @@ pub fn protocol(attrs: &[syn::Attribute])
                     let (prefix_field_name, prefix_subfield_names) = match length_prefix_expr {
                         syn::NestedMeta::Lit(syn::Lit::Str(s)) => {
                             let mut parts: Vec<_> = s.value()
-                                                     .split(".")
-                                                     .map(|s| syn::Ident::new(s, Span::call_site()))
-                                                     .collect();
+                                .split(".")
+                                .map(|s| syn::Ident::new(s, Span::call_site()))
+                                .collect();
 
                             if parts.len() < 1 {
                                 panic!("there must be at least one field mentioned");
@@ -81,7 +141,7 @@ pub fn protocol(attrs: &[syn::Attribute])
                             let subfield_idents = parts.into_iter().collect();
 
                             (field_ident, subfield_idents)
-                        },
+                        }
                         syn::NestedMeta::Meta(syn::Meta::Path(path)) => match path.get_ident() {
                             Some(field_ident) => (field_ident.clone(), Vec::new()),
                             None => panic!("path is not an ident"),
@@ -90,15 +150,15 @@ pub fn protocol(attrs: &[syn::Attribute])
                     };
 
                     Some(Protocol::LengthPrefix { kind: prefix_kind, prefix_field_name, prefix_subfield_names })
-                },
+                }
                 "discriminator" => {
                     let literal = expect::meta_list::single_literal(nested_list)
-                                        .expect("expected a single literal");
+                        .expect("expected a single literal");
                     Some(Protocol::Discriminator(literal))
-                },
+                }
                 name => panic!("#[protocol({})] is not valid", name),
             }
-        },
+        }
         Some(syn::NestedMeta::Meta(syn::Meta::NameValue(name_value))) => {
             match name_value.path.get_ident() {
                 Some(ident) => {
@@ -182,6 +242,35 @@ mod attribute {
             },
             _ => panic!("expected an ident"),
         })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::attr::SkipExpression;
+
+    #[test]
+    fn should_parse_skip_expression() {
+        let binary = "a == b";
+        let parse_result = SkipExpression::parse_from(binary);
+        assert!(matches!(parse_result, SkipExpression::BinaryExp(_)));
+
+        let unary = "!b";
+        let parse_result = SkipExpression::parse_from(unary);
+        assert!(matches!(parse_result, SkipExpression::UnaryExp(_)));
+
+        let path = "hello";
+        let parse_result = SkipExpression::parse_from(path);
+        assert!(matches!(parse_result, SkipExpression::PathExp(_)));
+    }
+
+    #[test]
+    fn should_convert_expression_to_token() {
+        let binary = "a == b";
+        let parse_result = SkipExpression::parse_from(binary);
+        let tokens = parse_result.to_token_stream();
+        let expression = quote! { #tokens };
+        assert_eq!(expression.to_string(), "a == b");
     }
 }
 

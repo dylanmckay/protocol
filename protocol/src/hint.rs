@@ -5,6 +5,7 @@ pub type FieldIndex = usize;
 /// Hints given when reading parcels.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Hints {
+    pub skip_hint: Option<bool>,
     pub current_field_index: Option<FieldIndex>,
     /// The fields for which a length prefix
     /// was already present earlier in the layout.
@@ -31,6 +32,7 @@ pub enum LengthPrefixKind {
 impl Default for Hints {
     fn default() -> Self {
         Hints {
+            skip_hint: None,
             current_field_index: None,
             known_field_lengths: HashMap::new(),
         }
@@ -60,7 +62,7 @@ mod protocol_derive_helpers {
         #[doc(hidden)]
         pub fn next_field(&mut self) {
             *self.current_field_index.as_mut()
-                .expect("cannot increment next field when not in a struct")+= 1;
+                .expect("cannot increment next field when not in a struct") += 1;
         }
 
         // Sets the length of a variable-sized field by its 0-based index.
@@ -70,6 +72,13 @@ mod protocol_derive_helpers {
                                 length: usize,
                                 kind: LengthPrefixKind) {
             self.known_field_lengths.insert(field_index, FieldLength { kind, length });
+        }
+
+        // A type skipped is assumed to be Option<T>, we need to set this to bypass
+        // the default Option read method
+        #[doc(hidden)]
+        pub fn set_skip(&mut self, do_skip: bool) {
+            self.skip_hint = Some(do_skip);
         }
     }
 }

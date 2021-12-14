@@ -47,7 +47,7 @@ pub fn read_variant(plan: &plan::Enum)
     let discriminator_match_branches = plan.variants.iter().map(|variant| {
         let variant_name = &variant.ident;
         let discriminator_literal = variant.discriminator_literal();
-        let initializer = codegen::read_fields(&variant.fields);
+        let initializer = codegen::read_enum_fields(&variant.fields);
 
         quote! {
             #discriminator_literal => {
