@@ -14,6 +14,7 @@ mod cstring;
 mod marker;
 mod numerics;
 mod option;
+mod range;
 mod string;
 mod tuple;
 /// Definitions for smart pointers in the `std` module.

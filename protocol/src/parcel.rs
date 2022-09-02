@@ -30,6 +30,7 @@ use std::io;
 ///     * `String`
 ///     * `Option<T: Parcel>`
 ///     * `Box<T: Parcel>`
+///     * `std::ops::Range<T: Parcel>`
 ///     * Smart pointers
 ///       * `std::rc::Rc`
 ///       * `std::sync::Arc`
