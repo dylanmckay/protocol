@@ -12,7 +12,9 @@ documentation = "https://docs.rs/protocol"
 keywords = ["protocol", "tcp", "udp", "connection", "encoding"]
 
 [features]
-default = ["uuid"]
+default = ["uuid", "high-level-trait"]
+
+high-level-trait = [] # The HighLevel trait is slated to be deprecated. it is horribly designed. sorry.
 
 [dependencies]
 byteorder = "1.4"
