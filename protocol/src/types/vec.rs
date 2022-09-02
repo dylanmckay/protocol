@@ -3,7 +3,7 @@ use std::io::prelude::*;
 use std;
 
 /// A newtype wrapping `Vec<T>` but with a custom length prefix type.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct Vec<S: types::Integer, T: Parcel>
 {
     /// The inner `Vec<T>`.
@@ -35,6 +35,36 @@ impl<S: types::Integer, T: Parcel> Parcel for Vec<S, T>
                    hints: &mut hint::Hints) -> Result<(), Error> {
         util::write_list_ext::<S,T,_>(self.elements.iter(), write, settings, hints)
     }
+}
+
+
+impl<S, T> std::fmt::Debug for Vec<S, T>
+    where S: types::Integer, T: Parcel + std::fmt::Debug {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        self.elements.fmt(fmt)
+    }
+}
+
+impl<S, T> std::ops::Deref for Vec<S, T>
+    where S: types::Integer, T: Parcel {
+    type Target = [T];
+
+    fn deref(&self) -> &[T] { &self.elements[..] }
+}
+
+impl<S, T> std::ops::DerefMut for Vec<S, T>
+    where S: types::Integer, T: Parcel {
+    fn deref_mut(&mut self) -> &mut [T] { &mut self.elements }
+}
+
+impl<S, T> AsRef<[T]> for Vec<S, T>
+    where S: types::Integer, T: Parcel {
+    fn as_ref(&self) -> &[T] { &self.elements[..] }
+}
+
+impl<S, T> AsMut<[T]> for Vec<S, T>
+    where S: types::Integer, T: Parcel {
+    fn as_mut(&mut self) -> &mut [T] { &mut self.elements }
 }
 
 /// Stuff relating to `std::vec::Vec<T>`.

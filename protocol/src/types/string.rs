@@ -25,7 +25,7 @@ impl Parcel for std::string::String
 
 /// A string with a custom size prefix integer type.
 /// `S` - The size prefix type.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct String<S: types::Integer = u32>
 {
     pub value: std::string::String,
@@ -62,3 +62,36 @@ impl<S: types::Integer> Parcel for String<S>
     }
 }
 
+impl<S: types::Integer> std::fmt::Debug for String<S> {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        self.value.fmt(fmt)
+    }
+}
+
+impl<S: types::Integer> std::fmt::Display for String<S> {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter) -> std::fmt::Result {
+        self.value.fmt(fmt)
+    }
+}
+
+impl<S> std::ops::Deref for String<S>
+    where S: types::Integer {
+    type Target = str;
+
+    fn deref(&self) -> &str { &self.value }
+}
+
+impl<S> std::ops::DerefMut for String<S>
+    where S: types::Integer {
+    fn deref_mut(&mut self) -> &mut str { &mut self.value }
+}
+
+impl<S> AsRef<str> for String<S>
+    where S: types::Integer {
+    fn as_ref(&self) -> &str { &self.value }
+}
+
+impl<S> AsMut<str> for String<S>
+    where S: types::Integer {
+    fn as_mut(&mut self) -> &mut str { &mut self.value }
+}
