@@ -83,7 +83,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
         fn read_field(__io_reader: &mut io::Read,
                       __settings: &protocol::Settings,
                       _: &mut protocol::hint::Hints)
-            -> Result<Self, protocol::Error> {
+            -> protocol::Result<Self> {
             // Each type gets its own hints.
             let mut __hints = protocol::hint::Hints::default();
             __hints.begin_fields();
@@ -95,7 +95,7 @@ fn impl_parcel_for_struct(ast: &syn::DeriveInput,
         fn write_field(&self, __io_writer: &mut io::Write,
                        __settings: &protocol::Settings,
                        _: &mut protocol::hint::Hints)
-            -> Result<(), protocol::Error> {
+            -> protocol::Result<()> {
             // Each type gets its own hints.
             let mut __hints = protocol::hint::Hints::default();
             __hints.begin_fields();
@@ -122,7 +122,7 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
         fn read_field(__io_reader: &mut io::Read,
                       __settings: &protocol::Settings,
                       _: &mut protocol::hint::Hints)
-            -> Result<Self, protocol::Error> {
+            -> protocol::Result<Self> {
             // Each type gets its own hints.
             let mut __hints = protocol::hint::Hints::default();
             __hints.begin_fields();
@@ -134,7 +134,7 @@ fn impl_parcel_for_enum(plan: &plan::Enum,
         fn write_field(&self, __io_writer: &mut io::Write,
                        __settings: &protocol::Settings,
                        _: &mut protocol::hint::Hints)
-            -> Result<(), protocol::Error> {
+            -> protocol::Result<()> {
             // Each type gets its own hints.
             let mut __hints = protocol::hint::Hints::default();
             __hints.begin_fields();

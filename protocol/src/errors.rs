@@ -1,5 +1,7 @@
 use std::{self, fmt, error};
 
+pub type Result<T> = std::result::Result<T, Error>;
+
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 /// Copy of [TryFromIntError](https://doc.rust-lang.org/std/num/struct.TryFromIntError.html)

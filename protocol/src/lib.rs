@@ -162,7 +162,7 @@
 
 pub use self::enum_ty::Enum;
 pub use self::parcel::Parcel;
-pub use self::errors::{Error, ErrorKind, ResultExt, CharTryFromError, TryFromIntError};
+pub use self::errors::{Error, ErrorKind, Result, ResultExt, CharTryFromError, TryFromIntError};
 pub use self::high_level::HighLevel;
 pub use self::settings::*;
 

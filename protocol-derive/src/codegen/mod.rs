@@ -37,7 +37,7 @@ fn read_named_fields(fields_named: &syn::FieldsNamed)
 
         quote! {
             #field_name : {
-                let res: Result<#field_ty, _> = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints);
+                let res: protocol::Result<#field_ty> = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints);
                 #update_hints
                 __hints.next_field();
                 res?
@@ -149,7 +149,7 @@ fn read_unnamed_fields(fields_unnamed: &syn::FieldsUnnamed)
 
         quote! {
             {
-                let res: Result<#field_ty, _> = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints);
+                let res: protocol::Result<#field_ty> = protocol::Parcel::read_field(__io_reader, __settings, &mut __hints);
                 __hints.next_field();
                 res?
             }
