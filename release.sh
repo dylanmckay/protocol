@@ -30,6 +30,8 @@ function warn_if_major_minor_differs {
 warn_if_major_minor_differs
 
 cargo test --all
+cargo test --all --no-default-features
+cargo test --all --all-features
 
 if [ "$PREVIOUS_VERSION" != "$NEW_VERSION" ]; then
   update_manifest_version $1
