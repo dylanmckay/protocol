@@ -16,6 +16,8 @@ default = ["uuid", "high-level-trait"]
 
 high-level-trait = [] # The HighLevel trait is slated to be deprecated. it is horribly designed. sorry.
 
+impl-box = [] # Should be enabled by default but it conflicts with 'high-level-trait' for now.
+
 [dependencies]
 byteorder = "1.4"
 flate2 = { version = "1.0" }
