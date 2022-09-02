@@ -12,7 +12,7 @@ pub enum Algorithm
 {
     /// The zlib compression algorithm.
     ///
-    /// https://en.wikipedia.org/wiki/Zlib
+    /// <https://en.wikipedia.org/wiki/Zlib>
     Zlib,
 }
 
