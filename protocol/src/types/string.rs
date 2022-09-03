@@ -25,7 +25,7 @@ impl Parcel for std::string::String
 
 /// A string with a custom size prefix integer type.
 /// `S` - The size prefix type.
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct String<S: types::Integer = u32>
 {
     pub value: std::string::String,

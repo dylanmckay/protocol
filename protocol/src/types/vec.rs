@@ -3,7 +3,7 @@ use std::io::prelude::*;
 use std;
 
 /// A newtype wrapping `Vec<T>` but with a custom length prefix type.
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Vec<S: types::Integer, T: Parcel>
 {
     /// The inner `Vec<T>`.
