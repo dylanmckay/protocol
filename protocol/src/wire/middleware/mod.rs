@@ -4,7 +4,7 @@ pub use self::pipeline::Pipeline;
 
 #[macro_use]
 pub mod pipeline;
-pub mod compression;
+#[cfg(feature = "middleware-compression")] pub mod compression;
 pub mod rotate_bytes;
 
 use crate::Error;

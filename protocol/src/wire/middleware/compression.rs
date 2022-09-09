@@ -1,4 +1,6 @@
 //! A middleware for compressing all transmitted data.
+//!
+//! Requires the `middleware-compression` crate feature to be enabled.
 
 use crate::{wire, Error};
 use flate2;

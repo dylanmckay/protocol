@@ -4,4 +4,3 @@ members = [
   "protocol-derive",
   "tests",
 ]
-

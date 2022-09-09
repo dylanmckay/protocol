@@ -18,20 +18,21 @@ pub fn default() -> Default {
 /// Defines a new middleware pipeline that implements `Pipeline`.
 #[macro_export]
 macro_rules! define_middleware_pipeline {
-    ($ty:ident { $( $mw_name:ident : $mw_ty:ty ),+ } ) => {
+    ($ty:ident { $( $mw_name:ident : $mw_ty:ty ),* } ) => {
         #[derive(Clone, Debug)]
         pub struct $ty
         {
-            $( pub $mw_name : $mw_ty),+
+            $( pub $mw_name : $mw_ty),*
         }
 
         impl $ty
         {
             /// Gets the middleware pipeline.
             pub fn middleware_mut(&mut self) -> ::std::collections::VecDeque<&mut dyn $crate::wire::Middleware> {
+                #[allow(unused_mut)]
                 let mut middleware = ::std::collections::VecDeque::new();
 
-                $( middleware.push_front(&mut self.$mw_name as &mut dyn $crate::wire::Middleware); )+
+                $( middleware.push_front(&mut self.$mw_name as &mut dyn $crate::wire::Middleware); )*
 
                 middleware
             }
@@ -43,7 +44,7 @@ macro_rules! define_middleware_pipeline {
                 -> Result<Vec<u8>, $crate::Error> {
                 use $crate::wire::Middleware;
 
-                $( data = self.$mw_name.encode_data(data)?; )+
+                $( data = self.$mw_name.encode_data(data)?; )*
 
                 Ok(data)
             }
@@ -57,18 +58,26 @@ macro_rules! define_middleware_pipeline {
                 Ok(data)
             }
         }
-    }
+    };
 }
 
 // The default middleware pipeline.
+#[cfg(feature = "middleware-compression")]
 define_middleware_pipeline!(Default {
     compression: middleware::compression::Compression
+});
+
+// The default middleware pipeline.
+#[cfg(not(feature = "middleware-compression"))]
+define_middleware_pipeline!(Default {
 });
 
 impl std::default::Default for Default
 {
     fn default() -> Self {
         Default {
+            // The default middleware pipeline.
+            #[cfg(feature = "middleware-compression")]
             compression: middleware::compression::Compression::Disabled,
         }
     }
