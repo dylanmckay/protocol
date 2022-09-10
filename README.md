@@ -30,7 +30,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-protocol = { version = "3.3", features = ["derive"] }
+protocol = { version = "3.4", features = ["derive"] }
 ```
 
 And then define a type with the `#[derive(Protocol)]` attribute:
