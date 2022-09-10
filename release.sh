@@ -19,7 +19,7 @@ function update_manifest_version {
 
 function warn_if_major_minor_differs {
   new_major_minor=$(echo $NEW_VERSION | cut -d. -f-2)
-  readme_version=$(cat $DIR/README.md | sed -E "s/protocol = \"(.*)\"/\1/;t;d")
+  readme_version=$(cat $DIR/README.md | sed -E "s/protocol = \{ version = \"(.*)\"/\1/;t;d")
 
   case $readme_version in
     $new_major_minor*) echo "note: major/minor version is consistent with the README" ;;
