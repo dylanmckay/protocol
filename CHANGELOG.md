@@ -1,3 +1,14 @@
+# 3.4.0
+
+  * Re-export the `#[derive(Protocol)]` attribute directly from the `protocol` crate
+    so that only one dependency needs to be pulled in. This feature is enabled by
+    default and can be opted out with `default-features = false`.
+
+# 3.3.0
+  * Deprecate the `HighLevel` trait as it is horribly designed and often causes
+    conflicting blanket impl errors in downstream crates that also attempt
+    blanket `Parcel` impls.
+
 # 3.1.1
   * Implement `Parcel` for tuple 5-tuples, 6-tuples, all the way to 10-tuples
 
