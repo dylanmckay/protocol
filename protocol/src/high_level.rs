@@ -74,6 +74,7 @@ use std::fmt;
 /// let high_level = Login::Success { message: "Hi!".to_owned() };
 /// assert_eq!(11, high_level.raw_bytes(&protocol::Settings::default()).unwrap().len());
 /// ```
+#[deprecated = "a badly designed abstraction. its blanket implementation often unnecessarily conflicts with custom user Parcel blanket impls. consider copying if you use it"]
 pub trait HighLevel : Clone + fmt::Debug {
     /// The lower-level representation of this type.
     type LowLevel: Parcel;
@@ -91,6 +92,7 @@ pub trait HighLevel : Clone + fmt::Debug {
                       hints: &mut hint::Hints) -> Result<Self, Error>;
 }
 
+#[allow(deprecated)]
 impl<H> Parcel for H
     where H: HighLevel {
     const TYPE_NAME: &'static str = "HighLevel";

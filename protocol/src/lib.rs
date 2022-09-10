@@ -163,7 +163,7 @@
 pub use self::enum_ty::Enum;
 pub use self::parcel::Parcel;
 pub use self::errors::{Error, ErrorKind, Result, ResultExt, CharTryFromError, TryFromIntError};
-#[cfg(feature = "high-level-trait")] pub use self::high_level::HighLevel;
+#[cfg(feature = "high-level-trait")] #[allow(deprecated)] pub use self::high_level::HighLevel;
 pub use self::settings::*;
 
 mod settings;
