@@ -1,6 +1,6 @@
 [package]
 name = "protocol"
-version = "3.3.0"
+version = "3.4.0"
 authors = ["Dylan McKay <me@dylanmckay.io>"]
 edition = "2018"
 
@@ -24,7 +24,7 @@ impl-box = [] # Should be enabled by default but it conflicts with 'high-level-t
 middleware-compression = ["flate2"]
 
 [dependencies]
-protocol-derive = { version = "3.3.0", path = "../protocol-derive", optional = true }
+protocol-derive = { version = "3.4.0", path = "../protocol-derive", optional = true }
 byteorder = "1.4"
 flate2 = { version = "1.0", optional = true }
 uuid = { version = "0.8", optional = true }
@@ -33,7 +33,7 @@ num-traits = "0.2"
 
 [dev-dependencies]
 # Used in examples
-protocol-derive = { path = "../protocol-derive", version = "3.3.0" }
+protocol-derive = { path = "../protocol-derive", version = "3.4.0" }
 
 [[example]]
 name = "basic"
