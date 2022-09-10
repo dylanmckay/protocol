@@ -166,6 +166,20 @@ pub use self::errors::{Error, ErrorKind, Result, ResultExt, CharTryFromError, Tr
 #[cfg(feature = "high-level-trait")] #[allow(deprecated)] pub use self::high_level::HighLevel;
 pub use self::settings::*;
 
+/// Custom derive  to implement `Parcel` for a type that contains other `Parcel`able types.
+///
+/// Example:
+///
+/// ```
+/// #[derive(protocol::Protocol)]
+/// struct Hello {
+///   foo: u8,
+///   bar: String,
+/// }
+/// ```
+#[cfg(feature = "derive")]
+pub use protocol_derive::Protocol;
+
 mod settings;
 #[macro_use]
 pub mod types;

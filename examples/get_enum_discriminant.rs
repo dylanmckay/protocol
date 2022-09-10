@@ -1,24 +1,21 @@
-extern crate protocol;
-#[macro_use] extern crate protocol_derive;
-
 use protocol::Enum;
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub struct Handshake;
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub struct Hello {
     id: i64,
     data: Vec<u8>,
 }
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub struct Goodbye {
     id: i64,
     reason: String,
 }
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 #[protocol(discriminant = "integer")]
 #[repr(u16)]
 pub enum PacketKind {

@@ -30,8 +30,17 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-protocol = "3.3"
-protocol-derive = "3.3"
+protocol = { version = "3.3", features = ["derive"] }
+```
+
+And then define a type with the `#[derive(Protocol)]` attribute:
+
+```rust
+#[derive(protocol::Protocol)]
+struct Hello {
+    pub a: String,
+    pub b: u32,
+}
 ```
 
 ## Under the hood

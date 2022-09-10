@@ -12,7 +12,9 @@ documentation = "https://docs.rs/protocol"
 keywords = ["protocol", "tcp", "udp", "connection", "encoding"]
 
 [features]
-default = ["uuid", "high-level-trait", "middleware-compression"]
+default = ["derive", "uuid", "high-level-trait", "middleware-compression"]
+
+derive = ["protocol-derive"]
 
 
 high-level-trait = [] # The HighLevel trait is slated to be deprecated. it is horribly designed. sorry.
@@ -22,6 +24,7 @@ impl-box = [] # Should be enabled by default but it conflicts with 'high-level-t
 middleware-compression = ["flate2"]
 
 [dependencies]
+protocol-derive = { version = "3.3.0", path = "../protocol-derive", optional = true }
 byteorder = "1.4"
 flate2 = { version = "1.0", optional = true }
 uuid = { version = "0.8", optional = true }

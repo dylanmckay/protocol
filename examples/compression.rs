@@ -2,15 +2,12 @@
 //! The default middleware pipeline supports compression, but is disabled
 //! by default.
 
-extern crate protocol;
-#[macro_use] extern crate protocol_derive;
-
 use protocol::wire::middleware::{self, compression};
 use protocol::wire::stream;
 
 pub const ALGORITHM: compression::Algorithm = compression::Algorithm::Zlib;
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub struct Hello {
     id: i64,
     data: Vec<u8>

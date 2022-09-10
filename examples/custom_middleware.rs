@@ -1,9 +1,6 @@
 // Custom middleware example.
 // All bytes that go through the protocol are rotated by an offset of 13.
 
-#[macro_use] extern crate protocol;
-#[macro_use] extern crate protocol_derive;
-
 use std::num::Wrapping;
 
 /// A rot-n middleware.
@@ -32,7 +29,7 @@ impl protocol::wire::Middleware for RotateMiddleware
     }
 }
 
-define_middleware_pipeline!(Pipeline {
+protocol::define_middleware_pipeline!(Pipeline {
     rot: RotateMiddleware
 });
 
@@ -45,13 +42,13 @@ impl Pipeline
     }
 }
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub struct Ping {
     id: i64,
     data: Vec<u8>
 }
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 #[protocol(discriminant = "integer")]
 #[protocol(discriminator(u8))]
 pub enum Packet {
