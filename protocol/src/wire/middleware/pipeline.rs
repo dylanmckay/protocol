@@ -1,6 +1,6 @@
 //! An ordered list of middleware that performs tested transformations.
 
-use crate::{wire::middleware, Error};
+use crate::Error;
 use std;
 
 /// A middleware pipeline.
@@ -40,6 +40,7 @@ macro_rules! define_middleware_pipeline {
 
         impl $crate::wire::middleware::Pipeline for $ty
         {
+            #[allow(unused_mut)]
             fn encode_data(&mut self, mut data: Vec<u8>)
                 -> Result<Vec<u8>, $crate::Error> {
                 use $crate::wire::Middleware;
@@ -64,7 +65,7 @@ macro_rules! define_middleware_pipeline {
 // The default middleware pipeline.
 #[cfg(feature = "middleware-compression")]
 define_middleware_pipeline!(Default {
-    compression: middleware::compression::Compression
+    compression: crate::wire::middleware::compression::Compression
 });
 
 // The default middleware pipeline.
@@ -78,7 +79,7 @@ impl std::default::Default for Default
         Default {
             // The default middleware pipeline.
             #[cfg(feature = "middleware-compression")]
-            compression: middleware::compression::Compression::Disabled,
+            compression: crate::wire::middleware::compression::Compression::Disabled,
         }
     }
 }
