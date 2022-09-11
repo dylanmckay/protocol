@@ -33,7 +33,7 @@ Add this to your `Cargo.toml`:
 protocol = { version = "3.4", features = ["derive"] }
 ```
 
-And then define a type with the `#[derive(Protocol)]` attribute:
+And then define a type with the `#[derive(protocol::Protocol)]` attribute:
 
 ```rust
 #[derive(protocol::Protocol)]
@@ -47,7 +47,7 @@ struct Hello {
 
 The most interesting part here is the [`protocol::Parcel`](https://docs.rs/protocol/latest/protocol/trait.Parcel.html) trait. Any type that implements this trait can then be serialized to and from a byte stream. All primitive types, standard collections, tuples, and arrays implement this trait.
 
-This crate becomes particularly useful when you define your own `Parcel` types. You can use `#[derive(Protocol)]` to do this. Note that in order for a type to implement `Parcel`, it must also implement `Clone`, `Debug`, and `PartialEq`.
+This crate becomes particularly useful when you define your own `Parcel` types. You can use `#[derive(protocol::Protocol)]` to do this. Note that in order for a type to implement `Parcel`, it must also implement `Clone`, `Debug`, and `PartialEq`.
 
 ```rust
 #[derive(Parcel, Clone, Debug, PartialEq)]
@@ -68,32 +68,29 @@ Any user-defined type can have the `Parcel` trait automatically derived.
 ## Example
 
 ```rust
-#[macro_use] extern crate protocol_derive;
-#[macro_use] extern crate protocol;
-
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub struct Handshake;
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub struct Hello {
     id: i64,
     data: Vec<u8>,
 }
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub struct Goodbye {
     id: i64,
     reason: String,
 }
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub struct Node {
     name: String,
     enabled: bool
 }
 
 #[protocol(discriminant = "integer")]
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub enum PacketKind {
     #[protocol(discriminator(0x00))]
     Handshake(Handshake),
@@ -144,7 +141,7 @@ Supported discriminant types:
 
 
 ```rust
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 #[protocol(discriminant = "string")]
 pub enum PlayerState {
   Stationary,
@@ -160,7 +157,7 @@ pub enum PlayerState {
 You can rename the variant for their serialisation.
 
 ```rust
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 #[protocol(discriminant = "string")]
 pub enum Foo {
   Bar,

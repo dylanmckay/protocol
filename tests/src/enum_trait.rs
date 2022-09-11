@@ -1,6 +1,6 @@
 use protocol::Enum;
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub enum WithGenerics<A, B> {
     Foo(A, B),
     Bar,

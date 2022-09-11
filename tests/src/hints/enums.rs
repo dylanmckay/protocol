@@ -1,7 +1,7 @@
 use protocol::{hint, Settings};
 use super::{SaveHints, HasSavedHints};
 
-#[derive(Protocol, Debug, PartialEq)]
+#[derive(protocol::Protocol, Debug, PartialEq)]
 pub enum WithNamedFields {
     OnlyVariant {
         f0: SaveHints<u8>,
@@ -13,7 +13,7 @@ pub enum WithNamedFields {
     },
 }
 
-#[derive(Protocol, Debug, PartialEq)]
+#[derive(protocol::Protocol, Debug, PartialEq)]
 pub enum WithUnnamedFields {
     OnlyVariant(
         SaveHints<u8>,

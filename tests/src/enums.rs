@@ -1,6 +1,6 @@
 use protocol::Parcel;
 
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 pub enum WithGenerics<A, B> {
     Foo(A, B),
     Bar,
@@ -10,7 +10,7 @@ mod string_discriminants {
     #[allow(unused_imports)]
     use protocol::{Parcel, Settings};
 
-    #[derive(Protocol, Clone, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Clone, Debug, PartialEq)]
     #[protocol]
     pub enum PlayerState {
       Stationary,
@@ -18,11 +18,11 @@ mod string_discriminants {
       Jumping { height: f32 },
     }
 
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     #[protocol(discriminant = "string")]
     pub enum Axis { X, Y, Z, Other(String), Bimp { val: u64 } }
 
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     #[protocol(discriminant = "string")]
     pub enum RenamedVariant {
         Hello,
@@ -30,7 +30,7 @@ mod string_discriminants {
         World,
     }
 
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     #[protocol(discriminant = "string")]
     pub enum WithDiscriminatorAttrs {
         #[protocol(discriminator("FooBar"))]
@@ -65,19 +65,19 @@ mod string_discriminants {
 mod generics {
     use std::fmt;
 
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     pub enum EnumWithEmptyGenerics<> { First { a: u32, b: String, c: u64 } }
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     pub enum EnumWithUnconstrainedType<T> { Variant1 { a: T, b: T }, Variant2 { c: T } }
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     pub enum EnumWithUnconstrainedTypes<A,B,C,D> { Value { a: A, b: B, c: C, d: D }, Variant2 { a: A } }
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     pub enum EnumWithConstrainedType<T: Clone + PartialEq + fmt::Debug + fmt::Display> { Variant1 { inner: T }, Variant2 { c: T } }
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     pub enum EnumWithConstrainedTypes<T: Clone, A: fmt::Debug + fmt::Display, B: Copy> { Variant1 { t: T, a: A, b: B }, Variant2 { c: T } }
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     pub enum EnumWithWhereClause<T> where T: fmt::Debug + fmt::Display { Variant1 { t: T }, Variant2 { t: T } }
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     pub enum EnumWithWhereClauses<A,B,C> where A: Copy, B: fmt::Debug + fmt::Display, C: Clone + Copy { Variant1 { a: A, b: B, c: C }, Variant2 { a: A } }
 
 
@@ -102,7 +102,7 @@ mod integer_discriminants {
     #[allow(unused_imports)]
     use protocol::{Parcel, Settings};
 
-    #[derive(Protocol, Debug, PartialEq, Eq)]
+    #[derive(protocol::Protocol, Debug, PartialEq, Eq)]
     #[protocol(discriminant = "integer")]
     pub enum BoatKind {
         Speedboat { warp_speed_enabled: bool },
@@ -110,7 +110,7 @@ mod integer_discriminants {
         Fart,
     }
 
-    #[derive(Protocol, Debug, PartialEq, Eq)]
+    #[derive(protocol::Protocol, Debug, PartialEq, Eq)]
     #[protocol(discriminant = "integer")]
     #[repr(u8)]
     enum WithCustomRepr {
@@ -118,7 +118,7 @@ mod integer_discriminants {
         Second = 2,
     }
 
-    #[derive(Protocol, Debug, PartialEq)]
+    #[derive(protocol::Protocol, Debug, PartialEq)]
     #[protocol(discriminant = "integer")]
     #[repr(u8)]
     pub enum CustomDiscriminatorAttrs {
@@ -129,7 +129,7 @@ mod integer_discriminants {
     }
 
 
-    #[derive(Protocol, Debug, PartialEq, Eq)]
+    #[derive(protocol::Protocol, Debug, PartialEq, Eq)]
     #[protocol(discriminant = "integer")]
     #[repr(i8)]
     enum WithoutExplicitDiscriminators {
@@ -204,10 +204,10 @@ mod integer_discriminants {
     }
 }
 
-#[derive(Protocol)]
+#[derive(protocol::Protocol)]
 enum OneVariant { A }
 
-#[derive(Protocol)]
+#[derive(protocol::Protocol)]
 enum BuzzyBee { B(u32, u32) }
 
 #[test]

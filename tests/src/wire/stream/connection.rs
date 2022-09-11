@@ -4,12 +4,12 @@ pub use protocol::wire::middleware;
 
 pub use std::io::Cursor;
 
-#[derive(Protocol, Clone, Debug, PartialEq, Eq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq, Eq)]
 pub struct Ping {
     data: Vec<u8>
 }
 
-#[derive(Protocol, Clone, Debug, PartialEq, Eq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq, Eq)]
 #[protocol(discriminant = "integer")]
 pub enum PacketKind {
     #[protocol(discriminator(0x00))]

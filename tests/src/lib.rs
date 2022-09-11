@@ -1,8 +1,5 @@
 #![cfg(test)]
 
-extern crate protocol;
-#[macro_use] extern crate protocol_derive;
-
 macro_rules! verify_read_back {
     ($name:ident => $parcel:expr) => {
         pub mod $name {

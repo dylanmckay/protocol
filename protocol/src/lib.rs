@@ -9,13 +9,10 @@
 //! ## Get the raw bytes representing a parcel.
 //!
 //! ```
-//! extern crate protocol;
-//! #[macro_use] extern crate protocol_derive;
-//!
-//! #[derive(Protocol, Debug, PartialEq)]
+//! #[derive(protocol::Protocol, Debug, PartialEq)]
 //! pub struct Health(pub u8);
 //!
-//! #[derive(Protocol, Debug, PartialEq)]
+//! #[derive(protocol::Protocol, Debug, PartialEq)]
 //! pub struct Player {
 //!     pub name: String,
 //!     pub health: Health,
@@ -48,18 +45,15 @@
 //! ### String discriminators
 //!
 //! ```
-//! extern crate protocol;
-//! #[macro_use] extern crate protocol_derive;
-//!
 //! // This enum, like all enums, defaults to using String discriminators.
-//! #[derive(Protocol, Debug, PartialEq)]
+//! #[derive(protocol::Protocol, Debug, PartialEq)]
 //! enum Foo { A, B, C }
 //!
 //! // This enum explicitly specifies a string discriminant.
 //! //
 //! // This is the default anyway and thus it is identical in layout
 //! // to the previous enum.
-//! #[derive(Protocol, Debug, PartialEq)]
+//! #[derive(protocol::Protocol, Debug, PartialEq)]
 //! #[protocol(discriminant = "string")]
 //! enum Bar { A, B, C }
 //! ```
@@ -74,11 +68,8 @@
 //! ### Integer discriminators
 //!
 //! ```
-//! extern crate protocol;
-//! #[macro_use] extern crate protocol_derive;
-//!
 //! // An enum with integer discriminators.
-//! #[derive(Protocol, Debug, PartialEq)]
+//! #[derive(protocol::Protocol, Debug, PartialEq)]
 //! #[protocol(discriminant = "integer")]
 //! enum Baz {
 //!     Fizz = 0, // override the default first discriminator of 1
@@ -103,10 +94,7 @@
 //! It is possible to set the underlying integer type via the `#[repr(<type>)]` attribute.
 //!
 //! ```
-//! extern crate protocol;
-//! #[macro_use] extern crate protocol_derive;
-//!
-//! #[derive(Protocol, Debug, PartialEq)]
+//! #[derive(protocol::Protocol, Debug, PartialEq)]
 //! #[protocol(discriminant = "integer")]
 //! #[repr(u8)] // Force discriminators to be 8-bit.
 //! pub enum Hello {
@@ -129,17 +117,14 @@
 //! the `Variant = <discriminator>` syntax may be used.
 //!
 //! ```
-//! extern crate protocol;
-//! #[macro_use] extern crate protocol_derive;
-//!
-//! #[derive(Protocol, Debug, PartialEq)]
+//! #[derive(protocol::Protocol, Debug, PartialEq)]
 //! #[protocol(discriminant = "integer")]
 //! #[repr(u8)] // Force discriminators to be 8-bit.
 //! enum Numbered {
 //!     A = 1, B = 2, C = 111, D = 67,
 //! }
 //!
-//! #[derive(Protocol, Debug, PartialEq)]
+//! #[derive(protocol::Protocol, Debug, PartialEq)]
 //! #[protocol(discriminant = "integer")]
 //! #[repr(u8)] // Force discriminators to be 8-bit.
 //! pub enum Hello {
@@ -177,14 +162,11 @@ pub use self::settings::*;
 ///   bar: String,
 /// }
 /// ```
-#[cfg(feature = "derive")]
-pub use protocol_derive::Protocol;
+#[cfg(feature = "derive")] pub use protocol_derive::Protocol;
 
 mod settings;
-#[macro_use]
-pub mod types;
-#[macro_use]
-pub mod wire;
+#[macro_use] pub mod types;
+#[macro_use] pub mod wire;
 
 pub mod attributes;
 mod enum_ty;
@@ -197,8 +179,7 @@ pub mod util;
 
 
 extern crate byteorder;
-#[macro_use]
-extern crate error_chain;
+#[macro_use] extern crate error_chain;
 
 #[cfg(feature = "uuid")]
 extern crate uuid;

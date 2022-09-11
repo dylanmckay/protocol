@@ -9,8 +9,7 @@ pub use self::reader::Reader;
 /// Datagram-based over the wire communication.
 pub mod dgram;
 mod reader;
-#[macro_use]
-pub mod middleware;
+#[macro_use] pub mod middleware;
 /// Stream-based over the wire communication.
 pub mod stream;
 

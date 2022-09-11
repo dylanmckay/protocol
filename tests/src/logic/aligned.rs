@@ -2,7 +2,7 @@ use protocol::{Parcel, Settings};
 
 /// An example packet with a length prefix disjoint
 /// from its data, with the data also
-#[derive(Protocol, Clone, Debug, PartialEq)]
+#[derive(protocol::Protocol, Clone, Debug, PartialEq)]
 struct Packet {
     /// The length of the 'reason' string.
     pub reason_length: u8,

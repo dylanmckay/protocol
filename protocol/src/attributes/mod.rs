@@ -1,11 +1,9 @@
-//! Documentation about the attributes available to `#[derive(Protocol)]`.
+//! Documentation about the attributes available to `#[derive(protocol::Protocol)]`.
 //!
 //! Here is an example of `#[derive(Protocol)]`.
 //!
 //! ```
-//! #[macro_use] extern crate protocol_derive;
-//!
-//! #[derive(Protocol)]
+//! #[derive(protocol::Protocol)]
 //! struct Packet {
 //!     version_number: u8,
 //!     magic_number: u8,
@@ -34,9 +32,7 @@
 //! represents the total number of bytes that make up a field.
 //!
 //! ```
-//! #[macro_use] extern crate protocol_derive;
-//!
-//! #[derive(Protocol)]
+//! #[derive(protocol::Protocol)]
 //! pub struct Foo {
 //!     /// This field specifes the length of the last field `reason`.
 //!     ///
@@ -57,9 +53,7 @@
 //! represents the number of elements in a collection or list.
 //!
 //! ```
-//! #[macro_use] extern crate protocol_derive;
-//!
-//! #[derive(Protocol)]
+//! #[derive(protocol::Protocol)]
 //! pub struct Bar {
 //!     /// This field specifes the number of elements in 'data'.
 //!     pub reason_length: u16,
@@ -92,9 +86,7 @@
 //! Example:
 //!
 //! ```
-//! #[macro_use] extern crate protocol_derive;
-//!
-//! #[derive(Protocol)]
+//! #[derive(protocol::Protocol)]
 //! struct Packet {
 //!     /// The length of the adjacent 'reason' field is nested under this field.
 //!     pub packet_header: PacketHeader,
@@ -103,7 +95,7 @@
 //!     pub reason: String,
 //! }
 //!
-//! #[derive(Protocol)]
+//! #[derive(protocol::Protocol)]
 //! pub struct PacketHeader {
 //!     pub reason_length: u16,
 //! }

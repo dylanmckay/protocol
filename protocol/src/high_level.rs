@@ -10,12 +10,9 @@ use std::fmt;
 /// # Example
 ///
 /// ```
-/// #[macro_use] extern crate protocol_derive;
-/// extern crate protocol;
-///
 /// use protocol::Parcel;
 ///
-/// #[derive(Protocol)]
+/// #[derive(protocol::Protocol)]
 /// pub struct RawPacket {
 ///     opcode: u8,
 ///     magic_number: u8,

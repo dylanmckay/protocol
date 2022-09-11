@@ -2,8 +2,7 @@
 
 pub use self::pipeline::Pipeline;
 
-#[macro_use]
-pub mod pipeline;
+#[macro_use] pub mod pipeline;
 #[cfg(feature = "middleware-compression")] pub mod compression;
 pub mod rotate_bytes;
 

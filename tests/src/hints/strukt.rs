@@ -1,7 +1,7 @@
 use protocol::{hint, Settings};
 use super::{SaveHints, HasSavedHints};
 
-#[derive(Protocol, Debug, PartialEq)]
+#[derive(protocol::Protocol, Debug, PartialEq)]
 pub struct WithNamedFields {
     pub f0: SaveHints<u8>,
     pub f1: SaveHints<String>,
@@ -11,7 +11,7 @@ pub struct WithNamedFields {
     pub f5: SaveHints<[u8; 16]>,
 }
 
-#[derive(Protocol, Debug, PartialEq)]
+#[derive(protocol::Protocol, Debug, PartialEq)]
 pub struct WithUnnamedFields(
     SaveHints<i64>,
     SaveHints<String>,
@@ -21,7 +21,7 @@ pub struct WithUnnamedFields(
     SaveHints<Vec<char>>,
 );
 
-#[derive(Protocol, Debug, PartialEq)]
+#[derive(protocol::Protocol, Debug, PartialEq)]
 pub struct FooBar(pub u32);
 
 define_common_hint_invariant_tests!(with_named_fields => WithNamedFields : WithNamedFields::default());
